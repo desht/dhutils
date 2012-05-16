@@ -285,7 +285,7 @@ public class MinecraftChatStr {
 	 * @param str
 	 * @param tab
 	 * @param tabChar
-	 * @return
+	 * @return right-aligned string (padded to the left)
 	 */
 	public static String strWordWrapRight(String str, int tab, char tabChar) {
 		String ret = "";
@@ -315,7 +315,7 @@ public class MinecraftChatStr {
 	 * @param tab
 	 * @param tabChar
 	 * @param sepChar
-	 * @return
+	 * @return left-aligned string (padded right)
 	 */
 	public static String strWordWrapRight(String str, int tab, char tabChar, char sepChar) {
 		String ret = "";
@@ -363,7 +363,7 @@ public class MinecraftChatStr {
 	 * @param tab
 	 * @param tabChar
 	 * @param sepChar
-	 * @return
+	 * @return right-aligned string (padded left)
 	 */
 	public static String strWordWrapRight(String str, int width, int tab, char tabChar, char sepChar) {
 		String ret = "";

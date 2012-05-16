@@ -8,7 +8,7 @@ public class PermissionUtils {
 	/**
 	 * Check if the player has the specified permission node.
 	 * 
-	 * @param player	Player to check
+	 * @param sender	Command sender (player or console) to check
 	 * @param node		Node to check for
 	 * @return	true if the player has the permission node, false otherwise
 	 */
@@ -23,7 +23,7 @@ public class PermissionUtils {
 	/**
 	 * Throw an exception if the player does not have the specified permission.
 	 * 
-	 * @param player	Player to check
+	 * @param sender	Command sender (player or console) to check
 	 * @param node		Require permission node
 	 * @param message	Error message to include in the exception
 	 * @throws SMSException		if the player does not have the node

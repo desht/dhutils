@@ -38,7 +38,7 @@ public abstract class AbstractCommand {
 		this.maxArgs = maxArgs;
 	}
 
-	public abstract boolean execute(Plugin plugin, CommandSender sender, String[] args) throws DHUtilsException;
+	public abstract boolean execute(Plugin plugin, CommandSender sender, String[] args);
 
 	public void addAlias(String label) {
 		String[] fields = label.split(" ");

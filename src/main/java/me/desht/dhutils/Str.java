@@ -167,7 +167,7 @@ public class Str extends OutputStream {
 	 * pads str on the right (space-padded) (left-align)
 	 * @param str
 	 * @param len
-	 * @return
+	 * @return right-padded string
 	 */
 	public static String padRight(String str, int len) {
 		return padRight(str, len, ' ');
@@ -178,7 +178,7 @@ public class Str extends OutputStream {
 	 * @param str
 	 * @param len
 	 * @param pad
-	 * @return
+	 * @return right-padded string
 	 */
 	public static String padRight(String str, int len, char pad) {
 		StringBuilder ret = new StringBuilder(str);
@@ -192,7 +192,7 @@ public class Str extends OutputStream {
 	 * pads str on the left (space-padded) (right-align)
 	 * @param str
 	 * @param len
-	 * @return
+	 * @return left-padded string
 	 */
 	public static String padLeft(String str, int len) {
 		return repeat(' ', len - str.length()) + str;
@@ -203,7 +203,7 @@ public class Str extends OutputStream {
 	 * @param str
 	 * @param len
 	 * @param pad
-	 * @return
+	 * @return left-padded string
 	 */
 	public static String padLeft(String str, int len, char pad) {
 		return repeat(pad, len - str.length()) + str;
@@ -213,7 +213,7 @@ public class Str extends OutputStream {
 	 * pads str on the left & right (space-padded) (center-align)
 	 * @param str
 	 * @param len
-	 * @return
+	 * @return center-aligned string
 	 */
 	public static String padCenter(String str, int len) {
 		len -= str.length();
@@ -226,7 +226,7 @@ public class Str extends OutputStream {
 	 * @param str
 	 * @param len
 	 * @param pad
-	 * @return
+	 * @return center-aligned string
 	 */
 	public static String padCenter(String str, int len, char pad) {
 		len -= str.length();
@@ -270,7 +270,7 @@ public class Str extends OutputStream {
 	 * @param width
 	 * @param tab
 	 * @param tabChar
-	 * @return
+	 * @return right-aligned string
 	 */
 	public static String strWordWrapRight(String str, int width, int tab, char tabChar) {
 		String ret = "";
@@ -310,7 +310,7 @@ public class Str extends OutputStream {
 	 * Returns a sequence str of the provided str count # of times
 	 * @param str
 	 * @param count
-	 * @return
+	 * @return string with the input string repeated
 	 */
 	public static String repeat(String str, int count) {
 		StringBuilder ret = new StringBuilder();

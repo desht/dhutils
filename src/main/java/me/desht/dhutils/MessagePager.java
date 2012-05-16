@@ -31,7 +31,7 @@ public class MessagePager {
 	/**
 	 * Get the message pager for the given player.
 	 * 
-	 * @param player	the player object
+	 * @param playerName	the player name
 	 * @return			the player's message pager
 	 */
 	public static MessagePager getPager(String playerName) {
@@ -42,8 +42,8 @@ public class MessagePager {
 	/**
 	 * Get the message pager for the given player.
 	 * 
-	 * @param playerName	the player name
-	 * @return				the player's message pager
+	 * @param sender	the command sender (a player or console)
+	 * @return			the player's message pager
 	 */
 	public static MessagePager getPager(CommandSender sender) {
 		if (!pagers.containsKey(sender.getName())) {
@@ -56,7 +56,7 @@ public class MessagePager {
 	 * Delete the message buffer for the player. Should be called when the
 	 * player logs out.
 	 * 
-	 * @param player		The player object
+	 * @param sender		the command sender (a player or console)
 	 */
 	public static void deletePager(CommandSender sender) {
 		deletePager(sender.getName());
@@ -66,7 +66,7 @@ public class MessagePager {
 	 * Delete the message buffer for the player. Should be called when the
 	 * player logs out.
 	 * 
-	 * @param player		The player name
+	 * @param playerName		The player name
 	 */
 	public static void deletePager(String playerName) {
 		pagers.remove(playerName);
@@ -104,10 +104,7 @@ public class MessagePager {
 	 * possible - add padding to ensure this where necessary. If block is larger
 	 * than the page size, then just add it.
 	 * 
-	 * @param p
-	 *            The player
-	 * @param lines
-	 *            List of message lines to add
+	 * @param lines   List of message lines to add
 	 */
 	public void add(String[] lines) {
 		add(Arrays.asList(lines));
@@ -135,7 +132,6 @@ public class MessagePager {
 	/**
 	 * Get the number of lines in the message buffer.
 	 * 
-	 * @param p		The player
 	 * @return 		The number of lines in the buffer
 	 */
 	public int getSize() {
@@ -185,9 +181,6 @@ public class MessagePager {
 
 	/**
 	 * Move to the next page of the player's buffer.
-	 * 
-	 * @param player
-	 *            The player
 	 */
 	public void nextPage() {
 		setPage(getPage() + 1, true);
@@ -195,9 +188,6 @@ public class MessagePager {
 
 	/**
 	 * Move to the previous page of the player's buffer.
-	 * 
-	 * @param player
-	 *            The player
 	 */
 	public void prevPage() {
 		setPage(getPage() - 1, true);
@@ -214,9 +204,6 @@ public class MessagePager {
 
 	/**
 	 * Display the current page for the player.
-	 * 
-	 * @param player
-	 *            The player
 	 */
 	public void showPage() {
 		showPage(currentPage);

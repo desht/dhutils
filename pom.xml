@@ -8,6 +8,36 @@
      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <description>Collection of useful classes I use in my plugins</description>
+  <build>
+    <plugins>
+       <plugin>
+         <version>2.1.2</version>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-source-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>attach-sources</id>
+             <goals>
+	       <goal>jar</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
+       <plugin>
+         <version>2.8.1</version>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-javadoc-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>attach-javadocs</id>
+             <goals>
+	       <goal>jar</goal>
+             </goals>
+           </execution>
+         </executions>
+      </plugin>
+    </plugins>
+  </build>
   <repositories>
                <repository>
                         <id>bukkit-repo</id>
