@@ -178,12 +178,11 @@ public class ConfigurationManager {
 
 	@SuppressWarnings("unchecked")
 	private static <T> void handleListValue(Configuration config, String key, List<T> list) {
-		HashSet<T> current;
-
+		HashSet<T> current = new HashSet<T>((List<T>)config.getList(key));
+		
 		if (list.get(0).equals("-")) {
 			// remove specifed item from list
 			list.remove(0);
-			current = new HashSet<T>(config.getList(key));
 			current.removeAll(list);
 		} else if (list.get(0).equals("=")) {
 			// replace list
@@ -192,11 +191,9 @@ public class ConfigurationManager {
 		} else if (list.get(0).equals("+")) {
 			// append to list
 			list.remove(0);
-			current = new HashSet<T>(config.getList(key));
 			current.addAll(list);
 		} else {
 			// append to list
-			current = new HashSet<T>(config.getList(key));
 			current.addAll(list);
 		}
 

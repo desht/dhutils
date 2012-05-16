@@ -119,7 +119,12 @@ public class MiscUtil {
 			throw new IllegalArgumentException("Invalid number in " + arglist);
 		}
 	}
-
+	
+	public static String parseColourSpec(String spec) {
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); 
+		return res.replace("&-", getPrevColour("*").toString()).replace("&&", "&");
+	}
+	
 	public static String parseColourSpec(CommandSender sender, String spec) {
 		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); 
 		return res.replace("&-", getPrevColour(sender.getName()).toString()).replace("&&", "&");
