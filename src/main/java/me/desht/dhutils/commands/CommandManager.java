@@ -28,7 +28,9 @@ public class CommandManager {
 		for (AbstractCommand cmd : cmdList) {
 			if (cmd.matchesSubCommand(label, args)) {
 				if (cmd.matchesArgCount(label, args)) {
-					PermissionUtils.requirePerms(sender, cmd.getPermissionNode());
+					if (cmd.getPermissionNode() != null) {
+						PermissionUtils.requirePerms(sender, cmd.getPermissionNode());
+					}
 					String[] actualArgs = cmd.getArgs();
 					res = cmd.execute(plugin, sender, actualArgs);
 				} else {

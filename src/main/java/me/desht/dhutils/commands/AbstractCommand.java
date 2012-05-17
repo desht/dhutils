@@ -150,11 +150,11 @@ public abstract class AbstractCommand {
 		}	
 	}
 
-	static String combine(String[] args, int idx) {
+	protected String combine(String[] args, int idx) {
 		return combine(args, idx, args.length - 1);
 	}
 
-	static String combine(String[] args, int idx1, int idx2) {
+	protected String combine(String[] args, int idx1, int idx2) {
 		StringBuilder result = new StringBuilder();
 		for (int i = idx1; i <= idx2 && i < args.length; i++) {
 			result.append(args[i]);
@@ -165,7 +165,7 @@ public abstract class AbstractCommand {
 		return result.toString();
 	}
 
-	static Map<String, String> parseCommandOptions(String[] args, int start) {
+	protected Map<String, String> parseCommandOptions(String[] args, int start) {
 		Map<String, String> res = new HashMap<String, String>();
 
 		Pattern pattern = Pattern.compile("^-(.+)"); //$NON-NLS-1$
