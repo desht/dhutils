@@ -28,7 +28,7 @@ public class ExperienceManager {
     /**
      * Create a new ExperienceManager for the given player.
      * 
-     * @param p
+     * @param player	The player for this ExperienceManager object
      */
     public ExperienceManager(Player player) {
     	this.player = player;
@@ -37,8 +37,7 @@ public class ExperienceManager {
     /**
      * Adjust the player's XP by the given amount in an intelligent fashion.  Works around
      * some of the non-intuitive behaviour of the basic Bukkit player.giveExp() method
-     * 
-     * @param player	The player to award XP to
+     * 	
      * @param amt		Amount of XP, may be negative
      */
     public void changeExp(int amt) {

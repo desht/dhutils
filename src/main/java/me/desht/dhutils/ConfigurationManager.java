@@ -13,18 +13,27 @@ import org.bukkit.plugin.Plugin;
 
 public class ConfigurationManager {
 	private final Plugin plugin;
+	private final Configuration config;
+	private final Map<String,Class<?>> forceTypes = new HashMap<String,Class<?>>();
+	
 	private String prefix;
 	private ConfigurationListener listener;
-	private final Map<String,Class<?>> forceTypes = new HashMap<String,Class<?>>();
 
 	public ConfigurationManager(Plugin plugin) {
 		this.plugin = plugin;
-		prefix = null;
-		listener = null;
-
-		Configuration config = plugin.getConfig();
+		this.prefix = null;
+		this.listener = null;
+		
+		this.config = plugin.getConfig();
 		config.options().copyDefaults(true);
 		plugin.saveConfig();
+	}
+	
+	public ConfigurationManager(Configuration config) {
+		this.plugin = null;
+		this.prefix = null;
+		this.listener = null;
+		this.config = config;
 	}
 
 	public Plugin getPlugin() {
@@ -32,7 +41,7 @@ public class ConfigurationManager {
 	}
 
 	public Configuration getConfig() {
-		return plugin.getConfig();
+		return config;
 	}
 
 	public void setConfigurationListener(ConfigurationListener listener) {
@@ -61,42 +70,41 @@ public class ConfigurationManager {
 	}
 
 	public Class<?> getType(String key) {
-		return forceTypes.containsKey(key) ? forceTypes.get(key) : plugin.getConfig().getDefaults().get(key).getClass();
+		return forceTypes.containsKey(key) ? forceTypes.get(key) : config.getDefaults().get(key).getClass();
 	}
 
 	public Object get(String key) {
-		key = addPrefix(key);
-		Configuration config = plugin.getConfig();
+		String keyPrefixed = addPrefix(key);
 
-		if (!config.contains(key)) {
-			throw new DHUtilsException("No such config item: " + key);
+		if (!config.contains(keyPrefixed)) {
+			throw new DHUtilsException("No such config item: " + keyPrefixed);
 		}
 
-		return config.get(key);
+		return config.get(keyPrefixed);
 	}
 
 	public void set(String key, String val) {
-		key = addPrefix(key);
-
 		Object current = get(key);
 
 		if (listener != null) {
 			listener.onConfigurationValidate(this, key, val);
 		}
 		
-		setItem(key, val);
+		setItem(addPrefix(key), val);
 
 		if (listener != null) {
 			listener.onConfigurationChanged(this, key, current, get(key));
 		}
 
-		plugin.saveConfig();
+		if (plugin != null) {
+			plugin.saveConfig();
+		}
 	}
 
 	public <T> void set(String key, List<T> val) {
-		key = addPrefix(key);
-
 		Object current = get(key);
+
+		key = addPrefix(key);
 
 		if (listener != null) {
 			listener.onConfigurationValidate(this, key, val);
@@ -108,7 +116,9 @@ public class ConfigurationManager {
 			listener.onConfigurationChanged(this, key, current, get(key));
 		}
 
-		plugin.saveConfig();
+		if (plugin != null) {
+			plugin.saveConfig();
+		}
 	}
 
 	public String addPrefix(String key) {
@@ -121,18 +131,18 @@ public class ConfigurationManager {
 
 	@SuppressWarnings("unchecked")
 	private void setItem(String key, String val) {
-		Configuration config = plugin.getConfig();
-
 		Class<?> c = getType(key);
-
-		if (List.class.isInstance(c)) {
+		LogUtils.finer("setItem: key = " + key + ", val = " + val + ", class = " + c.getName());
+		
+		if (List.class.isAssignableFrom(c)) {
 			List<String>list = new ArrayList<String>(1);
 			list.add(val);
 			handleListValue(config, key, list);
-		} else if (String.class.isInstance(c)) {
-			// should be marginally quicker than going through the following method...
+		} else if (String.class.isAssignableFrom(c)) {
+			// String config values are common, so this should be a little quicker than going
+			// through the default case below (using reflection)
 			config.set(key, val);
-		}  else if (Enum.class.isInstance(c)) {
+		}  else if (Enum.class.isAssignableFrom(c)) {
 			// this really isn't very pretty, but as far as I can tell there's no way to
 			// do this with a parameterised Enum type		
 			@SuppressWarnings("rawtypes")
@@ -166,7 +176,6 @@ public class ConfigurationManager {
 	}
 
 	private <T> void setItem(String key, List<T> list) {
-		Configuration config = plugin.getConfig();
 		if (config.getDefaults().get(key) == null) {
 			throw new DHUtilsException("No such key '" + key + "'");
 		}
