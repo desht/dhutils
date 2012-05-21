@@ -72,19 +72,13 @@ public class ExperienceManager {
 		int xp = getCurrentExp() + amt;
 		if (xp < 0) xp = 0;
 
-		int max = xpTotalToReachLevel.length;
-		if (xp >= xpTotalToReachLevel[max - 1]) {
-			// lookup tables need to be extended to handle the player's XP level
-			initLookupTables(max * 2);
-		}
-
 		int curLvl = player.getLevel();
 		int newLvl = getLevelForExp(xp); 
 		if (curLvl != newLvl) {
 			player.setLevel(newLvl);
 		}
 
-		float pct = ((float)(xp - xpTotalToReachLevel[newLvl]) / (float)xpRequiredForNextLevel[newLvl]);
+		float pct = ((float)(xp - getXpForLevel(newLvl)) / (float)xpRequiredForNextLevel[newLvl]);
 		player.setExp(pct);
 	}
 
@@ -95,7 +89,7 @@ public class ExperienceManager {
 	 */
 	public int getCurrentExp() {
 		int lvl = player.getLevel();
-		return xpTotalToReachLevel[lvl] + (int) (xpRequiredForNextLevel[lvl] * player.getExp());
+		return getXpForLevel(lvl) + (int) (xpRequiredForNextLevel[lvl] * player.getExp());
 	}
 
 	/**
@@ -114,10 +108,23 @@ public class ExperienceManager {
 	 * @param exp	The amount to check for.
 	 * @return		The level that a player with this amount total XP would be.
 	 */
-	public static int getLevelForExp(int exp) {
+	public int getLevelForExp(int exp) {
 		if (exp <= 0) return 0;
 		int pos = Arrays.binarySearch(xpTotalToReachLevel, exp);
 		return pos < 0 ? -pos - 2 : pos;
+	}
+
+	/**
+	 * Return the total XP needed to be the given level.
+	 * 
+	 * @param level	The level to check for.
+	 * @return	The amount of XP needed for the level.
+	 */
+	public int getXpForLevel(int level) {
+		if (level >= xpTotalToReachLevel.length) {
+			initLookupTables(level * 2);
+		}
+		return xpTotalToReachLevel[level];
 	}
 }
 
