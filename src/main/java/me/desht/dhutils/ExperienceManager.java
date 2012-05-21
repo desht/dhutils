@@ -11,27 +11,37 @@ import org.bukkit.entity.Player;
  * Adapted from ExperienceUtils code originally in ScrollingMenuSign.
  * 
  * Credit to nisovin (http://forums.bukkit.org/threads/experienceutils-make-giving-taking-exp-a-bit-more-intuitive.54450/#post-1067480)
- * for an implementation which avoids the problems of getTotalExperience(), which doesn't  work properly after a player has enchanted something.
+ * for an implementation that avoids the problems of getTotalExperience(), which doesn't work properly after a player has enchanted something.
  */
 public class ExperienceManager {
-    public static final int MAX_LEVEL_SUPPORTED = 150;
-
-    private static final int xpRequiredForNextLevel[] = new int[MAX_LEVEL_SUPPORTED];
-    private static final int xpTotalToReachLevel[] = new int[MAX_LEVEL_SUPPORTED];
+    private static int xpRequiredForNextLevel[];
+    private static int xpTotalToReachLevel[];
 
     private final Player player;
     
-    // Initialise the xp lookup table.  Basing this on observations noted in https://bukkit.atlassian.net/browse/BUKKIT-47
-    // 7 xp to get to level 1, 17 to level 2, 31 to level 3...
-    // At each level, the increment to get to the next level increases alternately by 3 and 4
     static {
-            xpTotalToReachLevel[0] = 0;
-            int incr = 7;
-            for (int i = 1; i < xpTotalToReachLevel.length; i++) {
-                    xpRequiredForNextLevel[i - 1] = incr;
-                    xpTotalToReachLevel[i] = xpTotalToReachLevel[i - 1] + incr;
-                    incr += (i % 2 == 0) ? 4 : 3;
-            }
+    	initLookupTables(25);
+    }
+    
+    /**
+     * Initialise the XP lookup tables.  Basing this on observations noted in https://bukkit.atlassian.net/browse/BUKKIT-47
+     * 
+     * 7 xp to get to level 1, 17 to level 2, 31 to level 3...
+     * At each level, the increment to get to the next level increases alternately by 3 and 4
+     * 
+     * @param maxLevel	The highest level handled by the lookup tables
+     */
+    private static void initLookupTables(int maxLevel) {
+    	xpRequiredForNextLevel = new int[maxLevel];
+    	xpTotalToReachLevel = new int[maxLevel];
+    			
+    	xpTotalToReachLevel[0] = 0;
+        int incr = 7;
+        for (int i = 1; i < xpTotalToReachLevel.length; i++) {
+                xpRequiredForNextLevel[i - 1] = incr;
+                xpTotalToReachLevel[i] = xpTotalToReachLevel[i - 1] + incr;
+                incr += (i % 2 == 0) ? 4 : 3;
+        }
     }
    
     /**
@@ -52,6 +62,12 @@ public class ExperienceManager {
     public void changeExp(int amt) {
             int xp = getCurrentExp() + amt;
             if (xp < 0) xp = 0;
+            
+            int max = xpTotalToReachLevel.length;
+            if (xp >= xpTotalToReachLevel[max - 1]) {
+            	// lookup tables need to be extended to handle the player's XP level
+            	initLookupTables(max * 2);
+            }
            
             int curLvl = player.getLevel();
             int newLvl = getLevelForExp(xp); 
