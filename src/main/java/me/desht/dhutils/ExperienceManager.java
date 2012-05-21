@@ -54,6 +54,15 @@ public class ExperienceManager {
     }
     
     /**
+     * Get the Player associated with this ExperienceManager.
+     * 
+     * @return	the Player object
+     */
+    public Player getPlayer() {
+		return player;
+	}
+
+	/**
      * Adjust the player's XP by the given amount in an intelligent fashion.  Works around
      * some of the non-intuitive behaviour of the basic Bukkit player.giveExp() method
      * 	
