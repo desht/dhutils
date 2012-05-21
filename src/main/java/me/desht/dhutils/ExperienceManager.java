@@ -4,6 +4,15 @@ import java.util.Arrays;
 
 import org.bukkit.entity.Player;
 
+
+/**
+ * @author des
+ *
+ * Adapted from ExperienceUtils code originally in ScrollingMenuSign.
+ * 
+ * Credit to nisovin (http://forums.bukkit.org/threads/experienceutils-make-giving-taking-exp-a-bit-more-intuitive.54450/#post-1067480)
+ * for an implementation which avoids the problems of getTotalExperience(), which doesn't  work properly after a player has enchanted something.
+ */
 public class ExperienceManager {
     public static final int MAX_LEVEL_SUPPORTED = 150;
 
