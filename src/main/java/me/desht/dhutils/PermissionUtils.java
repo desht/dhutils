@@ -13,6 +13,11 @@ public class PermissionUtils {
 	 * @return	true if the player has the permission node, false otherwise
 	 */
 	public static boolean isAllowedTo(CommandSender sender, String node) {
+		if (sender == null) {
+			// backwards compatibility - a null sender represents a console sender
+			return true;
+		}
+		
 		boolean allowed = sender.hasPermission(node);
 	
 		LogUtils.fine("Permission check: player=" + sender.getName() + ", node=" + node + ", allowed=" + allowed);
