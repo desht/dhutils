@@ -11,9 +11,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 public class Cuboid implements Iterable<Block>, Cloneable {
-	private final String worldName;
-	private final int x1, y1, z1;
-	private final int x2, y2, z2;
+	protected final String worldName;
+	protected final int x1, y1, z1;
+	protected final int x2, y2, z2;
 
 	/**
 	 * Construct a Cuboid given two Location objects which represent any two corners
