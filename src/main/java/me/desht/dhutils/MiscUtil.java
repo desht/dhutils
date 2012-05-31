@@ -120,14 +120,16 @@ public class MiscUtil {
 		}
 	}
 	
+	private static Pattern colourPat = Pattern.compile("(?<!&)&(?=[0-9a-fA-Fk-oK-OrR])");
+	
 	public static String parseColourSpec(String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); 
-		return res.replace("&-", getPrevColour("*").toString()).replace("&&", "&");
+		return parseColourSpec(null, spec);
 	}
 	
 	public static String parseColourSpec(CommandSender sender, String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); 
-		return res.replace("&-", getPrevColour(sender.getName()).toString()).replace("&&", "&");
+		String who = sender == null ? "*" : sender.getName();
+		String res = colourPat.matcher(spec).replaceAll("\u00A7");
+		return res.replace("&-", getPrevColour(who).toString()).replace("&&", "&");
 	}
 
 	public static String unParseColourSpec(String spec) {
