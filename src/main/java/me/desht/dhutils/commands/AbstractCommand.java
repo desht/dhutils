@@ -100,7 +100,7 @@ public abstract class AbstractCommand {
 		}
 	}
 
-	void showUsage(CommandSender sender) {
+	protected void showUsage(CommandSender sender) {
 		if (usage != null) {
 			for (int i = 0; i < usage.length; i++) {
 				if (i == 0) {
