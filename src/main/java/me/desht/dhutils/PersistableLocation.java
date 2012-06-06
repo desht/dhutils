@@ -135,4 +135,9 @@ public class PersistableLocation implements ConfigurationSerializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "PersistableLocation [worldName=" + worldName + ", x=" + x + ", y=" + y + ", z=" + z + ", pitch="
+				+ pitch + ", yaw=" + yaw + "]";
+	}
 }
