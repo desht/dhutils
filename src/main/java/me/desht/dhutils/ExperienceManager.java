@@ -2,6 +2,7 @@ package me.desht.dhutils;
 
 import java.util.Arrays;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 
@@ -17,7 +18,7 @@ public class ExperienceManager {
 	private static int xpRequiredForNextLevel[];
 	private static int xpTotalToReachLevel[];
 
-	private final Player player;
+	private final String playerName;
 
 	static {
 		initLookupTables(25);
@@ -50,7 +51,7 @@ public class ExperienceManager {
 	 * @param player	The player for this ExperienceManager object
 	 */
 	public ExperienceManager(Player player) {
-		this.player = player;
+		this.playerName = player.getName();
 	}
 
 	/**
@@ -59,7 +60,11 @@ public class ExperienceManager {
 	 * @return	the Player object
 	 */
 	public Player getPlayer() {
-		return player;
+		Player p = Bukkit.getPlayer(playerName);
+		if (p == null) {
+			throw new IllegalStateException("Player " + playerName + " is not online");
+		}
+		return p;
 	}
 
 	/**
@@ -72,6 +77,7 @@ public class ExperienceManager {
 		int xp = getCurrentExp() + amt;
 		if (xp < 0) xp = 0;
 
+		Player player = getPlayer();
 		int curLvl = player.getLevel();
 		int newLvl = getLevelForExp(xp); 
 		if (curLvl != newLvl) {
@@ -88,6 +94,7 @@ public class ExperienceManager {
 	 * @return	the player's total XP
 	 */
 	public int getCurrentExp() {
+		Player player = getPlayer();
 		int lvl = player.getLevel();
 		return getXpForLevel(lvl) + (int) (xpRequiredForNextLevel[lvl] * player.getExp());
 	}
