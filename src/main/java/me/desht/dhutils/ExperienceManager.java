@@ -52,12 +52,14 @@ public class ExperienceManager {
 	 */
 	public ExperienceManager(Player player) {
 		this.playerName = player.getName();
+		getPlayer();	// ensure it's a valid player name
 	}
 
 	/**
 	 * Get the Player associated with this ExperienceManager.
 	 * 
 	 * @return	the Player object
+	 * @throws IllegalStateException if the player is no longer online
 	 */
 	public Player getPlayer() {
 		Player p = Bukkit.getPlayer(playerName);
@@ -69,7 +71,7 @@ public class ExperienceManager {
 
 	/**
 	 * Adjust the player's XP by the given amount in an intelligent fashion.  Works around
-	 * some of the non-intuitive behaviour of the basic Bukkit player.giveExp() method
+	 * some of the non-intuitive behaviour of the basic Bukkit player.giveExp() method.
 	 * 	
 	 * @param amt		Amount of XP, may be negative
 	 */
