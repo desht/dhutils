@@ -91,4 +91,48 @@ public class PersistableLocation implements ConfigurationSerializable {
 		return map;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(pitch);
+		result = prime * result + ((worldName == null) ? 0 : worldName.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(x);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(y);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + Float.floatToIntBits(yaw);
+		temp = Double.doubleToLongBits(z);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PersistableLocation other = (PersistableLocation) obj;
+		if (Float.floatToIntBits(pitch) != Float.floatToIntBits(other.pitch))
+			return false;
+		if (worldName == null) {
+			if (other.worldName != null)
+				return false;
+		} else if (!worldName.equals(other.worldName))
+			return false;
+		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
+			return false;
+		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
+			return false;
+		if (Float.floatToIntBits(yaw) != Float.floatToIntBits(other.yaw))
+			return false;
+		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
+			return false;
+		return true;
+	}
+
 }
