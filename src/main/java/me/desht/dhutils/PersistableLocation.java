@@ -6,6 +6,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 
@@ -36,6 +37,23 @@ public class PersistableLocation implements ConfigurationSerializable {
 		savePitchAndYaw = map.containsKey("pitch");
 	}
 
+	public PersistableLocation(World world, double x, double y, double z) {
+		worldName = world.getName();
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.pitch = this.yaw = 0.0f;
+	}
+
+
+	public PersistableLocation(World world, int x, int y, int z) {
+		worldName = world.getName();
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.pitch = this.yaw = 0.0f;
+	}
+	
 	public String getWorldName() {
 		return worldName;
 	}
@@ -78,6 +96,10 @@ public class PersistableLocation implements ConfigurationSerializable {
 		loc.setPitch(pitch);
 		loc.setYaw(yaw);
 		return loc;
+	}
+	
+	public Block getBlock() {
+		return getLocation().getBlock();
 	}
 
 	public Map<String, Object> serialize() {
