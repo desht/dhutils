@@ -8,9 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.SerializableAs;
 
-@SerializableAs("PersistableLocation")
 public class PersistableLocation implements ConfigurationSerializable {
 	private final String worldName;
 	private final double x, y, z;
@@ -29,9 +27,9 @@ public class PersistableLocation implements ConfigurationSerializable {
 
 	public PersistableLocation(Map<String,Object> map) {
 		worldName = (String)map.get("world");
-		x = (Double)map.get("x");
-		y = (Double)map.get("y");
-		z = (Double)map.get("z");
+		x = toDouble(map.get("x"));
+		y = toDouble(map.get("y"));
+		z = toDouble(map.get("z"));
 		pitch = map.containsKey("pitch") ? ((Double) map.get("pitch")).floatValue() : 0.0f;
 		yaw = map.containsKey("yaw") ? ((Double) map.get("yaw")).floatValue() : 0.0f;
 		savePitchAndYaw = map.containsKey("pitch");
@@ -44,7 +42,6 @@ public class PersistableLocation implements ConfigurationSerializable {
 		this.z = z;
 		this.pitch = this.yaw = 0.0f;
 	}
-
 
 	public PersistableLocation(World world, int x, int y, int z) {
 		worldName = world.getName();
@@ -163,5 +160,15 @@ public class PersistableLocation implements ConfigurationSerializable {
 	public String toString() {
 		return "PersistableLocation [worldName=" + worldName + ", x=" + x + ", y=" + y + ", z=" + z + ", pitch="
 				+ pitch + ", yaw=" + yaw + "]";
+	}
+
+	private double toDouble(Object val) {
+		if (val instanceof Double) {
+			return (Double) val;
+		} else if (val instanceof Integer) {
+			return ((Integer)val).doubleValue();
+		} else {
+			throw new IllegalArgumentException("invalid numeric value: " + val);
+		}
 	}
 }
