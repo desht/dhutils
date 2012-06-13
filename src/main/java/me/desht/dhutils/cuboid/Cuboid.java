@@ -140,38 +140,83 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return world;
 	}
 
+	/**
+	 * Get the size of this Cuboid along the X axis
+	 * 
+	 * @return	Size of Cuboid along the X axis
+	 */
 	public int getSizeX() {
 		return (x2 - x1) + 1;
 	}
 
+	/**
+	 * Get the size of this Cuboid along the Y axis
+	 * 
+	 * @return	Size of Cuboid along the Y axis
+	 */
 	public int getSizeY() {
 		return (y2 - y1) + 1;
 	}
 
+	/**
+	 * Get the size of this Cuboid along the Z axis
+	 * 
+	 * @return	Size of Cuboid along the Z axis
+	 */
 	public int getSizeZ() {
 		return (z2 - z1) + 1;
 	}
 
+	/**
+	 * Get the minimum X co-ordinate of this Cuboid
+	 * 
+	 * @return	the minimum X co-ordinate
+	 */
 	public int getLowerX() {
 		return x1;
 	}
 
+	/**
+	 * Get the minimum Y co-ordinate of this Cuboid
+	 * 
+	 * @return	the minimum Y co-ordinate
+	 */
 	public int getLowerY() {
 		return y1;
 	}
 
+	/**
+	 * Get the minimum Z co-ordinate of this Cuboid
+	 * 
+	 * @return	the minimum Z co-ordinate
+	 */
 	public int getLowerZ() {
 		return z1;
 	}
 
+	/**
+	 * Get the maximum X co-ordinate of this Cuboid
+	 * 
+	 * @return	the maximum X co-ordinate
+	 */
 	public int getUpperX() {
 		return x2;
 	}
 
+	/**
+	 * Get the maximum Y co-ordinate of this Cuboid
+	 * 
+	 * @return	the maximum Y co-ordinate
+	 */
 	public int getUpperY() {
 		return y2;
 	}
 
+	/**
+	 * Get the maximum Z co-ordinate of this Cuboid
+	 * 
+	 * @return	the maximum Z co-ordinate
+	 */
 	public int getUpperZ() {
 		return z2;
 	}
@@ -200,9 +245,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * shrink the Cuboid in the given direction.  Shrinking a cuboid's face past the opposite face
 	 * is not an error and will return a valid Cuboid.
 	 * 
-	 * @param dir
-	 * @param amount
-	 * @return
+	 * @param dir	the direction in which to expand
+	 * @param amount	the number of blocks by which to expand
+	 * @return	a new Cuboid expanded by the given direction and amount
 	 */
 	public Cuboid expand(Direction dir, int amount) {		
 		switch (dir) {
@@ -226,9 +271,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Shift the Cuboid in the given direction by the given amount.
 	 * 
-	 * @param dir
-	 * @param amount
-	 * @return
+	 * @param dir	the direction in which to shift
+	 * @param amount	the number of blocks by which to shift
+	 * @return	a new Cuboid shifted by the given direction and amount
 	 */
 	public Cuboid shift(Direction dir, int amount) {
 		return expand(dir, amount).expand(dir.opposite(), -amount);
@@ -237,9 +282,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Outset (grow) the Cuboid in the given direction by the given amount.
 	 * 
-	 * @param dir
-	 * @param amount
-	 * @return
+	 * @param dir	the direction in which to outset (must be Horizontal, Vertical, or Both)
+	 * @param amount	the number of blocks by which to outset
+	 * @return	a new Cuboid outset by the given direction and amount
 	 */
 	public Cuboid outset(Direction dir, int amount) {
 		Cuboid c;
@@ -263,41 +308,41 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * Inset (shrink) the Cuboid in the given direction by the given amount.  Equivalent
 	 * to calling outset() with a negative amount.
 	 * 
-	 * @param dir
-	 * @param amount
-	 * @return
+	 * @param dir the direction in which to inset (must be Horizontal, Vertical, or Both)
+	 * @param amount	the number of blocks by which to inset
+	 * @return	a new Cuboid inset by the given direction and amount
 	 */
 	public Cuboid inset(Direction dir, int amount) {
 		return outset(dir, -amount);
 	}
 
 	/**
-	 * Return true if the point at (x,y,z) is contained within the Cuboid.
+	 * Return true if the point at (x,y,z) is contained within this Cuboid.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
+	 * @param x	the X co-ordinate
+	 * @param y	the Y co-ordinate
+	 * @param z	the Z co-ordinate
+	 * @return	true if the given point is within this Cuboid, false otherwise
 	 */
 	public boolean contains(int x, int y, int z) {
 		return x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2;
 	}
 
 	/**
-	 * Check if the given Block is contained within the Cuboid.
+	 * Check if the given Block is contained within this Cuboid.
 	 * 
-	 * @param b
-	 * @return
+	 * @param b	the Block to check for
+	 * @return	true if the Block is within this Cuboid, false otherwise
 	 */
 	public boolean contains(Block b) {
 		return contains(b.getLocation());
 	}
 
 	/**
-	 * Check if the given Location is contained within the Cuboid.
+	 * Check if the given Location is contained within this Cuboid.
 	 * 
-	 * @param l
-	 * @return
+	 * @param l	the Location to check for
+	 * @return	true if the Location is within this Cuboid, false otherwise
 	 */
 	public boolean contains(Location l) {
 		if (! worldName.equals(l.getWorld().getName())) {
@@ -307,9 +352,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	/**
-	 * Get the volume of the Cuboid.
+	 * Get the volume of this Cuboid.
 	 * 
-	 * @return
+	 * @return	the Cuboid volume, in blocks
 	 */
 	public int volume() {
 		return getSizeX() * getSizeY() * getSizeZ();
@@ -319,7 +364,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * Get the average light level of all empty (air) blocks in the Cuboid.  Returns 0 
 	 * if there are no empty blocks.
 	 * 
-	 * @return
+	 * @return	the average light level of this Cuboid
 	 */
 	public byte averageLightLevel() {
 		long total = 0;
@@ -336,6 +381,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Contract the Cuboid, returning a Cuboid with any air around the edges removed, just
 	 * large enough to include all non-air blocks.
+	 * 
+	 * @return a new Cuboid with no external air blocks
 	 */
 	public Cuboid contract() {
 		return this.
@@ -351,8 +398,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * Contract the Cuboid in the given direction, returning a new Cuboid which has no exterior empty space.
 	 * E.g. a direction of Down will push the top face downwards as much as possible.
 	 * 
-	 * @param dir
-	 * @return
+	 * @param dir	the direction in which to contract
+	 * @return	a new Cuboid contracted in the given direction
 	 */
 	public Cuboid contract(Direction dir) {
 		Cuboid face = getFace(dir.opposite());
@@ -434,10 +481,10 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	/**
-	 * Get the Cuboid big enough to hold this Cuboid and the other one.
+	 * Get the Cuboid big enough to hold both this Cuboid and the given one.
 	 * 
 	 * @param other
-	 * @return
+	 * @return	a new Cuboid large enough to hold this Cuboid and the given Cuboid
 	 */
 	public Cuboid getBoundingCuboid(Cuboid other) {
 		if (other == null) {
@@ -457,9 +504,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Get a block relative to the lower NE point of the Cuboid.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x	the X co-ordinate
+	 * @param y	the Y co-ordinate
+	 * @param z	the Z co-ordinate
 	 * @return	the block at the given position
 	 */
 	public Block getRelativeBlock(int x, int y, int z) {
@@ -471,10 +518,10 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * version of getRelativeBlock() should be used if being called many times, to avoid
 	 * excessive calls to getWorld().
 	 * 
-	 * @param w
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param w	the World
+	 * @param xthe X co-ordinate	
+	 * @param ythe Y co-ordinate	
+	 * @param zthe Z co-ordinate	
 	 * @return
 	 */
 	public Block getRelativeBlock(World w, int x, int y, int z) {
@@ -500,15 +547,24 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return res;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
 	public Iterator<Block> iterator() {
 		return new CuboidIterator(getWorld(), x1, y1, z1, x2, y2, z2);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
 	@Override
 	public Cuboid clone() {
 		return new Cuboid(this);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return new String("Cuboid: " + worldName + "," + x1 + "," + y1 + "," + z1 + "=>" + x2 + "," + y2 + "," + z2);
