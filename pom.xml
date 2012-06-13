@@ -25,6 +25,11 @@
        </plugin>
        <plugin>
          <version>2.8.1</version>
+         <configuration>
+           <links>
+             <link>http://jd.bukkit.org/apidocs/</link>
+           </links>
+         </configuration>
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-javadoc-plugin</artifactId>
          <executions>
