@@ -519,10 +519,10 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * excessive calls to getWorld().
 	 * 
 	 * @param w	the World
-	 * @param xthe X co-ordinate	
-	 * @param ythe Y co-ordinate	
-	 * @param zthe Z co-ordinate	
-	 * @return
+	 * @param x	the X co-ordinate	
+	 * @param y	the Y co-ordinate	
+	 * @param z	the Z co-ordinate	
+	 * @return	the block at the given position
 	 */
 	public Block getRelativeBlock(World w, int x, int y, int z) {
 		return w.getBlockAt(x1 + x, y1 + y, z1 + z);
