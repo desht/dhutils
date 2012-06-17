@@ -10,7 +10,16 @@
   <description>Collection of useful classes I use in my plugins</description>
   <build>
     <plugins>
-       <plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+         <source>1.6</source>
+         <target>1.6</target>
+        </configuration>
+        </plugin>
+      <plugin>
          <version>2.1.2</version>
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-source-plugin</artifactId>
