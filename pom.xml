@@ -11,6 +11,19 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <additionalProjectnatures>
+            <projectnature>org.eclipse.m2e.core.maven2Nature</projectnature>
+          </additionalProjectnatures>
+          <buildcommands>
+            <buildcommand>org.eclipse.jdt.core.javabuilder</buildcommand>
+            <buildcommand>org.eclipse.m2e.core.maven2Builder</buildcommand>
+          </buildcommands>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
