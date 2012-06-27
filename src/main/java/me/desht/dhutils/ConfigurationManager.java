@@ -12,13 +12,12 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.Plugin;
 
 public class ConfigurationManager {
-	private static final String VERSION = "plugin.version";
 	
 	private final Plugin plugin;
 	private final Configuration config;
 	private final Map<String,Class<?>> forceTypes = new HashMap<String,Class<?>>();
-	private final ConfigurationListener listener;
-
+	
+	private ConfigurationListener listener;
 	private String prefix;
 
 	public ConfigurationManager(Plugin plugin, ConfigurationListener listener) {
@@ -28,15 +27,6 @@ public class ConfigurationManager {
 
 		this.config = plugin.getConfig();
 		config.options().copyDefaults(true);
-
-		String currentVersion = plugin.getDescription().getVersion();
-		String lastVersion = config.getString(VERSION, "0.0.0");
-		if (currentVersion != null && !lastVersion.equals(currentVersion)) {
-			if (listener != null) {
-				listener.onVersionChanged(getRelease(lastVersion), getRelease(currentVersion));
-			}
-			setItem(VERSION, currentVersion);
-		}
 
 		plugin.saveConfig();
 	}
@@ -60,6 +50,10 @@ public class ConfigurationManager {
 		return config;
 	}
 
+	public void setConfigurationListener(ConfigurationListener listener) {
+		this.listener = listener;
+	}
+	
 	public void forceType(String key, Class<?> c) {
 		forceTypes.put(key, c);
 	}
@@ -220,37 +214,5 @@ public class ConfigurationManager {
 
 		config.set(key, new ArrayList<T>(current));
 	}
-
-	/**
-	 * Get the internal version number for the given string version, which is
-	 * <major> * 1,000,000 + <minor> * 1,000 + <release>.  This assumes minor and
-	 * release each won't go above 999, hopefully a safe assumption!
-	 * 
-	 * @param oldVersion
-	 * @return
-	 */
-	private static int getRelease(String ver) {
-		String[] a = ver.split("\\.");
-		try {
-			int major = Integer.parseInt(a[0]);
-			int minor;
-			int rel;
-			if (a.length < 2) {
-				minor = 0;
-			} else {
-				minor = Integer.parseInt(a[1]);
-			}
-			if (a.length < 3) {
-				rel = 0;
-			} else {
-				rel = Integer.parseInt(a[2]);
-			}
-			return major * 1000000 + minor * 1000 + rel;
-		} catch (NumberFormatException e) {
-			LogUtils.warning("Version string [" + ver + "] doesn't look right!");
-			return 0;
-		}
-	}
-
 
 }

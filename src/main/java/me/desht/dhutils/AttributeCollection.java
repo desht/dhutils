@@ -11,6 +11,11 @@ public class AttributeCollection extends ConfigurationManager {
 		super(new YamlConfiguration());
 	}
 	
+	public AttributeCollection(ConfigurationListener listener) {
+		super(new YamlConfiguration());
+		setConfigurationListener(listener);
+	}
+	
 	public void registerAttribute(String attrName, Object def) {
 		getConfig().addDefault(attrName, def);
 	}
