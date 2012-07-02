@@ -19,6 +19,12 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.schematic.SchematicFormat;
 
+/**
+ * @author desht
+ *
+ * A wrapper class for the WorldEdit terrain loading & saving API to make things a little
+ * simple for other plugins to use.
+ */
 public class TerrainManager {
 	private static final String EXTENSION = "schematic";
 
