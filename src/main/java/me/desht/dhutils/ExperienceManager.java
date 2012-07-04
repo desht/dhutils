@@ -76,12 +76,25 @@ public class ExperienceManager {
 	 * @param amt		Amount of XP, may be negative
 	 */
 	public void changeExp(int amt) {
-		int xp = getCurrentExp() + amt;
+		setExp(getCurrentExp(), amt);
+	}
+
+	/**
+	 * Set the player's experience
+	 *
+	 * @param amt        Amount of XP, should not be negative
+	 */
+	public void setExp(int amt) {
+		setExp(0, amt);
+	}
+
+	private void setExp(int base, int amt) {
+		int xp = base + amt;
 		if (xp < 0) xp = 0;
 
 		Player player = getPlayer();
 		int curLvl = player.getLevel();
-		int newLvl = getLevelForExp(xp); 
+		int newLvl = getLevelForExp(xp);
 		if (curLvl != newLvl) {
 			player.setLevel(newLvl);
 		}
