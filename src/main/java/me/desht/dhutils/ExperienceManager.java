@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 
 /**
- * @author des
+ * @author desht
  *
  * Adapted from ExperienceUtils code originally in ScrollingMenuSign.
  * 
@@ -15,13 +15,26 @@ import org.bukkit.entity.Player;
  * for an implementation that avoids the problems of getTotalExperience(), which doesn't work properly after a player has enchanted something.
  */
 public class ExperienceManager {
+	// this is to stop the lookup tables growing without control
+	private static int hardMaxLevel = 100000;
+	
 	private static int xpRequiredForNextLevel[];
 	private static int xpTotalToReachLevel[];
 
 	private final String playerName;
 
 	static {
+		// 25 is an arbitrary value for the initial table size - the actual value isn't critically
+		// important since the tables are resized as needed.
 		initLookupTables(25);
+	}
+
+	public static int getHardMaxLevel() {
+		return hardMaxLevel;
+	}
+
+	public static void setHardMaxLevel(int hardMaxLevel) {
+		ExperienceManager.hardMaxLevel = hardMaxLevel;
 	}
 
 	/**
@@ -43,6 +56,26 @@ public class ExperienceManager {
 			xpTotalToReachLevel[i] = xpTotalToReachLevel[i - 1] + incr;
 			incr += (i % 2 == 0) ? 4 : 3;
 		}
+	}
+
+	/**
+	 * Calculate the level that the given XP quantity corresponds to, without using the lookup tables.
+	 * This is needed if getLevelForExp() is called with an XP quantity beyond the range of the existing
+	 * lookup tables.
+	 * 
+	 * @param exp
+	 * @return
+	 */
+	private static int calculateLevelForExp(int exp) {
+		int level = 0;
+		int curExp = 7;	// level 1
+		int incr = 10;
+		while (curExp <= exp) {
+			curExp += incr;
+			level++;
+			incr += (level % 2 == 0) ? 3 : 4;
+		}
+		return level;
 	}
 
 	/**
@@ -132,6 +165,14 @@ public class ExperienceManager {
 	 */
 	public int getLevelForExp(int exp) {
 		if (exp <= 0) return 0;
+		if (exp > xpTotalToReachLevel[xpTotalToReachLevel.length - 1]) {
+			// need to extend the lookup tables
+			int newMax = calculateLevelForExp(exp) * 2;
+			if (newMax > hardMaxLevel) {
+				throw new IllegalArgumentException("Level for exp " + exp + " > hard max level " + hardMaxLevel);
+			}
+			initLookupTables(newMax);
+		}
 		int pos = Arrays.binarySearch(xpTotalToReachLevel, exp);
 		return pos < 0 ? -pos - 2 : pos;
 	}
@@ -143,6 +184,10 @@ public class ExperienceManager {
 	 * @return	The amount of XP needed for the level.
 	 */
 	public int getXpForLevel(int level) {
+		if (level > hardMaxLevel) {
+			throw new IllegalArgumentException("Level " + level + " > hard max level " + hardMaxLevel);
+		}
+		
 		if (level >= xpTotalToReachLevel.length) {
 			initLookupTables(level * 2);
 		}
