@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.CuboidClipboard;
@@ -15,6 +16,7 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.schematic.SchematicFormat;
@@ -33,11 +35,30 @@ public class TerrainManager {
 	private final EditSession editSession;
 	private final LocalPlayer localPlayer;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param wep	the WorldEdit plugin instance
+	 * @param player	the player to work with
+	 */
 	public TerrainManager(WorldEditPlugin wep, Player player) {
 		we = wep.getWorldEdit();
 		localPlayer = wep.wrapPlayer(player);
 		localSession = we.getSession(localPlayer);
-		editSession = localSession.createEditSession(localPlayer);
+		editSession = localSession.createEditSession(localPlayer);		
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param wep	the WorldEdit plugin instance
+	 * @param world	the world to work in
+	 */
+	public TerrainManager(WorldEditPlugin wep, World world) {
+		we = wep.getWorldEdit();
+		localPlayer = null;
+		localSession = new LocalSession(we.getConfiguration());
+		editSession = new EditSession(new BukkitWorld(world), we.getConfiguration().maxChangeLimit);
 	}
 
 	/**
@@ -55,8 +76,8 @@ public class TerrainManager {
 		Vector max = getMax(l1, l2);
 
 		saveFile = we.getSafeSaveFile(localPlayer,
-				saveFile.getParentFile(), saveFile.getName(),
-				EXTENSION, new String[] { EXTENSION });
+		                              saveFile.getParentFile(), saveFile.getName(),
+		                              EXTENSION, new String[] { EXTENSION });
 
 		editSession.enableQueue();
 		CuboidClipboard clipboard = new CuboidClipboard(max.subtract(min).add(new Vector(1, 1, 1)), min);
@@ -79,8 +100,8 @@ public class TerrainManager {
 	 */
 	public void loadSchematic(File saveFile, Location loc) throws FilenameException, DataException, IOException, MaxChangedBlocksException, EmptyClipboardException {
 		saveFile = we.getSafeSaveFile(localPlayer,
-				saveFile.getParentFile(), saveFile.getName(),
-				EXTENSION, new String[] { EXTENSION });
+		                              saveFile.getParentFile(), saveFile.getName(),
+		                              EXTENSION, new String[] { EXTENSION });
 
 		editSession.enableQueue();
 		localSession.setClipboard(SchematicFormat.MCEDIT.load(saveFile));
@@ -112,17 +133,17 @@ public class TerrainManager {
 
 	private Vector getMin(Location l1, Location l2) {
 		return new Vector(
-				Math.min(l1.getBlockX(), l2.getBlockX()),
-				Math.min(l1.getBlockY(), l2.getBlockY()),
-				Math.min(l1.getBlockZ(), l2.getBlockZ())
+		                  Math.min(l1.getBlockX(), l2.getBlockX()),
+		                  Math.min(l1.getBlockY(), l2.getBlockY()),
+		                  Math.min(l1.getBlockZ(), l2.getBlockZ())
 				);
 	}
 
 	private Vector getMax(Location l1, Location l2) {
 		return new Vector(
-				Math.max(l1.getBlockX(), l2.getBlockX()),
-				Math.max(l1.getBlockY(), l2.getBlockY()),
-				Math.max(l1.getBlockZ(), l2.getBlockZ())
+		                  Math.max(l1.getBlockX(), l2.getBlockX()),
+		                  Math.max(l1.getBlockY(), l2.getBlockY()),
+		                  Math.max(l1.getBlockZ(), l2.getBlockZ())
 				);
 	}
 }
