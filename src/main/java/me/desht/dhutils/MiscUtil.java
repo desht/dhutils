@@ -1,6 +1,7 @@
 package me.desht.dhutils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,5 +166,11 @@ public class MiscUtil {
 		}
 
 		return matchList;
+	}
+	
+	public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+	  List<T> list = new ArrayList<T>(c);
+	  java.util.Collections.sort(list);
+	  return list;
 	}
 }
