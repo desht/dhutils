@@ -254,7 +254,7 @@ public class MessagePager {
 		} else {
 			// just dump the whole message buffer to the console
 			for (String s : messages) {
-				MiscUtil.statusMessage(Bukkit.getConsoleSender(), ChatColor.stripColor(MiscUtil.parseColourSpec(sender, s)));
+				MiscUtil.statusMessage(Bukkit.getConsoleSender(), s);
 			}
 		}
 	}
