@@ -63,8 +63,13 @@ public class ExperienceManager {
 		for (int i = 1; i < xpTotalToReachLevel.length; i++) {
 			xpRequiredForNextLevel[i - 1] = incr;
 			xpTotalToReachLevel[i] = xpTotalToReachLevel[i - 1] + incr;
-			incr += (i >= 16) ? 3 : 0;
+			if (i >= 30) {
+				incr += 7;
+			} else if (i >= 16) {
+				incr += 3;
+			}
 		}
+		xpRequiredForNextLevel[xpRequiredForNextLevel.length - 1] = incr;
 	}
 
 	/**
