@@ -50,11 +50,20 @@ public class ExperienceManager {
 		xpTotalToReachLevel = new int[maxLevel];
 
 		xpTotalToReachLevel[0] = 0;
-		int incr = 7;
+// 		Code valid for MC 1.2 and earlier
+//		int incr = 7;
+//		for (int i = 1; i < xpTotalToReachLevel.length; i++) {
+//			xpRequiredForNextLevel[i - 1] = incr;
+//			xpTotalToReachLevel[i] = xpTotalToReachLevel[i - 1] + incr;
+//			incr += (i % 2 == 0) ? 4 : 3;
+//		}
+		
+		// Valid for MC 1.3 and later
+		int incr = 17;
 		for (int i = 1; i < xpTotalToReachLevel.length; i++) {
 			xpRequiredForNextLevel[i - 1] = incr;
 			xpTotalToReachLevel[i] = xpTotalToReachLevel[i - 1] + incr;
-			incr += (i % 2 == 0) ? 4 : 3;
+			incr += (i >= 16) ? 3 : 0;
 		}
 	}
 
@@ -144,7 +153,8 @@ public class ExperienceManager {
 	public int getCurrentExp() {
 		Player player = getPlayer();
 		int lvl = player.getLevel();
-		return getXpForLevel(lvl) + (int) (xpRequiredForNextLevel[lvl] * player.getExp());
+		int cur = getXpForLevel(lvl) + (int) Math.round(xpRequiredForNextLevel[lvl] * player.getExp());
+		return cur;
 	}
 
 	/**
