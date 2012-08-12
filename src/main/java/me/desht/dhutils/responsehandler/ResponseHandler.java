@@ -1,11 +1,11 @@
 package me.desht.dhutils.responsehandler;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class ResponseHandler {
 
-	private final Map<String, ExpectBase> exp = new HashMap<String, ExpectBase>();
+	private final ConcurrentMap<String, ExpectBase> exp = new ConcurrentHashMap<String, ExpectBase>();
 
 	public void expect(String playerName, ExpectBase data) {
 		expect(playerName, data, null);
