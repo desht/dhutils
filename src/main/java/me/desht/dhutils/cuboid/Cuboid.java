@@ -275,7 +275,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @param amount	the number of blocks by which to expand
 	 * @return	a new Cuboid expanded by the given direction and amount
 	 */
-	public Cuboid expand(Direction dir, int amount) {		
+	public Cuboid expand(CuboidDirection dir, int amount) {		
 		switch (dir) {
 		case North:
 			return new Cuboid(worldName, x1 - amount, y1, z1, x2, y2, z2);
@@ -301,7 +301,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @param amount	the number of blocks by which to shift
 	 * @return	a new Cuboid shifted by the given direction and amount
 	 */
-	public Cuboid shift(Direction dir, int amount) {
+	public Cuboid shift(CuboidDirection dir, int amount) {
 		return expand(dir, amount).expand(dir.opposite(), -amount);
 	}
 
@@ -312,17 +312,17 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @param amount	the number of blocks by which to outset
 	 * @return	a new Cuboid outset by the given direction and amount
 	 */
-	public Cuboid outset(Direction dir, int amount) {
+	public Cuboid outset(CuboidDirection dir, int amount) {
 		Cuboid c;
 		switch (dir) {
 		case Horizontal:
-			c = expand(Direction.North, amount).expand(Direction.South, amount).expand(Direction.East, amount).expand(Direction.West, amount);
+			c = expand(CuboidDirection.North, amount).expand(CuboidDirection.South, amount).expand(CuboidDirection.East, amount).expand(CuboidDirection.West, amount);
 			break;
 		case Vertical:
-			c = expand(Direction.Down, amount).expand(Direction.Up, amount);
+			c = expand(CuboidDirection.Down, amount).expand(CuboidDirection.Up, amount);
 			break;
 		case Both:
-			c = outset(Direction.Horizontal, amount).outset(Direction.Vertical, amount);
+			c = outset(CuboidDirection.Horizontal, amount).outset(CuboidDirection.Vertical, amount);
 			break;
 		default:
 			throw new IllegalArgumentException("invalid direction " + dir);
@@ -338,7 +338,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @param amount	the number of blocks by which to inset
 	 * @return	a new Cuboid inset by the given direction and amount
 	 */
-	public Cuboid inset(Direction dir, int amount) {
+	public Cuboid inset(CuboidDirection dir, int amount) {
 		return outset(dir, -amount);
 	}
 
@@ -412,12 +412,12 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 */
 	public Cuboid contract() {
 		return this.
-				contract(Direction.Down).
-				contract(Direction.South).
-				contract(Direction.East).
-				contract(Direction.Up).
-				contract(Direction.North).
-				contract(Direction.West);
+				contract(CuboidDirection.Down).
+				contract(CuboidDirection.South).
+				contract(CuboidDirection.East).
+				contract(CuboidDirection.Up).
+				contract(CuboidDirection.North).
+				contract(CuboidDirection.West);
 	}
 	
 	/**
@@ -427,37 +427,37 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @param dir	the direction in which to contract
 	 * @return	a new Cuboid contracted in the given direction
 	 */
-	public Cuboid contract(Direction dir) {
+	public Cuboid contract(CuboidDirection dir) {
 		Cuboid face = getFace(dir.opposite());
 		switch (dir) {
 		case Down:
 			while (face.containsOnly(0) && face.getLowerY() > this.getLowerY()) {
-				face = face.shift(Direction.Down, 1);
+				face = face.shift(CuboidDirection.Down, 1);
 			}
 			return new Cuboid(worldName, x1, y1, z1, x2, face.getUpperY(), z2);
 		case Up:
 			while (face.containsOnly(0) && face.getUpperY() < this.getUpperY()) {
-				face = face.shift(Direction.Up, 1);
+				face = face.shift(CuboidDirection.Up, 1);
 			}
 			return new Cuboid(worldName, x1, face.getLowerY(), z1, x2, y2, z2);
 		case North:
 			while (face.containsOnly(0) && face.getLowerX() > this.getLowerX()) {
-				face = face.shift(Direction.North, 1);
+				face = face.shift(CuboidDirection.North, 1);
 			}
 			return new Cuboid(worldName, x1, y1, z1, face.getUpperX(), y2, z2);
 		case South:
 			while (face.containsOnly(0) && face.getUpperX() < this.getUpperX()) {
-				face = face.shift(Direction.South, 1);
+				face = face.shift(CuboidDirection.South, 1);
 			}
 			return new Cuboid(worldName, face.getLowerX(), y1, z1, x2, y2, z2);
 		case East:
 			while (face.containsOnly(0) && face.getLowerZ() > this.getLowerZ()) {
-				face = face.shift(Direction.East, 1);
+				face = face.shift(CuboidDirection.East, 1);
 			}
 			return new Cuboid(worldName, x1, y1, z1, x2, y2, face.getUpperZ());
 		case West:
 			while (face.containsOnly(0) && face.getUpperZ() < this.getUpperZ()) {
-				face = face.shift(Direction.West, 1);
+				face = face.shift(CuboidDirection.West, 1);
 			}
 			return new Cuboid(worldName, x1, y1, face.getLowerZ(), x2, y2, z2);
 		default:
@@ -472,7 +472,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @param dir	which face of the Cuboid to get 
 	 * @return	the Cuboid representing this Cuboid's requested face
 	 */
-	public Cuboid getFace(Direction dir	) {
+	public Cuboid getFace(CuboidDirection dir	) {
 		switch (dir) {
 		case Down:
 			return new Cuboid(worldName, x1, y1, z1, x2, y1, z2);
@@ -634,4 +634,33 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		}
 	}
 
+	public enum CuboidDirection {
+
+		North, East, South, West, Up, Down, Horizontal, Vertical, Both, Unknown;
+		
+		public CuboidDirection opposite() {
+			switch(this) {
+				case North:
+					return South;
+				case East:
+					return West;
+				case South:
+					return North;
+				case West:
+					return East;
+				case Horizontal:
+					return Vertical;
+				case Vertical:
+					return Horizontal;
+				case Up:
+					return Down;
+				case Down:
+					return Up;
+				case Both:
+					return Both;
+				default:
+					return Unknown;
+			}
+		}
+	}
 }
