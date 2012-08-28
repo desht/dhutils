@@ -1,16 +1,19 @@
 package me.desht.dhutils.cuboid;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
-public class Cuboid implements Iterable<Block>, Cloneable {
+public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializable {
 	protected final String worldName;
 	protected final int x1, y1, z1;
 	protected final int x2, y2, z2;
@@ -95,6 +98,29 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		this.z2 = Math.max(z1, z2);
 	}
 	
+	public Cuboid(Map<String,Object> map) {
+		worldName = (String)map.get("worldName");
+		x1 = (Integer) map.get("x1");
+		x2 = (Integer) map.get("x2");
+		y1 = (Integer) map.get("y1");
+		y2 = (Integer) map.get("y2");
+		z1 = (Integer) map.get("z1");
+		z2 = (Integer) map.get("z2");
+	}
+	
+	@Override
+	public Map<String, Object> serialize() {
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("worldName", worldName);
+		map.put("x1", x1);
+		map.put("y1", y1);
+		map.put("z1", z1);
+		map.put("x2", x2);
+		map.put("y2", y2);
+		map.put("z2", z2);
+		return map;
+	}
+
 	/**
 	 * Get the Location of the lower northeast corner of the Cuboid (minimum XYZ
 	 * co-ordinates).
