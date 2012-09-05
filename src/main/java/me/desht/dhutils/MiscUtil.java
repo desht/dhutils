@@ -28,7 +28,7 @@ public class MiscUtil {
 	public static void init(Plugin plugin) {
 		messageFormat = "[" + plugin.getDescription().getName() + "]: %s";
 	}
-	
+
 	public static void errorMessage(CommandSender sender, String string) {
 		setPrevColour(sender.getName(), ChatColor.RED);
 		message(sender, string, ChatColor.RED, Level.WARNING);
@@ -54,18 +54,18 @@ public class MiscUtil {
 		setPrevColour(sender.getName(), ChatColor.YELLOW);
 		Bukkit.getServer().broadcastMessage(parseColourSpec(sender, "&4::&-" + string)); //$NON-NLS-1$
 	}
-	
+
 	private static void setPrevColour(String name, ChatColor colour) {
 		prevColours.put(name, colour);
 	}
-	
+
 	private static ChatColor getPrevColour(String name) {
 		if (!prevColours.containsKey(name)) {
 			setPrevColour(name, ChatColor.WHITE);
 		}
 		return prevColours.get(name);
 	}
-	
+
 	public static void rawMessage(CommandSender sender, String string) {
 		for (String line : string.split("\\n")) { //$NON-NLS-1$
 			if (sender instanceof Player) {
@@ -107,7 +107,7 @@ public class MiscUtil {
 	public static Location parseLocation(String arglist, CommandSender sender) {
 		String s = sender instanceof Player ? "" : ",worldname";
 		String args[] = arglist.split(",");
-		
+
 		try {
 			int x = Integer.parseInt(args[0]);
 			int y = Integer.parseInt(args[1]);
@@ -120,13 +120,13 @@ public class MiscUtil {
 			throw new IllegalArgumentException("Invalid number in " + arglist);
 		}
 	}
-	
-	private static Pattern colourPat = Pattern.compile("(?<!&)&(?=[0-9a-fA-Fk-oK-OrR])");
-	
+
+	private static final Pattern colourPat = Pattern.compile("(?<!&)&(?=[0-9a-fA-Fk-oK-OrR])");
+
 	public static String parseColourSpec(String spec) {
 		return parseColourSpec(null, spec);
 	}
-	
+
 	public static String parseColourSpec(CommandSender sender, String spec) {
 		String who = sender == null ? "*" : sender.getName();
 		String res = colourPat.matcher(spec).replaceAll("\u00A7");
@@ -148,10 +148,10 @@ public class MiscUtil {
 
 	public static List<String> splitQuotedString(String s) {
 		List<String> matchList = new ArrayList<String>();
-		
+
 		Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
 		Matcher regexMatcher = regex.matcher(s);
-		
+
 		while (regexMatcher.find()) {
 			if (regexMatcher.group(1) != null) {
 				// Add double-quoted string without the quotes
@@ -167,10 +167,10 @@ public class MiscUtil {
 
 		return matchList;
 	}
-	
+
 	public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
-	  List<T> list = new ArrayList<T>(c);
-	  java.util.Collections.sort(list);
-	  return list;
+		List<T> list = new ArrayList<T>(c);
+		java.util.Collections.sort(list);
+		return list;
 	}
 }
