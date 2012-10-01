@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -172,5 +173,14 @@ public class MiscUtil {
 		List<T> list = new ArrayList<T>(c);
 		java.util.Collections.sort(list);
 		return list;
+	}
+	
+	public static void playNamedSound(Location loc, String sound, float volume, float pitch) {
+		if (sound.isEmpty())
+			return;
+		double x = loc.getX();
+		double y = loc.getY();
+		double z = loc.getZ();
+		((CraftWorld)loc.getWorld()).getHandle().makeSound(x, y, z, sound, volume, pitch);
 	}
 }
