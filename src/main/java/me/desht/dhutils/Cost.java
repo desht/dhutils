@@ -136,7 +136,8 @@ public class Cost {
 
 	@Override
 	public String toString() {
-		return type.toString() + ":" + id + ":" + data + "," + quantity;
+		String dataStr = data == null ? "" : ":" + data;
+		return type.toString() + "," + id + dataStr + "," + quantity;
 	}
 	
 	public String getDescription() {
@@ -144,7 +145,7 @@ public class Cost {
 		case MONEY:
 			return economy == null ? "$" + quantity : economy.format(quantity);
 		case DURABILITY:
-			return (int)quantity + " durability on " + Material.getMaterial(id);
+			return (int)quantity + " durability from " + Material.getMaterial(id);
 		case EXPERIENCE:
 			return (int)quantity + "XP";
 		case FOOD:
