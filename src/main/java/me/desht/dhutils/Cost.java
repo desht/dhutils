@@ -147,13 +147,13 @@ public class Cost {
 		case DURABILITY:
 			return (int)quantity + " durability from " + Material.getMaterial(id);
 		case EXPERIENCE:
-			return (int)quantity + "XP";
+			return (int)quantity + " XP";
 		case FOOD:
 			return (int)quantity + " hunger";
 		case HEALTH:
 			return (int)quantity + " health";
 		case ITEM:
-			String desc = (int)quantity + " x " + Material.getMaterial(id);
+			String desc = (int)quantity + " " + Material.getMaterial(id).toString().toLowerCase().replace("_", " ");
 			if (data != null) desc += ":" + data;
 			return desc;
 		default:
