@@ -12,14 +12,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 public abstract class AbstractCommand {
+	private final int minArgs, maxArgs;
+	private final List<CommandRecord> cmdRecs = new ArrayList<AbstractCommand.CommandRecord>();
+	private final Map<String, OptType> options = new HashMap<String,OptType>();
+	private final Map<String,Object> optVals = new HashMap<String, Object>();
 	private String usage[];
-	private int minArgs, maxArgs;
 	private String permissionNode;
 	private boolean quotedArgs;
-	private final List<CommandRecord> cmdRecs = new ArrayList<AbstractCommand.CommandRecord>();
 	private String matchedArgs[];
 
 	public AbstractCommand(String label) {
@@ -54,7 +57,7 @@ public abstract class AbstractCommand {
 				continue;
 
 			for (int i = 0; i < rec.subCommands.length; i++) {
-				//				System.out.println(String.format("match subcmd %d: [%s] <=> [%s]", i, args[i], rec.subCommands[i]));
+				LogUtils.finer(String.format("matchesSubcmd: %d: [%s] <=> [%s]", i, args[i], rec.subCommands[i]));
 				if (!args[i].startsWith(rec.subCommands[i])) {
 					continue OUTER;
 				}
@@ -77,7 +80,7 @@ public abstract class AbstractCommand {
 			} else {
 				nArgs = args.length - rec.subCommands.length;
 			}
-			//		System.out.println(String.format("match %s, nArgs=%d min=%d max=%d", label, nArgs, minArgs, maxArgs));
+			LogUtils.finer(String.format("matchesArgCount: %s, nArgs=%d min=%d max=%d", label, nArgs, minArgs, maxArgs));
 			if (nArgs >= minArgs && nArgs <= maxArgs) {
 				storeMatchedArgs(args, rec);
 				return true;
@@ -88,16 +91,47 @@ public abstract class AbstractCommand {
 	}
 
 	private void storeMatchedArgs(String[] args, CommandRecord rec) {
-		String[] result = new String[args.length - rec.subCommands.length];
+		String[] tmpResult = new String[args.length - rec.subCommands.length];
 		for (int i = rec.subCommands.length; i < args.length; i++) {
-			result[i - rec.subCommands.length] = args[i];
+			tmpResult[i - rec.subCommands.length] = args[i];
 		}
+		
+		String[] tmpArgs;
 		if (isQuotedArgs()) {
-			List<String>a = MiscUtil.splitQuotedString(combine(result, 0));
-			matchedArgs = a.toArray(new String[a.size()]);
+			List<String>a = MiscUtil.splitQuotedString(combine(tmpResult, 0));
+			tmpArgs = a.toArray(new String[a.size()]);
 		} else {
-			matchedArgs = result;
+			tmpArgs = tmpResult;
 		}
+		
+		// extract any command-line options that were specified
+		List<String> l = new ArrayList<String>(tmpArgs.length);
+		optVals.clear();
+		for (int i = 0; i < tmpArgs.length; i++) {
+			String opt = tmpArgs[i].substring(1);
+			if (options.containsKey(opt)) {
+				try {
+					switch (options.get(opt)) {
+					case BOOL:
+						optVals.put(opt, true); break;
+					case STRING:
+						optVals.put(opt, tmpArgs[++i]); break;
+					case INT:
+						optVals.put(opt, Integer.parseInt(tmpArgs[++i])); break;
+					case DOUBLE:
+						optVals.put(opt, Double.parseDouble(tmpArgs[++i])); break;
+					default:
+						throw new IllegalStateException("unexpected option type for " + tmpArgs[i]);	
+					}
+				} catch (Exception e) {
+					throw new DHUtilsException("invalid value for option '" + tmpArgs[i] + "'");
+				}
+			} else {
+				l.add(tmpArgs[i]);
+			}
+		}
+		
+		matchedArgs = l.toArray(new String[l.size()]);
 	}
 
 	protected void showUsage(CommandSender sender) {
@@ -112,7 +146,7 @@ public abstract class AbstractCommand {
 		}
 	}
 
-	String[] getArgs() {
+	protected String[] getArgs() {
 		return matchedArgs;
 	}
 
@@ -132,12 +166,51 @@ public abstract class AbstractCommand {
 		return usage;
 	}
 
+	protected void setOptions(String optSpec) {
+		for (String opt : optSpec.split(",")) {
+			String[] parts = opt.split(":");
+			if (parts.length == 1) {
+				options.put(parts[0], OptType.BOOL);
+			} else if (parts[1].startsWith("i")) {
+				options.put(parts[0], OptType.INT);
+			} else if (parts[1].startsWith("d")) {
+				options.put(parts[0], OptType.DOUBLE);
+			} else if (parts[1].startsWith("s")) {
+				options.put(parts[0], OptType.STRING);
+			}
+		}
+	}
+	
 	protected String getPermissionNode() {
 		return permissionNode;
 	}
 
 	public boolean isQuotedArgs() {
 		return quotedArgs;
+	}
+
+	protected boolean hasOption(String opt) {
+		return optVals.containsKey(opt);
+	}
+	
+	protected Object getOption(String opt) {
+		return optVals.get(opt);
+	}
+	
+	protected int getIntOption(String opt) {
+		return (Integer) optVals.get(opt);
+	}
+	
+	protected String getStringOption(String opt) {
+		return (String) optVals.get(opt);
+	}
+	
+	protected double getDoubleOption(String opt) {
+		return (Double) optVals.get(opt);
+	}
+	
+	protected boolean getBooleanOption(String opt) {
+		return (Boolean) optVals.get(opt);
 	}
 
 	public void setQuotedArgs(boolean usesQuotedArgs) {
@@ -196,4 +269,6 @@ public abstract class AbstractCommand {
 			}
 		}
 	}
+	
+	private enum OptType { BOOL, STRING, INT, DOUBLE };
 }
