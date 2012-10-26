@@ -201,7 +201,7 @@ public abstract class AbstractCommand {
 		return optVals.get(opt);
 	}
 	
-	protected Integer getIntOption(String opt) {
+	protected int getIntOption(String opt) {
 		if (!optVals.containsKey(opt)) return 0;
 		return (Integer) optVals.get(opt);
 	}
