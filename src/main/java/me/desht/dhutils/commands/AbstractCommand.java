@@ -166,8 +166,8 @@ public abstract class AbstractCommand {
 		return usage;
 	}
 
-	protected void setOptions(String optSpec) {
-		for (String opt : optSpec.split(",")) {
+	protected void setOptions(String[] optSpec) {
+		for (String opt : optSpec) {
 			String[] parts = opt.split(":");
 			if (parts.length == 1) {
 				options.put(parts[0], OptType.BOOL);
@@ -179,6 +179,10 @@ public abstract class AbstractCommand {
 				options.put(parts[0], OptType.STRING);
 			}
 		}
+	}
+	
+	protected void setOptions(String optSpec) {
+		setOptions(optSpec.split(","));
 	}
 	
 	protected String getPermissionNode() {
@@ -197,19 +201,23 @@ public abstract class AbstractCommand {
 		return optVals.get(opt);
 	}
 	
-	protected int getIntOption(String opt) {
+	protected Integer getIntOption(String opt) {
+		if (!optVals.containsKey(opt)) return 0;
 		return (Integer) optVals.get(opt);
 	}
 	
 	protected String getStringOption(String opt) {
+		if (!optVals.containsKey(opt)) return null;
 		return (String) optVals.get(opt);
 	}
 	
 	protected double getDoubleOption(String opt) {
+		if (!optVals.containsKey(opt)) return 0.0;
 		return (Double) optVals.get(opt);
 	}
 	
 	protected boolean getBooleanOption(String opt) {
+		if (!optVals.containsKey(opt)) return false;
 		return (Boolean) optVals.get(opt);
 	}
 
@@ -238,6 +246,7 @@ public abstract class AbstractCommand {
 		return result.toString();
 	}
 
+	@Deprecated
 	protected Map<String, String> parseCommandOptions(String[] args, int start) {
 		Map<String, String> res = new HashMap<String, String>();
 
