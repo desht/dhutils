@@ -10,22 +10,41 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.ChatPaginator;
 
 public class MessagePager {
 
+	public static final String BULLET = ChatColor.LIGHT_PURPLE + "\u2022 " + ChatColor.RESET;
+	
+	private static final int DEF_PAGE_SIZE = 18;	// 20 lines total, minus 2 for header and footer
+	
 	private static String pageCmd = "";
-	private static final int pageSize = 18;	// 20 lines total, minus 2 for header and footer
+	private static int defaultPageSize = DEF_PAGE_SIZE;
+	
 	private static final Map<String, MessagePager> pagers = new HashMap<String, MessagePager>();
 
 	private final List<String> messages;
 	private final CommandSender sender;
 
 	private int currentPage;
+	private int pageSize;
 	
 	public MessagePager(CommandSender sender) {
 		this.sender = sender;
 		this.currentPage = 1;
+		this.pageSize = getDefaultPageSize();
 		this.messages = new ArrayList<String>();
+	}
+
+	public static int getDefaultPageSize() {
+		return defaultPageSize;
+	}
+	
+	public static void setDefaultPageSize(int pageSize) {
+		defaultPageSize = pageSize;
+	}
+	public static void setDefaultPageSize() {
+		defaultPageSize = DEF_PAGE_SIZE;
 	}
 
 	/**
@@ -77,10 +96,14 @@ public class MessagePager {
 	 * 
 	 * @return The page size
 	 */
-	public static int getPageSize() {
+	public int getPageSize() {
 		return pageSize;
 	}
 
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+	
 	/**
 	 * Clear this message buffer
 	 */
@@ -91,12 +114,27 @@ public class MessagePager {
 	}
 
 	/**
+	 * Get the max line length in characters for this pager.
+	 * @return
+	 */
+	public int getLineLength() {
+		// players have a little extra graphics at the front
+		return sender instanceof Player ? 58 : 60;
+	}
+	
+	/**
 	 * Add a message to the buffer.
 	 * 
 	 * @param line	The message line to add
 	 */
 	public void add(String line) {
-		messages.add(line);
+		for (String l2 : ChatPaginator.wordWrap(MiscUtil.parseColourSpec(sender, line), 60)) {
+			messages.add(l2);
+		}
+	}
+	
+	public void addListItem(String line) {
+		add(BULLET + line);
 	}
 
 	/**
@@ -114,17 +152,24 @@ public class MessagePager {
 		//TODO: apply MinecraftChatStr.alignTags(lines, true)
 		//		in pagesize segments before adding to buffer
 
+		List<String> actual = new ArrayList<String>();
+		for (String l : lines) {
+			for (String l2 : ChatPaginator.wordWrap(MiscUtil.parseColourSpec(sender, l), 60)) {
+				actual.add(l2);
+			}
+		}
+
 		// if block is bigger than a page, just add it
-		if (lines.size() <= pageSize
-				&& (messages.size() % pageSize) + lines.size() > pageSize
+		if (actual.size() <= getPageSize()
+				&& (messages.size() % getPageSize()) + actual.size() > getPageSize()
 				&& sender instanceof Player) {
 			// else, add padding above to keep the block on one page
-			for (int i = messages.size() % pageSize; i < pageSize; ++i) {
+			for (int i = messages.size() % getPageSize(); i < getPageSize(); ++i) {
 				//System.out.println("pad " + i);
 				messages.add("");
 			}
 		}
-		for (String line : lines) {
+		for (String line : actual) {
 			messages.add(line);
 		}
 	}
@@ -144,7 +189,7 @@ public class MessagePager {
 	 * @return number of pages in the buffer, including the partial page at the end
 	 */
 	public int getPageCount() {
-		return (getSize() - 1) / pageSize + 1;
+		return (getSize() - 1) / getPageSize() + 1;
 	}
 
 	/**
@@ -236,25 +281,25 @@ public class MessagePager {
 				return;
 			}
 			
-			int i = (pageNum - 1) * pageSize;
+			int i = (pageNum - 1) * getPageSize();
 			int nMessages = getSize();
-			String header = String.format("| %d-%d of %d lines (page %d/%d) |",
-			                                   i + 1, Math.min(pageSize * pageNum, nMessages), nMessages,
+			String header = String.format("\u2524 %d-%d of %d lines (page %d/%d) \u251c",
+			                                   i + 1, Math.min(getPageSize() * pageNum, nMessages), nMessages,
 			                                   pageNum, getPageCount());
-			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(header, 310, '-'));
+			MiscUtil.rawMessage(player, ChatColor.GREEN + "\u250c" + MinecraftChatStr.strPadCenterChat(header, 325, '\u2504'));
 
-			for (; i < nMessages && i < pageNum * pageSize; ++i) {
-				MiscUtil.statusMessage(player, getLine(i));
+			for (; i < nMessages && i < pageNum * getPageSize(); ++i) {
+				MiscUtil.rawMessage(player, ChatColor.GREEN + "\u250a " + ChatColor.RESET + getLine(i));
 			}
 
-			String footer =  nMessages > pageSize * pageNum ? "| Use " + pageCmd + " to see other pages |" : "";
-			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(footer, 310, '-'));
+			String footer = getPageCount() > 1 ? "\u2524 Use " + pageCmd + " to see other pages \u251c" : "";
+			MiscUtil.rawMessage(player, ChatColor.GREEN + "\u2514" + MinecraftChatStr.strPadCenterChat(footer, 325, '\u2504'));
 
 			setPage(pageNum);
 		} else {
 			// just dump the whole message buffer to the console
 			for (String s : messages) {
-				MiscUtil.statusMessage(Bukkit.getConsoleSender(), s);
+				MiscUtil.rawMessage(Bukkit.getConsoleSender(), s);
 			}
 		}
 	}
