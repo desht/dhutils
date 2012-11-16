@@ -573,6 +573,15 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		return res;
 	}
 	
+	/**
+	 * Fill the cuboid with the given block
+	 */
+	public void fill(int blockId, byte data) {
+		for (Block b: this) {
+			b.setTypeIdAndData(blockId, data, false);
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
