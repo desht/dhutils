@@ -41,7 +41,7 @@ public class MessagePager {
 	}
 	
 	public static void setDefaultPageSize(int pageSize) {
-		defaultPageSize = pageSize;
+		defaultPageSize = pageSize <= 0 ? Integer.MAX_VALUE : pageSize;
 	}
 	public static void setDefaultPageSize() {
 		defaultPageSize = DEF_PAGE_SIZE;
