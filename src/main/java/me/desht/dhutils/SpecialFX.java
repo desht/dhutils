@@ -135,7 +135,7 @@ public class SpecialFX {
 			double x = loc.getX();
 			double y = loc.getY();
 			double z = loc.getZ();
-			System.out.println("play sound " + sound + " v=" + volume + " @ " + x + "," + y + "," + z);
+//			LogUtils.fine("playNamedSound: " + sound + " vol=" + volume + " pitch =" + pitch + " @ " + MiscUtil.formatLocation(loc));
 			((CraftWorld)loc.getWorld()).getHandle().makeSound(x, y, z, sound, volume, pitch);
 		}
 
