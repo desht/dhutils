@@ -11,13 +11,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+import net.minecraft.server.NBTTagCompound;
+import net.minecraft.server.NBTTagList;
+import net.minecraft.server.NBTTagString;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class MiscUtil {
@@ -174,7 +180,7 @@ public class MiscUtil {
 		java.util.Collections.sort(list);
 		return list;
 	}
-	
+
 	public static void playNamedSound(Location loc, String sound, float volume, float pitch) {
 		if (sound.isEmpty())
 			return;
@@ -182,5 +188,57 @@ public class MiscUtil {
 		double y = loc.getY();
 		double z = loc.getZ();
 		((CraftWorld)loc.getWorld()).getHandle().makeSound(x, y, z, sound, volume, pitch);
+	}
+
+	/**
+	 * Set the item name and lore for an item using the MC 1.4 item renaming system.  Hopefully this is 
+	 * just temporary until Bukkit adds an API for it.  Credit to nisovin for this code.
+	 * 
+	 * @param item	The item to be renamed
+	 * @param name	New name for the item
+	 * @param lore	Item lore (can be null)
+	 * @return	the renamed item
+	 */
+	public static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore) {
+		CraftItemStack craftItem;        
+		if (item instanceof CraftItemStack) {
+			craftItem = (CraftItemStack)item;
+		} else {
+			craftItem = new CraftItemStack(item);
+		}
+
+		NBTTagCompound tag = craftItem.getHandle().tag;
+		if (tag == null) {
+			tag = new NBTTagCompound();
+			craftItem.getHandle().tag = tag;
+		}
+		NBTTagCompound disp = tag.getCompound("display");
+		if (disp == null) {
+			disp = new NBTTagCompound("display");
+		}
+
+		disp.setString("Name", name);
+
+		if (lore != null && lore.length > 0) {
+			NBTTagList list = new NBTTagList("Lore");
+			disp.set("Lore", list);
+			for (String l : lore) {
+				list.add(new NBTTagString("", l));
+			}
+		}
+
+		tag.setCompound("display", disp);
+
+		return craftItem;
+	}
+
+	public static void removeItemName(ItemStack item) {
+		CraftItemStack craftItem;        
+		if (item instanceof CraftItemStack) {
+			craftItem = (CraftItemStack)item;
+		} else {
+			craftItem = new CraftItemStack(item);
+		}
+		craftItem.getHandle().tag = null;
 	}
 }
