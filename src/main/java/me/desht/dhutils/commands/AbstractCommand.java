@@ -108,7 +108,12 @@ public abstract class AbstractCommand {
 		List<String> l = new ArrayList<String>(tmpArgs.length);
 		optVals.clear();
 		for (int i = 0; i < tmpArgs.length; i++) {
-			String opt = tmpArgs[i].length() > 1 ? tmpArgs[i].substring(1) : "";
+			String opt;
+			if (tmpArgs[i].length() < 2 || !tmpArgs[i].startsWith("-")) {
+				opt = "";
+			} else {
+				opt = tmpArgs[i].substring(1);
+			}
 			if (options.containsKey(opt)) {
 				try {
 					switch (options.get(opt)) {
