@@ -12,6 +12,9 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionEffectTypeWrapper;
 
 import me.desht.dhutils.ExperienceManager;
 import me.desht.dhutils.MiscUtil;
@@ -104,9 +107,19 @@ public class Cost {
 			}
 		} else if (itemType.length() > 1) {
 			Material mat = Material.matchMaterial(itemType);
-			if (mat == null) throw new IllegalArgumentException("cost: unknown material '" + itemType + "'");
-			type = durability ? CostType.DURABILITY : CostType.ITEM;
-			id = mat.getId();
+			if (mat != null) {
+				// a material name
+				type = durability ? CostType.DURABILITY : CostType.ITEM;
+				id = mat.getId();
+			} else {
+				// maybe it's a potion name?
+				PotionEffectType pt = PotionEffectType.getByName(itemType);
+				if (pt == null) {
+					throw new IllegalArgumentException("cost: unknown material or potion type '" + itemType + "'");
+				}
+				type = CostType.POTION_EFFECT;
+				id = pt.getId();
+			}
 		} else {
 			throw new IllegalArgumentException("cost: unknown item type '" + itemType + "'");
 		}
@@ -139,7 +152,7 @@ public class Cost {
 		String dataStr = data == null ? "" : ":" + data;
 		return type.toString() + "," + id + dataStr + "," + quantity;
 	}
-	
+
 	public String getDescription() {
 		switch (type) {
 		case MONEY:
@@ -213,7 +226,7 @@ public class Cost {
 		}
 		Player player = (Player) sender;
 
-		if (getQuantity() == 0.0)
+		if (getQuantity() == 0.0 && getType() != CostType.POTION_EFFECT)
 			return;
 		switch (getType()) {
 		case MONEY:
@@ -251,6 +264,17 @@ public class Cost {
 		case DURABILITY:
 			chargeDurability(player);
 			player.updateInventory();
+			break;
+		case POTION_EFFECT:
+			PotionEffectType pt = PotionEffectType.getById(id);
+			int amp = getData() == null ? 0 : getData() - 1;
+			PotionEffect pe = new PotionEffect(pt, (int)getQuantity() * 20, amp);
+			if (player.hasPotionEffect(pt)) {
+				player.removePotionEffect(pt);
+			}
+			if (getQuantity() > 0) {
+				player.addPotionEffect(pe);
+			}
 			break;
 		}
 	}
@@ -412,7 +436,7 @@ public class Cost {
 	}
 
 	public enum CostType {
-		ITEM, MONEY, EXPERIENCE, FOOD, HEALTH, DURABILITY,
+		ITEM, MONEY, EXPERIENCE, FOOD, HEALTH, DURABILITY, POTION_EFFECT,
 	}
 
 }
