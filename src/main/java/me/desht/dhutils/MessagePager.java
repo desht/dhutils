@@ -128,7 +128,7 @@ public class MessagePager {
 	 * @param line	The message line to add
 	 */
 	public void add(String line) {
-		for (String l2 : ChatPaginator.wordWrap(MiscUtil.parseColourSpec(sender, line), 60)) {
+		for (String l2 : wrap(line)) {
 			messages.add(l2);
 		}
 	}
@@ -154,7 +154,7 @@ public class MessagePager {
 
 		List<String> actual = new ArrayList<String>();
 		for (String l : lines) {
-			for (String l2 : ChatPaginator.wordWrap(MiscUtil.parseColourSpec(sender, l), 60)) {
+			for (String l2 : wrap(l)) {
 				actual.add(l2);
 			}
 		}
@@ -301,6 +301,14 @@ public class MessagePager {
 			for (String s : messages) {
 				MiscUtil.rawMessage(Bukkit.getConsoleSender(), s);
 			}
+		}
+	}
+
+	private String[] wrap(String line) {
+		if (sender instanceof Player) {
+			return ChatPaginator.wordWrap(MiscUtil.parseColourSpec(sender, line), 60);
+		} else {
+			return new String[] { line };
 		}
 	}
 

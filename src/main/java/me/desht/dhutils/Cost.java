@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionEffectTypeWrapper;
 
 import me.desht.dhutils.ExperienceManager;
 import me.desht.dhutils.MiscUtil;
@@ -174,6 +173,17 @@ public class Cost {
 		}
 	}
 
+	public boolean isApplicable(CommandSender sender) {
+		if (getType() == CostType.DURABILITY) {
+			Material mat = Material.getMaterial(getId());
+			short maxDurability = mat.getMaxDurability();
+			if (maxDurability == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public boolean isAffordable(CommandSender sender) {
 		if (!(sender instanceof Player)) {
 			return true;
@@ -365,7 +375,7 @@ public class Cost {
 
 			short currentDurability = entry.getValue().getDurability();
 			short newDurability = (short) (currentDurability + total);
-
+			
 			if (newDurability < 0)
 				newDurability = 0;
 
@@ -416,6 +426,21 @@ public class Cost {
 	public static boolean playerCanAfford(CommandSender sender, List<Cost> costs) {
 		for (Cost c : costs) {
 			if (!c.isAffordable(sender))
+				return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Check if the costs are applicable.
+	 * 
+	 * @param sender
+	 * @param costs
+	 * @return
+	 */
+	public static boolean isApplicable(CommandSender sender, List<Cost> costs) {
+		for (Cost c : costs) {
+			if (!c.isApplicable(sender))
 				return false;
 		}
 		return true;

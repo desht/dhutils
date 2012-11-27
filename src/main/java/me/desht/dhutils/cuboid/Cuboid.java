@@ -6,12 +6,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.BlockUtils;
+import me.desht.dhutils.block.MaterialWithData;
+import me.desht.dhutils.LogUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.InventoryHolder;
 
 public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializable {
 	protected final String worldName;
@@ -672,4 +679,98 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 			}
 		}
 	}
+
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID and data byte.
+	 * 
+	 * @param blockId
+	 * @param data
+	 * @param fast
+	 */
+	public void fill(int blockId, byte data) {
+		long start = System.nanoTime();
+
+		if (blockId == 0) {
+			clear(false);
+		} else {
+			for (Block b : this) {
+				b.setTypeIdAndData(blockId, data, false);
+			}
+		}
+
+		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+	}
+	
+	/**
+	 * Set all the blocks within the Cuboid to the given MaterialWithData
+	 * 
+	 * @param mat	The material to set
+	 */
+	public void fill(MaterialWithData mat) {
+		fill(mat.getId(), mat.getData());
+	}
+
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID and data, using fast direct chunk access.
+	 * This will require a call to sendClientChanges() later to ensure clients see the updates.
+	 * 
+	 * @param blockId	The block ID to set
+	 * @param data 	The data byte to set
+	 */
+	public void fillFast(int blockId, byte data) {
+		long start = System.nanoTime();
+		
+		if (blockId == 0) {
+			clear(true);
+		} else {
+			for (Block b : this) {
+				BlockUtils.setBlockFast(b, blockId, data);
+			}
+		}
+		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+	}
+	
+	public void fillFast(MaterialWithData mat) {
+		fillFast(mat.getId(), mat.getData());
+	}
+	
+	/**
+	 * Delete blocks, but don't allow items to drop (paintings are not
+	 * blocks, and are not included).  Does not check for blocks attached to the
+	 * outside faces of the Cuboid.
+	 *
+	 * @param fast	Use low-level NMS calls to clear the Cuboid to avoid excessive
+	 * 			lighting recalculation
+	 */
+	public void clear(boolean fast) {
+		// first remove blocks that might pop off & leave a drop
+		for (Block b : this) {
+			if (BlockType.shouldPlaceLast(b.getTypeId())) {
+				if (fast) {
+					BlockUtils.setBlockFast(b, 0);
+				} else {
+					b.setTypeId(0);
+				}
+			} else if (BlockType.isContainerBlock(b.getTypeId())) {
+				// also check if this is a container, and empty it if necessary
+				BlockState state = b.getState();
+				if (state instanceof InventoryHolder) {
+					InventoryHolder ih = (InventoryHolder) state;
+					ih.getInventory().clear();
+				}
+			}
+		}
+		// now wipe all (remaining) blocks
+		if (fast) {
+			for (Block b : this) {
+				BlockUtils.setBlockFast(b, 0);
+			}
+		} else {
+			for (Block b : this) {
+				b.setTypeId(0);
+			}
+		}
+	}
+	
+	
 }
