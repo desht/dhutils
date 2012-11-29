@@ -2,14 +2,20 @@ package me.desht.dhutils.cuboid;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 
+import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.BlockUtils;
 import me.desht.dhutils.block.MaterialWithData;
-import me.desht.dhutils.LogUtils;
+import net.minecraft.server.ChunkCoordIntPair;
+import net.minecraft.server.EntityPlayer;
+import net.minecraft.server.EnumSkyBlock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -18,7 +24,13 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.craftbukkit.CraftChunk;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
+
+import com.google.common.base.Joiner;
 
 public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializable {
 	protected final String worldName;
@@ -580,6 +592,168 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		return res;
 	}
 	
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID and data byte.
+	 * 
+	 * @param blockId
+	 * @param data
+	 * @param fast
+	 */
+	public void fill(int blockId, byte data) {
+		long start = System.nanoTime();
+	
+		if (blockId == 0) {
+			clear(false);
+		} else {
+			for (Block b : this) {
+				b.setTypeIdAndData(blockId, data, false);
+			}
+		}
+	
+		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+	}
+
+	/**
+	 * Set all the blocks within the Cuboid to the given MaterialWithData
+	 * 
+	 * @param mat	The material to set
+	 */
+	public void fill(MaterialWithData mat) {
+		fill(mat.getId(), mat.getData());
+	}
+
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID and data, using fast direct chunk access.
+	 * This will require a call to sendClientChanges() later to ensure clients see the updates.
+	 * 
+	 * @param blockId	The block ID to set
+	 * @param data 	The data byte to set
+	 */
+	public void fillFast(int blockId, byte data) {
+		long start = System.nanoTime();
+		
+		if (blockId == 0) {
+			clear(true);
+		} else {
+			for (Block b : this) {
+				BlockUtils.setBlockFast(b, blockId, data);
+			}
+		}
+		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+	}
+
+	public void fillFast(MaterialWithData mat) {
+		fillFast(mat.getId(), mat.getData());
+	}
+
+	/**
+	 * Delete blocks, but don't allow items to drop (paintings are not
+	 * blocks, and are not included).  Does not check for blocks attached to the
+	 * outside faces of the Cuboid.
+	 *
+	 * @param fast	Use low-level NMS calls to clear the Cuboid to avoid excessive
+	 * 			lighting recalculation
+	 */
+	public void clear(boolean fast) {
+		// first remove blocks that might pop off & leave a drop
+		for (Block b : this) {
+			if (BlockType.shouldPlaceLast(b.getTypeId())) {
+				if (fast) {
+					BlockUtils.setBlockFast(b, 0);
+				} else {
+					b.setTypeId(0);
+				}
+			} else if (BlockType.isContainerBlock(b.getTypeId())) {
+				// also check if this is a container, and empty it if necessary
+				BlockState state = b.getState();
+				if (state instanceof InventoryHolder) {
+					InventoryHolder ih = (InventoryHolder) state;
+					ih.getInventory().clear();
+				}
+			}
+		}
+		// now wipe all (remaining) blocks
+		if (fast) {
+			for (Block b : this) {
+				BlockUtils.setBlockFast(b, 0);
+			}
+		} else {
+			for (Block b : this) {
+				b.setTypeId(0);
+			}
+		}
+	}
+
+	/**
+	 * Force lighting to be recalculated for all chunks occupied by the cuboid.
+	 */
+	public void initLighting() {	
+		for (Chunk c : getChunks()) {
+			((CraftChunk)c).getHandle().initLighting();
+			LogUtils.finer("Cuboid: initLighting: chunk " + c + ": relit"); 
+		}
+	}
+
+	/**
+	 * Set the light level of all blocks within this Cuboid.
+	 * 
+	 * @param level			the required light level
+	 */
+	public void forceLightLevel(int level) {
+		long start = System.nanoTime();
+		net.minecraft.server.World w = ((CraftWorld) getWorld()).getHandle();
+		for (int x = getLowerX(); x < getUpperX(); x++) {
+			for (int z = getLowerZ(); z < getUpperZ(); z++) {
+				for (int y = getLowerY(); y < getUpperY(); y++) {
+					// this was w.a() in CB 1.2
+					w.b(EnumSkyBlock.BLOCK, x, y, z, level);
+				}
+			}
+		}
+		LogUtils.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
+	}
+
+	/**
+	 * Any players within the threshold distance of the cuboid may need
+	 * to be notified of any fast changes that happened, to avoid "phantom" blocks showing
+	 * up on the client.  Add the chunk coordinates of affected chunks to those players'
+	 * chunk queue.
+	 */
+	public void sendClientChanges() {
+		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
+		threshold = threshold * threshold;
+	
+		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
+		for (Chunk c : getChunks()) {
+			pairs.add(new ChunkCoordIntPair(c.getX(), c.getZ()));
+		}
+		int centerX = getLowerX() + getSizeX() / 2;	
+		int centerZ = getLowerZ() + getSizeZ() / 2;
+		for (Player player : getWorld().getPlayers()) {
+			int px = player.getLocation().getBlockX();
+			int pz = player.getLocation().getBlockZ();
+			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
+				queueChunks(((CraftPlayer) player).getHandle(), pairs);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")	
+	private void queueChunks(EntityPlayer ep, List<ChunkCoordIntPair> pairs) {
+		if (LogUtils.getLogLevel() == Level.FINEST) {	// if statement to avoid unnecessary Joiner call overhead
+			LogUtils.finest("queue chunk co-ordinate pairs for " + ep.name + ": " + Joiner.on(", ").join(pairs));
+		}
+		Set<ChunkCoordIntPair> queued = new HashSet<ChunkCoordIntPair>();
+		for (Object o : ep.chunkCoordIntPairQueue) {
+			queued.add((ChunkCoordIntPair) o);
+		}
+		for (ChunkCoordIntPair pair : pairs) {
+			if (!queued.contains(pair)) {
+				ep.chunkCoordIntPairQueue.add(pair);
+			}
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
@@ -670,98 +844,5 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 			}
 		}
 	}
-
-	/**
-	 * Set all the blocks within the Cuboid to the given block ID and data byte.
-	 * 
-	 * @param blockId
-	 * @param data
-	 * @param fast
-	 */
-	public void fill(int blockId, byte data) {
-		long start = System.nanoTime();
-
-		if (blockId == 0) {
-			clear(false);
-		} else {
-			for (Block b : this) {
-				b.setTypeIdAndData(blockId, data, false);
-			}
-		}
-
-		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
-	}
-	
-	/**
-	 * Set all the blocks within the Cuboid to the given MaterialWithData
-	 * 
-	 * @param mat	The material to set
-	 */
-	public void fill(MaterialWithData mat) {
-		fill(mat.getId(), mat.getData());
-	}
-
-	/**
-	 * Set all the blocks within the Cuboid to the given block ID and data, using fast direct chunk access.
-	 * This will require a call to sendClientChanges() later to ensure clients see the updates.
-	 * 
-	 * @param blockId	The block ID to set
-	 * @param data 	The data byte to set
-	 */
-	public void fillFast(int blockId, byte data) {
-		long start = System.nanoTime();
-		
-		if (blockId == 0) {
-			clear(true);
-		} else {
-			for (Block b : this) {
-				BlockUtils.setBlockFast(b, blockId, data);
-			}
-		}
-		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
-	}
-	
-	public void fillFast(MaterialWithData mat) {
-		fillFast(mat.getId(), mat.getData());
-	}
-	
-	/**
-	 * Delete blocks, but don't allow items to drop (paintings are not
-	 * blocks, and are not included).  Does not check for blocks attached to the
-	 * outside faces of the Cuboid.
-	 *
-	 * @param fast	Use low-level NMS calls to clear the Cuboid to avoid excessive
-	 * 			lighting recalculation
-	 */
-	public void clear(boolean fast) {
-		// first remove blocks that might pop off & leave a drop
-		for (Block b : this) {
-			if (BlockType.shouldPlaceLast(b.getTypeId())) {
-				if (fast) {
-					BlockUtils.setBlockFast(b, 0);
-				} else {
-					b.setTypeId(0);
-				}
-			} else if (BlockType.isContainerBlock(b.getTypeId())) {
-				// also check if this is a container, and empty it if necessary
-				BlockState state = b.getState();
-				if (state instanceof InventoryHolder) {
-					InventoryHolder ih = (InventoryHolder) state;
-					ih.getInventory().clear();
-				}
-			}
-		}
-		// now wipe all (remaining) blocks
-		if (fast) {
-			for (Block b : this) {
-				BlockUtils.setBlockFast(b, 0);
-			}
-		} else {
-			for (Block b : this) {
-				b.setTypeId(0);
-			}
-		}
-	}
-	
 	
 }
