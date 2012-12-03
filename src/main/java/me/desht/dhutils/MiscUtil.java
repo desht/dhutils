@@ -1,5 +1,8 @@
 package me.desht.dhutils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,7 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import net.minecraft.server.NBTTagCompound;
 import net.minecraft.server.NBTTagList;
@@ -232,6 +236,11 @@ public class MiscUtil {
 		return craftItem;
 	}
 
+	/**
+	 * Remove NBT tags from the given item stack, clearing its name & lore, if any.
+	 * 
+	 * @param item The item to be renamed
+	 */
 	public static void removeItemName(ItemStack item) {
 		CraftItemStack craftItem;        
 		if (item instanceof CraftItemStack) {
@@ -240,5 +249,30 @@ public class MiscUtil {
 			craftItem = new CraftItemStack(item);
 		}
 		craftItem.getHandle().tag = null;
+	}
+	
+	/**
+	 * Get a list of all files in the given JAR (or ZIP) file within the given path, and with the
+	 * given extension.
+	 * 
+	 * @param jarFile	the JAR file to search
+	 * @param path	the path within the JAR file to search
+	 * @param ext	desired extension, may be null
+	 * @return	an array of path names to the found resources
+	 * @throws IOException
+	 */
+	public static String[] listFilesinJAR(File jarFile, String path, String ext) throws IOException {
+		ZipInputStream zip = new ZipInputStream(new FileInputStream(jarFile));
+	    ZipEntry ze = null;
+
+	    List<String> list = new ArrayList<String>();
+	    while ((ze = zip.getNextEntry()) != null ) {
+	        String entryName = ze.getName();
+	        if (entryName.startsWith(path) && ext != null && entryName.endsWith(ext)) {
+	            list.add(entryName);
+	        }
+	    }
+	    
+	    return list.toArray(new String[list.size()]);
 	}
 }
