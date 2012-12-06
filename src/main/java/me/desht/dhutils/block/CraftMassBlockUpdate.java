@@ -41,7 +41,7 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		maxX = Math.min(maxX, x);
 		maxZ = Math.min(maxZ, z);
 
-		return chunk.a(x & 15, y, z, blockId, data);
+		return chunk.a(x & 15, y, z & 15, blockId, data);
 	}
 
 	private void recalculateLighting() {
