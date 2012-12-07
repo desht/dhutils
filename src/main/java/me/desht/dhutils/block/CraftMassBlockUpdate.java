@@ -57,23 +57,17 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 			return;
 		}
 
-		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
-		threshold = threshold * threshold;
-
-		// FIXME: this simple-minded calculation of distance from player to centre
-		// of affected area is flawed.  E.g. if blocks are very far apart, players
-		// near the edges of the (very large) bounding box will be missed.
-		// Correct approach is to calculate the distance of each player from
-		// the bounding box edges; if inside or near enough an edge, then queue
-		// the chunk changes.
-		int centerX = minX + (maxX - minX) / 2;
-		int centerZ = minZ + (maxZ - minZ) / 2;
+		// A player is considered within viewing distance of the change if they're
+		// within the change's bounding box expanded by the server view distance.
+		int threshold = (Bukkit.getServer().getViewDistance() << 4);
+		int x1 = minX - threshold, x2 = maxX + threshold;
+		int z1 = minZ - threshold, z2 = maxZ + threshold;
 
 		for (Player player : world.getWorld().getPlayers()) {
 			Location loc = player.getLocation();
 			int px = loc.getBlockX();
 			int pz = loc.getBlockZ();
-			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
+			if (px >= x1 && px <= x2 && pz >= z1 && pz <= z2) {
 				for (ChunkCoordIntPair pair : affectedChunks) {
 					((CraftPlayer) player).getHandle().chunkCoordIntPairQueue.add(pair);
 				}
