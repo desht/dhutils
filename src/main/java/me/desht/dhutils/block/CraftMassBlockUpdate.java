@@ -17,10 +17,10 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 	private final World world;
 	private final Set<ChunkCoordIntPair> affectedChunks = new HashSet<ChunkCoordIntPair>();
 
-	private int minX = Integer.MIN_VALUE;
-	private int minZ = Integer.MIN_VALUE;
-	private int maxX = Integer.MAX_VALUE;
-	private int maxZ = Integer.MAX_VALUE;
+	private int minX = Integer.MAX_VALUE;
+	private int minZ = Integer.MAX_VALUE;
+	private int maxX = Integer.MIN_VALUE;
+	private int maxZ = Integer.MIN_VALUE;
 
 	public CraftMassBlockUpdate(org.bukkit.World world) {
 		this.world = ((CraftWorld) world).getHandle();
@@ -36,10 +36,10 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		Chunk chunk = world.getChunkAt(x >> 4, z >> 4);
 		affectedChunks.add(new ChunkCoordIntPair(x >> 4, z >> 4));
 
-		minX = Math.max(minX, x);
-		minZ = Math.max(minZ, z);
-		maxX = Math.min(maxX, x);
-		maxZ = Math.min(maxZ, z);
+		minX = Math.min(minX, x);
+		minZ = Math.min(minZ, z);
+		maxX = Math.max(maxX, x);
+		maxZ = Math.max(maxZ, z);
 
 		return chunk.a(x & 15, y, z & 15, blockId, data);
 	}
