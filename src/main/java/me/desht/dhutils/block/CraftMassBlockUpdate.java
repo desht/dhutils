@@ -5,13 +5,13 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import net.minecraft.server.Chunk;
-import net.minecraft.server.ChunkCoordIntPair;
-import net.minecraft.server.World;
+import net.minecraft.server.v1_4_5.Chunk;
+import net.minecraft.server.v1_4_5.ChunkCoordIntPair;
+import net.minecraft.server.v1_4_5.World;
 
 public class CraftMassBlockUpdate implements MassBlockUpdate {
 	private final World world;

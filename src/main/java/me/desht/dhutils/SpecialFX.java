@@ -9,7 +9,7 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
 
 public class SpecialFX {
 	public enum EffectType { EXPLOSION, LIGHTNING, EFFECT, SOUND };

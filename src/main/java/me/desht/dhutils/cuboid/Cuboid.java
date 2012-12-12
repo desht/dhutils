@@ -13,9 +13,9 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.BlockUtils;
 import me.desht.dhutils.block.MaterialWithData;
-import net.minecraft.server.ChunkCoordIntPair;
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.EnumSkyBlock;
+import net.minecraft.server.v1_4_5.ChunkCoordIntPair;
+import net.minecraft.server.v1_4_5.EntityPlayer;
+import net.minecraft.server.v1_4_5.EnumSkyBlock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -24,9 +24,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.craftbukkit.CraftChunk;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_4_5.CraftChunk;
+import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -701,7 +701,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 */
 	public void forceLightLevel(int level) {
 		long start = System.nanoTime();
-		net.minecraft.server.World w = ((CraftWorld) getWorld()).getHandle();
+		net.minecraft.server.v1_4_5.World w = ((CraftWorld) getWorld()).getHandle();
 		for (int x = getLowerX(); x < getUpperX(); x++) {
 			for (int z = getLowerZ(); z < getUpperZ(); z++) {
 				for (int y = getLowerY(); y < getUpperY(); y++) {
