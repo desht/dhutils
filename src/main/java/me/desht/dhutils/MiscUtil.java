@@ -15,19 +15,13 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import net.minecraft.server.v1_4_5.NBTTagCompound;
-import net.minecraft.server.v1_4_5.NBTTagList;
-import net.minecraft.server.v1_4_5.NBTTagString;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
-import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class MiscUtil {
@@ -192,63 +186,6 @@ public class MiscUtil {
 		double y = loc.getY();
 		double z = loc.getZ();
 		((CraftWorld)loc.getWorld()).getHandle().makeSound(x, y, z, sound, volume, pitch);
-	}
-
-	/**
-	 * Set the item name and lore for an item using the MC 1.4 item renaming system.  Hopefully this is 
-	 * just temporary until Bukkit adds an API for it.  Credit to nisovin for this code.
-	 * 
-	 * @param item	The item to be renamed
-	 * @param name	New name for the item
-	 * @param lore	Item lore (can be null)
-	 * @return	the renamed item
-	 */
-	public static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore) {
-		CraftItemStack craftItem;        
-		if (item instanceof CraftItemStack) {
-			craftItem = (CraftItemStack)item;
-		} else {
-			craftItem = new CraftItemStack(item);
-		}
-
-		NBTTagCompound tag = craftItem.getHandle().tag;
-		if (tag == null) {
-			tag = new NBTTagCompound();
-			craftItem.getHandle().tag = tag;
-		}
-		NBTTagCompound disp = tag.getCompound("display");
-		if (disp == null) {
-			disp = new NBTTagCompound("display");
-		}
-
-		disp.setString("Name", name);
-
-		if (lore != null && lore.length > 0) {
-			NBTTagList list = new NBTTagList("Lore");
-			disp.set("Lore", list);
-			for (String l : lore) {
-				list.add(new NBTTagString("", l));
-			}
-		}
-
-		tag.setCompound("display", disp);
-
-		return craftItem;
-	}
-
-	/**
-	 * Remove NBT tags from the given item stack, clearing its name & lore, if any.
-	 * 
-	 * @param item The item to be renamed
-	 */
-	public static void removeItemName(ItemStack item) {
-		CraftItemStack craftItem;        
-		if (item instanceof CraftItemStack) {
-			craftItem = (CraftItemStack)item;
-		} else {
-			craftItem = new CraftItemStack(item);
-		}
-		craftItem.getHandle().tag = null;
 	}
 	
 	/**
