@@ -1,7 +1,11 @@
 package me.desht.dhutils.block;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.server.v1_4_5.Chunk;
+import net.minecraft.server.v1_4_5.ChunkCoordIntPair;
+import net.minecraft.server.v1_4_5.World;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -9,18 +13,14 @@ import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
 import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import net.minecraft.server.v1_4_5.Chunk;
-import net.minecraft.server.v1_4_5.ChunkCoordIntPair;
-import net.minecraft.server.v1_4_5.World;
-
 public class CraftMassBlockUpdate implements MassBlockUpdate {
 	private final World world;
-	private final Set<ChunkCoordIntPair> affectedChunks = new HashSet<ChunkCoordIntPair>();
 
 	private int minX = Integer.MAX_VALUE;
 	private int minZ = Integer.MAX_VALUE;
 	private int maxX = Integer.MIN_VALUE;
 	private int maxZ = Integer.MIN_VALUE;
+	private int blocksModified = 0;
 
 	public CraftMassBlockUpdate(org.bukkit.World world) {
 		this.world = ((CraftWorld) world).getHandle();
@@ -34,29 +34,40 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 	@Override
 	public boolean setBlock(int x, int y, int z, int blockId, int data) {
 		Chunk chunk = world.getChunkAt(x >> 4, z >> 4);
-		affectedChunks.add(new ChunkCoordIntPair(x >> 4, z >> 4));
 
 		minX = Math.min(minX, x);
 		minZ = Math.min(minZ, z);
 		maxX = Math.max(maxX, x);
 		maxZ = Math.max(maxZ, z);
 
+		blocksModified++;
 		return chunk.a(x & 15, y, z & 15, blockId, data);
 	}
 
-	private void recalculateLighting() {
-		for (ChunkCoordIntPair pair : affectedChunks) {
+	private List<ChunkCoordIntPair> calculateChunks() {
+		List<ChunkCoordIntPair> res = new ArrayList<ChunkCoordIntPair>();
+		if (blocksModified == 0) {
+			return res;
+		}
+		int x1 = minX >> 4; int x2 = maxX >> 4;
+		int z1 = minZ >> 4; int z2 = maxZ >> 4;
+		for (int x = x1; x <= x2; x ++) {
+			for (int z = z1; z <= z2; z ++) {
+				res.add(new ChunkCoordIntPair(x, z));
+			}	
+		}
+		return res;
+	}
+
+	private void recalculateLighting(List<ChunkCoordIntPair> affected) {
+		for (ChunkCoordIntPair pair : affected) {
 			Chunk c = world.getChunkAt(pair.x, pair.z);
 			c.initLighting();
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void sendClientChanges() {
-		if (affectedChunks.isEmpty()) {
-			return;
-		}
-
+	private void sendClientChanges(List<ChunkCoordIntPair> affected) {
 		// A player is considered within viewing distance of the change if they're
 		// within the change's bounding box expanded by the server view distance.
 		int threshold = (Bukkit.getServer().getViewDistance() << 4);
@@ -68,7 +79,7 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 			int px = loc.getBlockX();
 			int pz = loc.getBlockZ();
 			if (px >= x1 && px <= x2 && pz >= z1 && pz <= z2) {
-				for (ChunkCoordIntPair pair : affectedChunks) {
+				for (ChunkCoordIntPair pair : affected) {
 					((CraftPlayer) player).getHandle().chunkCoordIntPairQueue.add(pair);
 				}
 			}
@@ -77,11 +88,14 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 
 	@Override
 	public void notifyClients() {
-		recalculateLighting();
-		sendClientChanges();
-		affectedChunks.clear();
-		minX = minZ = Integer.MIN_VALUE;
-		maxX = maxZ = Integer.MAX_VALUE;
+		List<ChunkCoordIntPair> affectedChunks = calculateChunks();
+		if (!affectedChunks.isEmpty()) {
+//			recalculateLighting(affectedChunks);
+			sendClientChanges(affectedChunks);
+			blocksModified = 0;
+			minX = minZ = Integer.MIN_VALUE;
+			maxX = maxZ = Integer.MAX_VALUE;
+		}
 	}
 
 	/**
