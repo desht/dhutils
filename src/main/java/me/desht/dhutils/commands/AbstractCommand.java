@@ -57,7 +57,7 @@ public abstract class AbstractCommand {
 				continue;
 
 			for (int i = 0; i < rec.subCommands.length; i++) {
-				LogUtils.finer(String.format("matchesSubcmd: %d: [%s] <=> [%s]", i, args[i], rec.subCommands[i]));
+				LogUtils.finest(String.format("matchesSubcmd: %d: [%s] <=> [%s]", i, args[i], rec.subCommands[i]));
 				if (!args[i].startsWith(rec.subCommands[i])) {
 					continue OUTER;
 				}
@@ -80,7 +80,7 @@ public abstract class AbstractCommand {
 			} else {
 				nArgs = args.length - rec.subCommands.length;
 			}
-			LogUtils.finer(String.format("matchesArgCount: %s, nArgs=%d min=%d max=%d", label, nArgs, minArgs, maxArgs));
+			LogUtils.finest(String.format("matchesArgCount: %s, nArgs=%d min=%d max=%d", label, nArgs, minArgs, maxArgs));
 			if (nArgs >= minArgs && nArgs <= maxArgs) {
 				storeMatchedArgs(args, rec);
 				return true;
