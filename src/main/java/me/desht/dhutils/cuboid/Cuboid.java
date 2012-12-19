@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.BlockUtils;
+import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import net.minecraft.server.v1_4_5.ChunkCoordIntPair;
 import net.minecraft.server.v1_4_5.EntityPlayer;
@@ -24,7 +25,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.craftbukkit.v1_4_5.CraftChunk;
 import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
 import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -116,7 +116,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		this.z1 = Math.min(z1, z2);
 		this.z2 = Math.max(z1, z2);
 	}
-	
+
 	public Cuboid(Map<String,Object> map) {
 		worldName = (String)map.get("worldName");
 		x1 = (Integer) map.get("x1");
@@ -126,7 +126,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		z1 = (Integer) map.get("z1");
 		z2 = (Integer) map.get("z2");
 	}
-	
+
 	@Override
 	public Map<String, Object> serialize() {
 		Map<String,Object> map = new HashMap<String, Object>();
@@ -438,7 +438,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 				contract(CuboidDirection.North).
 				contract(CuboidDirection.West);
 	}
-	
+
 	/**
 	 * Contract the Cuboid in the given direction, returning a new Cuboid which has no exterior empty space.
 	 * E.g. a direction of Down will push the top face downwards as much as possible.
@@ -483,7 +483,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 			throw new IllegalArgumentException("Invalid direction " + dir);
 		}
 	}
-	
+
 	/**
 	 * Get the Cuboid representing the face of this Cuboid.  The resulting Cuboid will be
 	 * one block thick in the axis perpendicular to the requested face.
@@ -535,17 +535,17 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		if (other == null) {
 			return this;
 		}
-		
+
 		int xMin = Math.min(getLowerX(), other.getLowerX());
 		int yMin = Math.min(getLowerY(), other.getLowerY());
 		int zMin = Math.min(getLowerZ(), other.getLowerZ());
 		int xMax = Math.max(getUpperX(), other.getUpperX());
 		int yMax = Math.max(getUpperY(), other.getUpperY());
 		int zMax = Math.max(getUpperZ(), other.getUpperZ());
-		
+
 		return new Cuboid(worldName, xMin, yMin, zMin, xMax, yMax, zMax);
 	}
-	
+
 	/**
 	 * Get a block relative to the lower NE point of the Cuboid.
 	 * 
@@ -580,7 +580,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 */
 	public List<Chunk> getChunks() {
 		List<Chunk> res = new ArrayList<Chunk>();
-	
+
 		World w = getWorld();
 		int x1 = getLowerX() & ~0xf; int x2 = getUpperX() & ~0xf;
 		int z1 = getLowerZ() & ~0xf; int z2 = getUpperZ() & ~0xf;
@@ -591,7 +591,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		}
 		return res;
 	}
-	
+
 	/**
 	 * Set all the blocks within the Cuboid to the given block ID and data byte.
 	 * 
@@ -601,15 +601,11 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 */
 	public void fill(int blockId, byte data) {
 		long start = System.nanoTime();
-	
-		if (blockId == 0) {
-			clear(false);
-		} else {
-			for (Block b : this) {
-				b.setTypeIdAndData(blockId, data, false);
-			}
+
+		for (Block b : this) {
+			b.setTypeIdAndData(blockId, data, false);
 		}
-	
+
 		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 	}
 
@@ -623,28 +619,46 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	}
 
 	/**
+	 * Set all the blocks in this cuboid to the given block ID and data byte, using
+	 * a MassBlockUpdate object for fast updates.
+	 * 
+	 * @param blockId
+	 * @param data
+	 * @param mbu
+	 */
+	public void fill(int blockId, byte data, MassBlockUpdate mbu) {
+		for (Block b : this) {
+			mbu.setBlock(b.getX(), b.getY(), b.getZ(), blockId, data);
+		}
+	}
+
+	public void fill(MaterialWithData mat, MassBlockUpdate mbu) {
+		fill(mat.getId(), mat.getData(), mbu);
+	}
+
+	/**
 	 * Set all the blocks within the Cuboid to the given block ID and data, using fast direct chunk access.
 	 * This will require a call to sendClientChanges() later to ensure clients see the updates.
 	 * 
 	 * @param blockId	The block ID to set
 	 * @param data 	The data byte to set
+	 * @deprecated Use fill()
 	 */
+	@Deprecated
 	public void fillFast(int blockId, byte data) {
 		long start = System.nanoTime();
-		
-		if (blockId == 0) {
-			clear(true);
-		} else {
-			for (Block b : this) {
-				BlockUtils.setBlockFast(b, blockId, data);
-			}
+
+		for (Block b : this) {
+			BlockUtils.setBlockFast(b, blockId, data);
 		}
 		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 	}
 
+	@Deprecated
 	public void fillFast(MaterialWithData mat) {
 		fillFast(mat.getId(), mat.getData());
 	}
+
 
 	/**
 	 * Delete blocks, but don't allow items to drop (paintings are not
@@ -653,7 +667,9 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 *
 	 * @param fast	Use low-level NMS calls to clear the Cuboid to avoid excessive
 	 * 			lighting recalculation
+	 * @deprecated Use fill() or fillFast()
 	 */
+	@Deprecated
 	public void clear(boolean fast) {
 		// first remove blocks that might pop off & leave a drop
 		for (Block b : this) {
@@ -686,12 +702,14 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 
 	/**
 	 * Force lighting to be recalculated for all chunks occupied by the cuboid.
+	 * @deprecated Not useful
 	 */
+	@Deprecated
 	public void initLighting() {	
-		for (Chunk c : getChunks()) {
-			((CraftChunk)c).getHandle().initLighting();
-			LogUtils.finer("Cuboid: initLighting: chunk " + c + ": relit"); 
-		}
+//		for (Chunk c : getChunks()) {
+//			((CraftChunk)c).getHandle().initLighting();
+//			LogUtils.finer("Cuboid: initLighting: chunk " + c + ": relit"); 
+//		}
 	}
 
 	/**
@@ -705,8 +723,10 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		for (int x = getLowerX(); x < getUpperX(); x++) {
 			for (int z = getLowerZ(); z < getUpperZ(); z++) {
 				for (int y = getLowerY(); y < getUpperY(); y++) {
-					// this was w.a() in CB 1.2
-					w.b(EnumSkyBlock.BLOCK, x, y, z, level);
+//					if (w.getTypeId(x, y, z) != 0) {
+						// this was w.a() in CB 1.2
+						w.b(EnumSkyBlock.BLOCK, x, y, z, level);
+//					}
 				}
 			}
 		}
@@ -718,11 +738,13 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * to be notified of any fast changes that happened, to avoid "phantom" blocks showing
 	 * up on the client.  Add the chunk coordinates of affected chunks to those players'
 	 * chunk queue.
+	 * @deprecated Use MassBlockUpdate
 	 */
+	@Deprecated
 	public void sendClientChanges() {
 		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
 		threshold = threshold * threshold;
-	
+
 		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
 		for (Chunk c : getChunks()) {
 			pairs.add(new ChunkCoordIntPair(c.getX(), c.getZ()));
@@ -738,7 +760,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		}
 	}
 
-	@SuppressWarnings("unchecked")	
+	@SuppressWarnings("unchecked")
 	private void queueChunks(EntityPlayer ep, List<ChunkCoordIntPair> pairs) {
 		if (LogUtils.getLogLevel() == Level.FINEST) {	// if statement to avoid unnecessary Joiner call overhead
 			LogUtils.finest("queue chunk co-ordinate pairs for " + ep.name + ": " + Joiner.on(", ").join(pairs));
@@ -818,31 +840,31 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	public enum CuboidDirection {
 
 		North, East, South, West, Up, Down, Horizontal, Vertical, Both, Unknown;
-		
+
 		public CuboidDirection opposite() {
 			switch(this) {
-				case North:
-					return South;
-				case East:
-					return West;
-				case South:
-					return North;
-				case West:
-					return East;
-				case Horizontal:
-					return Vertical;
-				case Vertical:
-					return Horizontal;
-				case Up:
-					return Down;
-				case Down:
-					return Up;
-				case Both:
-					return Both;
-				default:
-					return Unknown;
+			case North:
+				return South;
+			case East:
+				return West;
+			case South:
+				return North;
+			case West:
+				return East;
+			case Horizontal:
+				return Vertical;
+			case Vertical:
+				return Horizontal;
+			case Up:
+				return Down;
+			case Down:
+				return Up;
+			case Both:
+				return Both;
+			default:
+				return Unknown;
 			}
 		}
 	}
-	
+
 }
