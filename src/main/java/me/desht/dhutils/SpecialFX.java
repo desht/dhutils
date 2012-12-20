@@ -85,40 +85,43 @@ public class SpecialFX {
 			}
 		}
 
+		/**
+		 * Play this effect at the given location.  A null location may be passed, in which case no
+		 * effect will be played, but validation of the effect specification will still be done.
+		 * 
+		 * @param loc
+		 */
 		public void play(Location loc) {
 			switch (type) {
 			case LIGHTNING:
 				int lPower = params.getInt("power", 0);
 				if (lPower > 0) {
-					loc.getWorld().strikeLightning(loc);
+					if (loc != null) loc.getWorld().strikeLightning(loc);
 				} else {
-					loc.getWorld().strikeLightningEffect(loc);
+					if (loc != null) loc.getWorld().strikeLightningEffect(loc);
 				}
 				break;
 			case EXPLOSION:
 				float ePower = (float) params.getDouble("power", 0.0);
 				boolean fire = params.getBoolean("fire", false);
-				loc.getWorld().createExplosion(loc, ePower, fire);
+				if (loc != null) loc.getWorld().createExplosion(loc, ePower, fire);
 				break;
 			case EFFECT:
-				Effect effect = Effect.valueOf(params.getString("name", "").toUpperCase());
-				if (effect != null) {
+				String effectName = params.getString("name");
+				if (effectName != null && !effectName.isEmpty()) {
+					Effect effect = Effect.valueOf(effectName.toUpperCase());
 					int data = params.getInt("data", 0);
 					int radius = params.getInt("radius", 64);
-					loc.getWorld().playEffect(loc, effect, data, radius);
-				} else {
-					LogUtils.warning("unknown effect: " + params.getString("name"));
+					if (loc != null) loc.getWorld().playEffect(loc, effect, data, radius);
 				}
 				break;
 			case SOUND:
-				float volume = (float) params.getDouble("volume", 1.0);
-				float pitch = (float) params.getDouble("pitch", 1.0);
-
-				Sound s = Sound.valueOf(params.getString("name", "").toUpperCase());
-				if (s != null) {
-					loc.getWorld().playSound(loc, s, volume * volumeMult, pitch);
-				} else {
-					LogUtils.warning("unknown sound effect: " + params.getString("name"));
+				String soundName = params.getString("name");
+				if (soundName != null && !soundName.isEmpty()) {
+					Sound s = Sound.valueOf(soundName.toUpperCase());
+					float volume = (float) params.getDouble("volume", 1.0);
+					float pitch = (float) params.getDouble("pitch", 1.0);
+					if (loc != null) loc.getWorld().playSound(loc, s, volume * volumeMult, pitch);
 				}
 				break;
 			}
