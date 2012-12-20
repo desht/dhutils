@@ -179,6 +179,7 @@ public class MiscUtil {
 		return list;
 	}
 
+	@Deprecated
 	public static void playNamedSound(Location loc, String sound, float volume, float pitch) {
 		if (sound.isEmpty())
 			return;

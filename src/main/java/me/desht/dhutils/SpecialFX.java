@@ -9,14 +9,13 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
 
 public class SpecialFX {
 	public enum EffectType { EXPLOSION, LIGHTNING, EFFECT, SOUND };
 
 	private final ConfigurationSection conf;
 	private final Map<String, SpecialEffect> effects;
-	
+
 	private float masterVolume;
 
 	public SpecialFX(ConfigurationSection conf) {
@@ -59,7 +58,7 @@ public class SpecialFX {
 
 		public SpecialEffect(String spec, float volume) {
 			this.volumeMult = volume;
-			
+
 			if (spec == null) {
 				throw new IllegalArgumentException("null spec not permitted");
 			}
@@ -114,29 +113,15 @@ public class SpecialFX {
 			case SOUND:
 				float volume = (float) params.getDouble("volume", 1.0);
 				float pitch = (float) params.getDouble("pitch", 1.0);
-				if (params.contains("rawname")) {
-					String sound = params.getString("rawname");
-					playNamedSound(loc, sound, volume, pitch);
+
+				Sound s = Sound.valueOf(params.getString("name", "").toUpperCase());
+				if (s != null) {
+					loc.getWorld().playSound(loc, s, volume * volumeMult, pitch);
 				} else {
-					Sound s = Sound.valueOf(params.getString("name", "").toUpperCase());
-					if (s != null) {
-						loc.getWorld().playSound(loc, s, volume * volumeMult, pitch);
-					} else {
-						LogUtils.warning("unknown sound effect: " + params.getString("name"));
-					}
+					LogUtils.warning("unknown sound effect: " + params.getString("name"));
 				}
 				break;
 			}
-		}
-
-		private void playNamedSound(Location loc, String sound, float volume, float pitch) {
-			if (sound.isEmpty())
-				return;
-			double x = loc.getX();
-			double y = loc.getY();
-			double z = loc.getZ();
-//			LogUtils.fine("playNamedSound: " + sound + " vol=" + volume + " pitch =" + pitch + " @ " + MiscUtil.formatLocation(loc));
-			((CraftWorld)loc.getWorld()).getHandle().makeSound(x, y, z, sound, volume, pitch);
 		}
 
 	}
