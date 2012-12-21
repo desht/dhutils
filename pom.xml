@@ -28,7 +28,7 @@
   </repositories>
 
   <build>
-    <plugins>
+      <plugins>
            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -38,7 +38,7 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-    </plugins>
+      </plugins>
   </build>
 </project>
 

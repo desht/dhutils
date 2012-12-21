@@ -81,7 +81,6 @@
     </dependencies>
 
     <build>
-        <directory>../target</directory>
         <finalName>dhutils-${project.version}</finalName>
         <plugins>
             <plugin>
