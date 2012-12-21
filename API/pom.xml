@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>dhutils-api</artifactId>
+  <packaging>jar</packaging>
+  <name>DH Utils NMS Abstraction API</name>
+  <version>API</version>
+
+  <parent>
+    <groupId>me.desht</groupId>
+    <artifactId>dhutils-parent</artifactId>
+    <version>2.0.0</version>
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>bukkit</artifactId>
+      <version>LATEST</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
+
+</project>
