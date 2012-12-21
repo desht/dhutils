@@ -183,15 +183,15 @@ public class MaterialWithData implements Cloneable {
 	public ItemStack makeItemStack() {
 		return makeItemStack(1);
 	}
-	
+
 	public ItemStack makeItemStack(int amount) {
-		return makeItemStack(amount, (short)0);
+		return makeItemStack(amount, (short)getData());
 	}
 
 	public ItemStack makeItemStack(int amount, short damage) {
-		return new ItemStack(getId(), amount, damage, getData());
+		return new ItemStack(getId(), amount, damage);
 	}
-	
+
 	/**
 	 * Get a rotated version of this MaterialData by altering the data byte appropriately.
 	 * 
@@ -236,13 +236,32 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Use direct NMS calls to apply this MaterialWithData to a block without the overhead of lighting recalculation
-	 * etc. Use this during mass block updates. The caller is responsible for subsequently ensuring that lighting is
-	 * re-initialised and clients are notified of any changes.
+	 * Apply this MaterialWithData to the given block.
 	 * 
 	 * @param b
 	 *            The block to apply the material to
 	 */
+	public void applyToBlock(Block b, MassBlockUpdate mbu) {
+		mbu.setBlock(b.getX(), b.getY(), b.getZ(), matId, data);
+		if (metadata != null && (matId == 63 || matId == 68)) {
+			// updating a wall sign or floor sign, with text
+			Sign sign = (Sign) b.getState().getData();
+			for (int i = 0; i < 4; i++) {
+				sign.setLine(i, metadata[i]);
+			}
+			sign.update();
+		}
+	}
+
+	/**
+	 * Use direct NMS calls to apply this MaterialWithData to a block without the overhead of lighting recalculation
+	 * etc. Use this during mass block updates. The caller is responsible for subsequently ensuring that lighting is
+	 * re-initialised and clients are notified of any changes.
+	 * 
+	 * @param b The block to apply the material to
+	 * @deprecated use applyToBlock(b, mbu)
+	 */
+	@Deprecated
 	public void applyToBlockFast(Block b) {
 		BlockUtils.setBlockFast(b, matId, data);
 		if (metadata != null && (matId == 63 || matId == 68)) {
@@ -262,9 +281,9 @@ public class MaterialWithData implements Cloneable {
 	 * @param c
 	 */
 	public void applyToCuboid(Cuboid c) {
-		if (c != null) {
-			c.fillFast(matId, data);
-		}
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(c.getWorld());
+		c.fill(matId, data, mbu);
+		mbu.notifyClients();
 	}
 
 	/*

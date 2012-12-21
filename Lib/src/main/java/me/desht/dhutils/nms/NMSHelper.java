@@ -27,20 +27,17 @@ public class NMSHelper {
 		// NOTE: this assumes that dhutils is shaded into the plugin as <plugin-main-package>.dhutils
 		final Class<?> clazz = Class.forName(pluginPackageName + ".dhutils.nms." + version + ".NMSHandler");
 
-		// Check if we have a NMSAbsraction implementing class at that location.
-		NMSAbstraction nmsAbstraction = null;
-		if (NMSAbstraction.class.isAssignableFrom(clazz)) { // Make sure it actually implements NMSAbstraction
-			nmsAbstraction = (NMSAbstraction) clazz.getConstructor().newInstance();
+		// Check if we have a NMSAbstraction implementing class at that location.
+		if (NMSAbstraction.class.isAssignableFrom(clazz)) {
+			nms = (NMSAbstraction) clazz.getConstructor().newInstance();
+		} else {
+			throw new IllegalStateException("Class " + clazz.getName() + " does not implement NMSAbstraction");
 		}
 
-		return nmsAbstraction;
+		return nms;
 	}
 	
-	public static NMSAbstraction getNMS(Plugin plugin) throws IllegalArgumentException, SecurityException, ClassNotFoundException,
-			InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		if (nms == null) {
-			nms = init(plugin);
-		}
+	public static NMSAbstraction getNMS() {
 		return nms;
 	}
 }

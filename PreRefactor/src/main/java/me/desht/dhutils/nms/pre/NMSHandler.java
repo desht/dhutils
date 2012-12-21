@@ -43,4 +43,9 @@ public class NMSHandler implements NMSAbstraction {
 		((CraftPlayer) player).getHandle().chunkCoordIntPairQueue.add(new ChunkCoordIntPair(cx, cz));
 	}
 
+	@Override
+	public void recalculateBlockLighting(World world, int x, int y, int z) {
+		net.minecraft.server.World w = ((CraftWorld) world).getHandle();
+		w.z(x, y, z);
+	}
 }

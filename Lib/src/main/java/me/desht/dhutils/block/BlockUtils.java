@@ -14,12 +14,14 @@ public class BlockUtils {
 	 * @param typeId
 	 * @return
 	 */
+	@Deprecated
 	public static boolean setBlockFast(Block b, int typeId) {
 		Chunk c = b.getChunk();
 		net.minecraft.server.v1_4_5.Chunk chunk = ((CraftChunk) c).getHandle();
 		return chunk.a(b.getX() & 15, b.getY(), b.getZ() & 15, typeId);
 	}
 
+	@Deprecated
 	public static boolean setBlockFast(Block b, int typeId, byte data) {
 		Chunk c = b.getChunk();
 		net.minecraft.server.v1_4_5.Chunk chunk = ((CraftChunk) c).getHandle();

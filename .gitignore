@@ -10,8 +10,8 @@
 /build.xml                                                                                                                                                     
                                                                                                                                                                
 # maven                                                                                                                                                        
-/target                                                                                                                                                        
-                                                                                                                                                               
+target/**/*
+
 # vim
 .*.sw[a-p]
 
