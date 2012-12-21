@@ -4,7 +4,7 @@
   <groupId>me.desht</groupId>
   <artifactId>dhutils-parent</artifactId>
   <packaging>pom</packaging>
-  <version>2.0.0</version>
+  <version>parent</version>
   <name>DH Utils</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
