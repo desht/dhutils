@@ -9,6 +9,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -345,7 +346,7 @@ public class Cost {
 	}
 
 	private ItemStack makeStack(int quantity) {
-		return data == null ? new ItemStack(getId(), quantity) : new ItemStack(getId(), quantity, (short)0, getData().byteValue());
+		return data == null ? new ItemStack(getId(), quantity) : new ItemStack(getId(), quantity, getData());
 	}
 
 	private int addItems(Player player, int quantity) {
@@ -381,7 +382,7 @@ public class Cost {
 
 			if (newDurability >= maxDurability) {
 				// break the item - reduce inventory count by 1
-				MiscUtil.playNamedSound(player.getLocation(), "random.break", 1.0f, 1.0f);
+				player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1.0f, 1.0f);
 				int newAmount = entry.getValue().getAmount() - 1;
 				if (newAmount == 0) {
 					player.getInventory().setItem(entry.getKey(), new ItemStack(0));
