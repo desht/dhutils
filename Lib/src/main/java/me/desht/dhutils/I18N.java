@@ -2,19 +2,15 @@ package me.desht.dhutils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.v1_4_5.LocaleLanguage;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -39,18 +35,19 @@ public class I18N {
 	}
 
 	public static String getLocale(CommandSender sender) {
-		if (sender == null || !(sender instanceof Player))
-			return defaultLocale;
-			
-		LocaleLanguage l = ((CraftPlayer) sender).getHandle().getLocale();
-		try {
-			Field f = LocaleLanguage.class.getDeclaredField("d");
-			f.setAccessible(true);
-			return f.get(l).toString();
-		} catch (Exception e) {
-			LogUtils.warning("Caught " + e.getClass() + " while trying to determine player's locale");
-			return defaultLocale;
-		}
+		return defaultLocale;
+//		if (sender == null || !(sender instanceof Player))
+//			return defaultLocale;
+//			
+//		LocaleLanguage l = ((CraftPlayer) sender).getHandle().getLocale();
+//		try {
+//			Field f = LocaleLanguage.class.getDeclaredField("d");
+//			f.setAccessible(true);
+//			return f.get(l).toString();
+//		} catch (Exception e) {
+//			LogUtils.warning("Caught " + e.getClass() + " while trying to determine player's locale");
+//			return defaultLocale;
+//		}
 	}
 	
 	public static String getDefaultLocale() {

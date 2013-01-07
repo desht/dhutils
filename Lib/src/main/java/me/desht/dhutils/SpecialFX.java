@@ -1,23 +1,60 @@
 package me.desht.dhutils;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import javax.jmdns.ServiceInfo.Fields;
+
+import org.bukkit.Color;
 import org.bukkit.Effect;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 
+/**
+ * SpecialFX: map logical effect names to specifications for various effects that can be played in the world.
+ * Plugins can use this to play effects for given plugin-defined events, e.g. a game was started/won/lost etc.
+ * 
+ * @author desht
+ */
 public class SpecialFX {
-	public enum EffectType { EXPLOSION, LIGHTNING, EFFECT, SOUND };
+	public enum EffectType { EXPLOSION, LIGHTNING, EFFECT, SOUND, FIREWORK };
 
 	private final ConfigurationSection conf;
 	private final Map<String, SpecialEffect> effects;
 
 	private float masterVolume;
 
+	private static Map<String, Set<String>> validArgs = new HashMap<String, Set<String>>();
+	private static void args(EffectType ef, String... valid) {
+		validArgs.get(ef.toString()).addAll(Arrays.asList(valid));
+	}
+	private static boolean isValidArg(EffectType type, String arg) {
+		return validArgs.get(type.toString()).contains(arg);
+	}
+	static {
+		for (EffectType ef : EffectType.values()) {
+			validArgs.put(ef.toString(), new HashSet<String>());
+		}
+		args(EffectType.EXPLOSION, "power", "fire" );
+		args(EffectType.LIGHTNING, "power");
+		args(EffectType.EFFECT, "name", "data", "radius");
+		args(EffectType.SOUND, "name", "volume", "pitch");
+		args(EffectType.FIREWORK, "type", "color", "fade", "flicker", "trail");
+	}
+	
+	/**
+	 * Create a SpecialFX object from the given configuration section.  This could be read from the plugin's
+	 * config.yml (a common case) or just as easily constructed internally by the plugin. 
+	 * 
+	 * @param conf configuration object which maps logical (plugin-defined) effect names to the effect specification
+	 */
 	public SpecialFX(ConfigurationSection conf) {
 		this.conf = conf;
 		effects = new HashMap<String, SpecialFX.SpecialEffect>();
@@ -25,7 +62,7 @@ public class SpecialFX {
 	}
 
 	/**
-	 * Play the named effect at the given location
+	 * Play the named effect at the given location.
 	 * 
 	 * @param loc
 	 * @param effectName
@@ -39,14 +76,19 @@ public class SpecialFX {
 	}
 
 	/**
-	 * Get the named effect.
+	 * Get the named effect, creating and caching a SpecialEffect object for it if necessary.
+	 * 
 	 * @param effectName	name of the effect
 	 * @return the effect
 	 * @throws IllegalArgumentException if the effect name is unknown or its definition is invalid
 	 */
 	public SpecialEffect getEffect(String effectName) {
 		if (!effects.containsKey(effectName)) {
-			effects.put(effectName, new SpecialEffect(conf.getString(effectName), masterVolume));
+			try {
+				effects.put(effectName, new SpecialEffect(conf.getString(effectName), masterVolume));
+			} catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException("for effect name '" + effectName + "': " + e.getMessage());
+			}
 		}
 		return effects.get(effectName);
 	}
@@ -56,31 +98,28 @@ public class SpecialFX {
 		private final Configuration params = new MemoryConfiguration();
 		private final float volumeMult;
 
+		public SpecialEffect(String spec) {
+			this(spec, 1.0f);
+		}
+		
 		public SpecialEffect(String spec, float volume) {
 			this.volumeMult = volume;
 
 			if (spec == null) {
-				throw new IllegalArgumentException("null spec not permitted");
+				throw new IllegalArgumentException("null spec not permitted (unknown effect name?)");
 			}
 			String[] fields = spec.toLowerCase().split(",");
-			if (fields[0].startsWith("li")) {
-				type = EffectType.LIGHTNING;
-			} else if (fields[0].startsWith("ex")) {
-				type = EffectType.EXPLOSION;
-			} else if (fields[0].startsWith("ef")) {
-				type = EffectType.EFFECT;
-			} else if (fields[0].startsWith("so")) {
-				type = EffectType.SOUND;
-			} else {
-				throw new IllegalArgumentException("unknown specialfx type: " + fields[0]);
-			}
+			type = EffectType.valueOf(fields[0].toUpperCase());
 
 			for (int i = 1; i < fields.length; i++) {
-				String[] val = fields[i].split("=");
+				String[] val = fields[i].split("=", 2);
+				if (!isValidArg(type, val[0])) {
+					throw new IllegalArgumentException("invalid parameter: " + val[0]);
+				}
 				if (val.length == 2) {
 					params.set(val[0], val[1]);
 				} else {
-					LogUtils.warning("invalid effect parameter '" + fields[i] + "' - ignored");
+					LogUtils.warning("missing value for parameter '" + fields[i] + "' - ignored");
 				}
 			}
 		}
@@ -124,7 +163,39 @@ public class SpecialFX {
 					if (loc != null) loc.getWorld().playSound(loc, s, volume * volumeMult, pitch);
 				}
 				break;
+			case FIREWORK:
+				if (!params.contains("type")) {
+					throw new IllegalArgumentException("firework effect type must have 'type' parameter");
+				}
+
+				FireworkEffect.Builder b = FireworkEffect.builder();
+				b = b.with(FireworkEffect.Type.valueOf(params.getString("type").toUpperCase()));
+				if (params.contains("color")) {
+					b = b.withColor(getColors(params.getString("color")));
+				}
+				if (params.contains("fade")) {
+					b = b.withColor(getColors(params.getString("fade")));
+				}
+				b = b.flicker(params.getBoolean("flicker", false)).trail(params.getBoolean("trail", false));
+				if (loc != null) {
+					try {
+						FireworkEffectPlayer fwp = new FireworkEffectPlayer();
+						fwp.playFirework(loc.getWorld(), loc, b.build());
+					} catch (Exception e) {
+						LogUtils.warning("can't play firework effect: "	 + e.getMessage());
+					}
+				}
+				break;
 			}
+		}
+
+		private Color[] getColors(String string) {
+			String[] s = string.split(" ");
+			Color[] colors = new Color[s.length];
+			for (int i = 0; i < s.length; i++) {
+				colors[i] = Color.fromRGB(Integer.parseInt(s[i], 16));
+			}
+			return colors;
 		}
 
 	}

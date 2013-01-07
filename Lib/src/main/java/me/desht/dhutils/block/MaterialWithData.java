@@ -3,8 +3,8 @@ package me.desht.dhutils.block;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.cuboid.Cuboid;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -77,7 +77,7 @@ public class MaterialWithData implements Cloneable {
 					if (dc == null) {
 						throw new IllegalArgumentException("unknown dye colour: " + matAndData[1]);
 					}
-					data = (byte) dc.getData();
+					data = (byte) dc.getDyeData();
 				} else {
 					data = (byte) cc.getID();
 				}
@@ -254,27 +254,6 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Use direct NMS calls to apply this MaterialWithData to a block without the overhead of lighting recalculation
-	 * etc. Use this during mass block updates. The caller is responsible for subsequently ensuring that lighting is
-	 * re-initialised and clients are notified of any changes.
-	 * 
-	 * @param b The block to apply the material to
-	 * @deprecated use applyToBlock(b, mbu)
-	 */
-	@Deprecated
-	public void applyToBlockFast(Block b) {
-		BlockUtils.setBlockFast(b, matId, data);
-		if (metadata != null && (matId == 63 || matId == 68)) {
-			// updating a wall sign or floor sign, with text
-			Sign sign = (Sign) b.getState().getData();
-			for (int i = 0; i < 4; i++) {
-				sign.setLine(i, metadata[i]);
-			}
-			sign.update();
-		}
-	}
-
-	/**
 	 * Apply this MaterialWithData to all the blocks within the given Cuboid using fast NMS calls. The caller is
 	 * responsible for subsequently ensuring that lighting is re-initialised and clients are notified of any changes.
 	 * 
@@ -295,7 +274,7 @@ public class MaterialWithData implements Cloneable {
 	public String toString() {
 		StringBuilder s = new StringBuilder(Material.getMaterial(matId).toString());
 		if (matId == BlockID.CLOTH) {
-			s.append(":").append(DyeColor.getByData(data).toString());
+			s.append(":").append(DyeColor.getByDyeData(data).toString());
 		} else {
 			s.append(":").append(Byte.toString(data));
 		}
