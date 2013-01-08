@@ -26,15 +26,9 @@
     </repositories>
 
     <dependencies>
-        <!-- <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency> -->
         <dependency>
             <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
+            <artifactId>bukkit</artifactId>
             <version>LATEST</version>
             <scope>provided</scope>
         </dependency>
