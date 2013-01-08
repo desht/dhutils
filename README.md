@@ -49,3 +49,18 @@ To shade it into your plugin:
             </plugin>
 
 
+## License
+
+DHUtils is licensed under the LGPL.  You may use it freely in your own plugins, but you must make the source to any modified
+versions of DHUtils.
+
+DHUtils also contains code from the following Bukkit developers:
+
+* mbaxter - Maven modularisation and NMS library abstraction (see https://github.com/mbax/AbstractionExamplePlugin)
+
+* codenameB - FireworkEffectPlayer class
+
+* jascotty2 - Str class
+
+* sk89q - StringUtils, BlockData, BlockID, BlockType & ClothColor classes
+
