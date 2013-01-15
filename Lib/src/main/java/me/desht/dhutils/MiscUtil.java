@@ -1,8 +1,12 @@
 package me.desht.dhutils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,6 +24,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -201,5 +207,22 @@ public class MiscUtil {
 	    }
 	    
 	    return list.toArray(new String[list.size()]);
+	}
+	
+	public static YamlConfiguration loadYamlUTF8(File file) throws InvalidConfigurationException, IOException {		
+		StringBuilder sb = new StringBuilder((int) file.length());
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+		char[] buf = new char[1024];
+		int l;
+		while ((l = in.read(buf, 0, buf.length)) > -1) {
+			sb = sb.append(buf, 0, l);
+		}
+		in.close();
+		
+		YamlConfiguration yaml = new YamlConfiguration();
+		yaml.loadFromString(sb.toString());
+		
+		return yaml;
 	}
 }
