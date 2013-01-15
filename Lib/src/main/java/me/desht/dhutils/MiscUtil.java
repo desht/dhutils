@@ -205,6 +205,7 @@ public class MiscUtil {
 	            list.add(entryName);
 	        }
 	    }
+	    zip.close();
 	    
 	    return list.toArray(new String[list.size()]);
 	}
