@@ -67,7 +67,7 @@ public class MaterialWithData implements Cloneable {
 		} else {
 			if (matAndData[1].matches("^[0-9]+$")) {
 				data = Byte.parseByte(matAndData[1]);
-			} else if (matId == BlockID.CLOTH) {
+			} else if (matId == Material.WOOL.getId()) {
 				// First look for the dye color string in the WorldEdit ClothColor class
 				// and if that fails, check for a Bukkit DyeColor
 				// and if that fails, just throw an IllegalArgumentException
@@ -77,7 +77,7 @@ public class MaterialWithData implements Cloneable {
 					if (dc == null) {
 						throw new IllegalArgumentException("unknown dye colour: " + matAndData[1]);
 					}
-					data = (byte) dc.getDyeData();
+					data = (byte) dc.getWoolData();
 				} else {
 					data = (byte) cc.getID();
 				}
@@ -273,8 +273,8 @@ public class MaterialWithData implements Cloneable {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder(Material.getMaterial(matId).toString());
-		if (matId == BlockID.CLOTH) {
-			s.append(":").append(DyeColor.getByDyeData(data).toString());
+		if (matId == Material.WOOL.getId()) {
+			s.append(":").append(DyeColor.getByWoolData(data).toString());
 		} else {
 			s.append(":").append(Byte.toString(data));
 		}
