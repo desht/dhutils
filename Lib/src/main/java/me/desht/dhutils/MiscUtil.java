@@ -3,10 +3,8 @@ package me.desht.dhutils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -183,7 +181,7 @@ public class MiscUtil {
 		java.util.Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
 	 * Get a list of all files in the given JAR (or ZIP) file within the given path, and with the
 	 * given extension.
@@ -196,23 +194,31 @@ public class MiscUtil {
 	 */
 	public static String[] listFilesinJAR(File jarFile, String path, String ext) throws IOException {
 		ZipInputStream zip = new ZipInputStream(new FileInputStream(jarFile));
-	    ZipEntry ze = null;
+		ZipEntry ze = null;
 
-	    List<String> list = new ArrayList<String>();
-	    while ((ze = zip.getNextEntry()) != null ) {
-	        String entryName = ze.getName();
-	        if (entryName.startsWith(path) && ext != null && entryName.endsWith(ext)) {
-	            list.add(entryName);
-	        }
-	    }
-	    zip.close();
-	    
-	    return list.toArray(new String[list.size()]);
+		List<String> list = new ArrayList<String>();
+		while ((ze = zip.getNextEntry()) != null ) {
+			String entryName = ze.getName();
+			if (entryName.startsWith(path) && ext != null && entryName.endsWith(ext)) {
+				list.add(entryName);
+			}
+		}
+		zip.close();
+
+		return list.toArray(new String[list.size()]);
 	}
-	
+
+	/**
+	 * Load a YAML file, enforcing UTF-8 encoding, and get the YAML configuration from it.
+	 * 
+	 * @param file the file to load
+	 * @return the YAML configuration from that file
+	 * @throws InvalidConfigurationException
+	 * @throws IOException
+	 */
 	public static YamlConfiguration loadYamlUTF8(File file) throws InvalidConfigurationException, IOException {		
 		StringBuilder sb = new StringBuilder((int) file.length());
-		
+
 		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 		char[] buf = new char[1024];
 		int l;
@@ -220,10 +226,10 @@ public class MiscUtil {
 			sb = sb.append(buf, 0, l);
 		}
 		in.close();
-		
+
 		YamlConfiguration yaml = new YamlConfiguration();
 		yaml.loadFromString(sb.toString());
-		
+
 		return yaml;
 	}
 }

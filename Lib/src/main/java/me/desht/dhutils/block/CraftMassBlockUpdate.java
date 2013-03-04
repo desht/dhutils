@@ -47,7 +47,7 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		blocksModified++;
 		int oldBlockId = world.getBlockTypeIdAt(x & 0x0f, y, z & 0x0f);
 		boolean res = nms.setBlockFast(world, x, y, z, blockId, (byte)data);
-		
+
 		if (nms.getBlockLightEmission(oldBlockId) != nms.getBlockLightEmission(blockId)
 				|| nms.getBlockLightBlocking(oldBlockId) != nms.getBlockLightBlocking(oldBlockId)) {
 			// lighting or light blocking by this block has changed; force a recalculation
@@ -57,6 +57,9 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 				break;
 			case DEFERRED:
 				deferredBlocks.add(new DeferredBlock(x, y, z, blockId));
+				break;
+			case NEVER:
+			default:
 				break;
 			}
 		}
@@ -115,7 +118,7 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		}
 		this.relightingStrategy = strategy;
 	}
-	
+
 	/**
 	 * TODO: this should be a method in the Bukkit World class, e.g world.createMassBlockUpdater()
 	 * 
@@ -125,7 +128,7 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 	public static MassBlockUpdate createMassBlockUpdater(org.bukkit.World world) {
 		return new CraftMassBlockUpdate(world);
 	}
-	
+
 	private class ChunkCoords {
 		public final int x, z;
 		public ChunkCoords(int x, int z) {
@@ -133,11 +136,11 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 			this.z = z;
 		}
 	}
-	
+
 	private class DeferredBlock {
 		public final int x, y, z;
 		public final int blockId;
-		
+
 		public DeferredBlock(int x, int y, int z, int blockId) {
 			this.x = x;
 			this.y = y;

@@ -184,7 +184,7 @@ public class Cost {
 		}
 		return true;
 	}
-	
+
 	public boolean isAffordable(CommandSender sender) {
 		if (!(sender instanceof Player)) {
 			return true;
@@ -225,6 +225,8 @@ public class Cost {
 				total += maxDurability - entry.getValue().getDurability();
 			}
 			return total >= getQuantity();
+		case POTION_EFFECT:
+			return true;
 		}
 
 		return true;
@@ -278,13 +280,12 @@ public class Cost {
 			break;
 		case POTION_EFFECT:
 			PotionEffectType pt = PotionEffectType.getById(id);
-			int amp = getData() == null ? 0 : getData() - 1;
-			PotionEffect pe = new PotionEffect(pt, (int)getQuantity() * 20, amp);
 			if (player.hasPotionEffect(pt)) {
 				player.removePotionEffect(pt);
 			}
 			if (getQuantity() > 0) {
-				player.addPotionEffect(pe);
+				int amp = getData() == null ? 0 : getData() - 1;
+				player.addPotionEffect(new PotionEffect(pt, (int)getQuantity() * 20, amp));
 			}
 			break;
 		}
@@ -376,7 +377,7 @@ public class Cost {
 
 			short currentDurability = entry.getValue().getDurability();
 			short newDurability = (short) (currentDurability + total);
-			
+
 			if (newDurability < 0)
 				newDurability = 0;
 
@@ -431,7 +432,7 @@ public class Cost {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Check if the costs are applicable.
 	 * 
