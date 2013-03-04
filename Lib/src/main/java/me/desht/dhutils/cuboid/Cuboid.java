@@ -602,7 +602,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @param mat	The material to set
 	 */
 	public void fill(MaterialWithData mat) {
-		fill(mat.getId(), mat.getData());
+		fill(mat.getId(), (byte)mat.getData());
 	}
 
 	/**
@@ -620,7 +620,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	}
 
 	public void fill(MaterialWithData mat, MassBlockUpdate mbu) {
-		fill(mat.getId(), mat.getData(), mbu);
+		fill(mat.getId(), (byte)mat.getData(), mbu);
 	}
 
 	/**
