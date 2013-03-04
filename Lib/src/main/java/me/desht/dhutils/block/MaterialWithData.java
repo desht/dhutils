@@ -19,10 +19,10 @@ public class MaterialWithData implements Cloneable {
 	private final static Map<String, MaterialWithData> materialCache = new HashMap<String, MaterialWithData>();
 
 	final int matId;
-	final byte data;
+	final short data;
 	final String[] metadata; // e.g. sign text
 
-	private MaterialWithData(int matId, byte data) {
+	private MaterialWithData(int matId, short data) {
 		this.matId = matId;
 		this.data = data;
 		this.metadata = null;
@@ -66,7 +66,7 @@ public class MaterialWithData implements Cloneable {
 			data = 0;
 		} else {
 			if (matAndData[1].matches("^[0-9]+$")) {
-				data = Byte.parseByte(matAndData[1]);
+				data = Short.parseShort(matAndData[1]);
 			} else if (matId == Material.WOOL.getId()) {
 				// First look for the dye color string in the WorldEdit ClothColor class
 				// and if that fails, check for a Bukkit DyeColor
@@ -118,9 +118,13 @@ public class MaterialWithData implements Cloneable {
 	 *            list of Strings representing extra data for this object
 	 * @return The MaterialWithData object
 	 */
+	@Deprecated
 	public static MaterialWithData get(int id, byte data, String[] metadata) {
-		String key = metadata == null ? String.format("%d:%d", id, data) : String.format("%d:%d=%s", id, data, Joiner
-				.on(";").join(metadata));
+		return get(id, (short)data, metadata);
+	}
+	
+	public static MaterialWithData get(int id, short data, String[] metadata) {
+		String key = metadata == null ? String.format("%d:%d", id, data) : String.format("%d:%d=%s", id, data, Joiner.on(";").join(metadata));
 		return get(key);
 	}
 
@@ -133,10 +137,15 @@ public class MaterialWithData implements Cloneable {
 	 *            the material data byte
 	 * @return The MaterialWithData object
 	 */
+	@Deprecated
 	public static MaterialWithData get(int id, byte data) {
 		return get(String.format("%d:%d", id, data));
 	}
-
+	
+	public static MaterialWithData get(int id, short data) {
+		return get(String.format("%d:%d", id, data));
+	}
+	
 	/**
 	 * Get a MaterialData from a numeric ID. The data byte will be 0.
 	 * 
@@ -153,7 +162,7 @@ public class MaterialWithData implements Cloneable {
 	 * 
 	 * @return the material data byte
 	 */
-	public Byte getData() {
+	public short getData() {
 		return data;
 	}
 
@@ -201,7 +210,7 @@ public class MaterialWithData implements Cloneable {
 	 * @return a new MaterialWithData object, rotated as necessary
 	 */
 	public MaterialWithData rotate(int rotation) {
-		byte newData = data;
+		short newData = data;
 		switch (rotation) {
 		case 270:
 			newData = (byte) BlockData.rotate90Reverse(matId, data);
@@ -224,7 +233,7 @@ public class MaterialWithData implements Cloneable {
 	 *            The block to apply the material to
 	 */
 	public void applyToBlock(Block b) {
-		b.setTypeIdAndData(matId, data, false);
+		b.setTypeIdAndData(matId, (byte)data, false);
 		if (metadata != null && (matId == 63 || matId == 68)) {
 			// updating a wall sign or floor sign, with text
 			Sign sign = (Sign) b.getState().getData();
@@ -261,7 +270,7 @@ public class MaterialWithData implements Cloneable {
 	 */
 	public void applyToCuboid(Cuboid c) {
 		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(c.getWorld());
-		c.fill(matId, data, mbu);
+		c.fill(matId, (byte)data, mbu);
 		mbu.notifyClients();
 	}
 
@@ -272,11 +281,13 @@ public class MaterialWithData implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder(Material.getMaterial(matId).toString());
+		Material mat = Material.getMaterial(matId);
+		String matName = mat == null ? Integer.toString(matId) : mat.toString();
+		StringBuilder s = new StringBuilder(matName);
 		if (matId == Material.WOOL.getId()) {
-			s.append(":").append(DyeColor.getByWoolData(data).toString());
+			s.append(":").append(DyeColor.getByWoolData((byte)data).toString());
 		} else {
-			s.append(":").append(Byte.toString(data));
+			s.append(":").append(Short.toString(data));
 		}
 		return s.toString();
 	}
