@@ -146,6 +146,11 @@ public class MaterialWithData implements Cloneable {
 		return get(String.format("%d:%d", id, data));
 	}
 	
+
+	public static MaterialWithData get(Block b) {
+		return get(String.format("%d:%d", b.getTypeId(), (short)b.getData()));
+	}
+	
 	/**
 	 * Get a MaterialData from a numeric ID. The data byte will be 0.
 	 * 
