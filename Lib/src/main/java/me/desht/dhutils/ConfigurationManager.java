@@ -110,13 +110,13 @@ public class ConfigurationManager {
 	public <T> void set(String key, List<T> val) {
 		Object current = get(key);
 
-		key = addPrefix(key);
+//		key = addPrefix(key);
 
 		if (listener != null) {
 			listener.onConfigurationValidate(this, key, val);
 		}
 
-		setItem(key, val);
+		setItem(addPrefix(key), val);
 
 		if (listener != null) {
 			listener.onConfigurationChanged(this, key, current, get(key));
