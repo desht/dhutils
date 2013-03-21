@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.desht</groupId>
     <artifactId>dhutils-lib</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
     <name>DH Utils Library</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -83,6 +83,13 @@
             <groupId>me.desht</groupId>
             <artifactId>dhutils-v1_5_R1</artifactId>
             <version>v1_5_R1</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>me.desht</groupId>
+            <artifactId>dhutils-v1_5_R2</artifactId>
+            <version>v1_5_R2</version>
             <type>jar</type>
             <optional>true</optional>
         </dependency>
