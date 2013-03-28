@@ -49,7 +49,7 @@ public abstract class AbstractCommand {
 	}
 
 	public boolean matchesSubCommand(String label, String[] args) {
-		OUTER: for (CommandRecord rec : cmdRecs) {
+		for (CommandRecord rec : cmdRecs) {
 			if (!label.equalsIgnoreCase(rec.command))
 				continue;
 
@@ -57,15 +57,14 @@ public abstract class AbstractCommand {
 				continue;
 
 			for (int i = 0; i < rec.subCommands.length; i++) {
-				LogUtils.finest(String.format("matchesSubcmd: %d: [%s] <=> [%s]", i, args[i], rec.subCommands[i]));
-				if (!args[i].startsWith(rec.subCommands[i])) {
-					continue OUTER;
+				if (!rec.subCommands[i].startsWith(args[i])) {
+					return false;
 				}
 			}
 			return true;
 		}
 
-		return false;
+	return false;
 	}
 
 	public boolean matchesArgCount(String label, String args[]) {
@@ -95,7 +94,7 @@ public abstract class AbstractCommand {
 		for (int i = rec.subCommands.length; i < args.length; i++) {
 			tmpResult[i - rec.subCommands.length] = args[i];
 		}
-		
+
 		String[] tmpArgs;
 		if (isQuotedArgs()) {
 			List<String>a = MiscUtil.splitQuotedString(combine(tmpResult, 0));
@@ -103,7 +102,7 @@ public abstract class AbstractCommand {
 		} else {
 			tmpArgs = tmpResult;
 		}
-		
+
 		// extract any command-line options that were specified
 		List<String> l = new ArrayList<String>(tmpArgs.length);
 		optVals.clear();
@@ -135,7 +134,7 @@ public abstract class AbstractCommand {
 				l.add(tmpArgs[i]);
 			}
 		}
-		
+
 		matchedArgs = l.toArray(new String[l.size()]);
 	}
 
@@ -151,7 +150,7 @@ public abstract class AbstractCommand {
 		}
 	}
 
-	protected String[] getArgs() {
+	protected String[] getMatchedArgs() {
 		return matchedArgs;
 	}
 
@@ -185,11 +184,11 @@ public abstract class AbstractCommand {
 			}
 		}
 	}
-	
+
 	protected void setOptions(String optSpec) {
 		setOptions(optSpec.split(","));
 	}
-	
+
 	protected String getPermissionNode() {
 		return permissionNode;
 	}
@@ -201,26 +200,26 @@ public abstract class AbstractCommand {
 	protected boolean hasOption(String opt) {
 		return optVals.containsKey(opt);
 	}
-	
+
 	protected Object getOption(String opt) {
 		return optVals.get(opt);
 	}
-	
+
 	protected int getIntOption(String opt) {
 		if (!optVals.containsKey(opt)) return 0;
 		return (Integer) optVals.get(opt);
 	}
-	
+
 	protected String getStringOption(String opt) {
 		if (!optVals.containsKey(opt)) return null;
 		return (String) optVals.get(opt);
 	}
-	
+
 	protected double getDoubleOption(String opt) {
 		if (!optVals.containsKey(opt)) return 0.0;
 		return (Double) optVals.get(opt);
 	}
-	
+
 	protected boolean getBooleanOption(String opt) {
 		if (!optVals.containsKey(opt)) return false;
 		return (Boolean) optVals.get(opt);
@@ -274,7 +273,7 @@ public abstract class AbstractCommand {
 	private class CommandRecord {
 		private final String command;
 		private final String subCommands[];
-		
+
 		public CommandRecord(String[] fields) {
 			this.command = fields[0];
 			this.subCommands = new String[fields.length - 1];
@@ -283,6 +282,6 @@ public abstract class AbstractCommand {
 			}
 		}
 	}
-	
+
 	private enum OptType { BOOL, STRING, INT, DOUBLE };
 }
