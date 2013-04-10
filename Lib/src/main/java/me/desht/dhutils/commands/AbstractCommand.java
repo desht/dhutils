@@ -7,15 +7,24 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import com.google.common.base.Joiner;
 
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
+/**
+ * @author des
+ *
+ */
 public abstract class AbstractCommand {
+	private enum OptType { BOOL, STRING, INT, DOUBLE }
+
 	private final int minArgs, maxArgs;
 	private final List<CommandRecord> cmdRecs = new ArrayList<AbstractCommand.CommandRecord>();
 	private final Map<String, OptType> options = new HashMap<String,OptType>();
@@ -23,6 +32,7 @@ public abstract class AbstractCommand {
 	private String usage[];
 	private String permissionNode;
 	private boolean quotedArgs;
+	private CommandRecord matchedCommand;
 	private String matchedArgs[];
 
 	public AbstractCommand(String label) {
@@ -49,22 +59,32 @@ public abstract class AbstractCommand {
 	}
 
 	public boolean matchesSubCommand(String label, String[] args) {
+		return matchesSubCommand(label, args, false);
+	}
+
+	public boolean matchesSubCommand(String label, String[] args, boolean partialOk) {
 		for (CommandRecord rec : cmdRecs) {
 			if (!label.equalsIgnoreCase(rec.command))
 				continue;
 
-			if (args.length < rec.subCommands.length)
+			if (!partialOk && args.length < rec.subCommands.length)
 				continue;
 
-			for (int i = 0; i < rec.subCommands.length; i++) {
-				if (!rec.subCommands[i].startsWith(args[i])) {
+			int match = 0;
+			for (int i = 0; i < rec.subCommands.length && i < args.length; i++) {
+				if (rec.subCommands[i].startsWith(args[i])) {
+					match++;
+				} else {
 					return false;
 				}
 			}
-			return true;
+			if (partialOk || match == rec.subCommands.length) {
+				matchedCommand = rec;
+				return true;
+			}
 		}
 
-	return false;
+		return false;
 	}
 
 	public boolean matchesArgCount(String label, String args[]) {
@@ -150,6 +170,10 @@ public abstract class AbstractCommand {
 		}
 	}
 
+	CommandRecord getMatchedCommand() {
+		return matchedCommand;
+	}
+
 	protected String[] getMatchedArgs() {
 		return matchedArgs;
 	}
@@ -232,7 +256,7 @@ public abstract class AbstractCommand {
 	protected void notFromConsole(CommandSender sender) throws DHUtilsException {
 		if (!(sender instanceof Player)) {
 			throw new DHUtilsException("This command can't be run from the console.");
-		}	
+		}
 	}
 
 	protected String combine(String[] args, int idx) {
@@ -270,7 +294,43 @@ public abstract class AbstractCommand {
 		return res;
 	}
 
-	private class CommandRecord {
+	/**
+	 * Return a list of possible completions for the command for the given arguments.
+	 * Override this in subclasses.
+	 *
+	 * @param sender the player doing the tab completion
+	 * @param args the argument list
+	 * @return a list of possible completions
+	 */
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		return noCompletions(sender);
+	}
+
+	/**
+	 * Return an empty list of possible completions.
+	 *
+	 * @return an empty string list
+	 */
+	protected List<String> noCompletions() {
+		return CommandManager.noCompletions();
+	}
+
+	/**
+	 * Return an empty list of possible completions, also playing an alert to the sender
+	 * if they are a player.
+	 *
+	 * @param sender the command sender trying to get a completion
+	 * @return an empty string list
+	 */
+	protected List<String> noCompletions(CommandSender sender) {
+		return CommandManager.noCompletions(sender);
+	}
+
+	/**
+	 * Represents a single command record: command plus subcommands.  A command object
+	 * contains one or more of these records.
+	 */
+	class CommandRecord {
 		private final String command;
 		private final String subCommands[];
 
@@ -281,7 +341,23 @@ public abstract class AbstractCommand {
 				subCommands[i - 1] = fields[i];
 			}
 		}
+
+		@Override
+		public String toString() {
+			return command + " " + Joiner.on(" ").join(subCommands);
+		}
+
+		public int size() {
+			return subCommands.length;
+		}
+
+		public String subCommand(int idx) {
+			return subCommands[idx];
+		}
 	}
 
-	private enum OptType { BOOL, STRING, INT, DOUBLE };
+	@Override
+	public String toString() {
+		return "[" + Joiner.on(",").join(cmdRecs) + "]";
+	}
 }
