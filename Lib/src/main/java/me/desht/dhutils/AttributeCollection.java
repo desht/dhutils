@@ -10,20 +10,26 @@ public class AttributeCollection extends ConfigurationManager {
 	public AttributeCollection() {
 		super(new YamlConfiguration());
 	}
-	
+
 	public AttributeCollection(ConfigurationListener listener) {
 		super(new YamlConfiguration());
 		setConfigurationListener(listener);
 	}
-	
+
 	public void registerAttribute(String attrName, Object def) {
-		getConfig().addDefault(attrName, def);
+		registerAttribute(attrName, def, null);
 	}
-	
+
+	public void registerAttribute(String attrName, Object def, String description) {
+		getConfig().addDefault(attrName, def);
+		if (description != null) {
+			setDescription(attrName, description);
+		}
+	}
+
 	public boolean contains(String key) {
 		return getConfig().contains(key);
 	}
-	
 
 	public Set<String> listAttributeKeys(boolean isSorted) {
 		if (isSorted) {
@@ -33,7 +39,7 @@ public class AttributeCollection extends ConfigurationManager {
 			return getConfig().getDefaults().getKeys(false);
 		}
 	}
-	
+
 	public boolean hasAttribute(String k) {
 		return getConfig().getDefaults().contains(k);
 	}

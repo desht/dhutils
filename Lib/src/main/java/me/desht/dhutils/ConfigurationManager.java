@@ -9,14 +9,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.plugin.Plugin;
 
 public class ConfigurationManager {
-	
+
 	private final Plugin plugin;
 	private final Configuration config;
+	private final Configuration descConfig;
 	private final Map<String,Class<?>> forceTypes = new HashMap<String,Class<?>>();
-	
+
 	private ConfigurationListener listener;
 	private String prefix;
 
@@ -28,18 +30,21 @@ public class ConfigurationManager {
 		this.config = plugin.getConfig();
 		config.options().copyDefaults(true);
 
+		this.descConfig = new MemoryConfiguration();
+
 		plugin.saveConfig();
 	}
 
 	public ConfigurationManager(Plugin plugin) {
 		this(plugin, null);
 	}
-	
+
 	public ConfigurationManager(Configuration config) {
 		this.plugin = null;
 		this.prefix = null;
 		this.listener = null;
 		this.config = config;
+		this.descConfig = new MemoryConfiguration();
 	}
 
 	public Plugin getPlugin() {
@@ -53,7 +58,7 @@ public class ConfigurationManager {
 	public void setConfigurationListener(ConfigurationListener listener) {
 		this.listener = listener;
 	}
-	
+
 	public void forceType(String key, Class<?> c) {
 		forceTypes.put(key, c);
 	}
@@ -110,8 +115,6 @@ public class ConfigurationManager {
 	public <T> void set(String key, List<T> val) {
 		Object current = get(key);
 
-//		key = addPrefix(key);
-
 		if (listener != null) {
 			listener.onConfigurationValidate(this, key, val);
 		}
@@ -135,6 +138,22 @@ public class ConfigurationManager {
 		return k.replaceAll("^" + prefix + "\\.", "");
 	}
 
+	public void setDescription(String key, String desc) {
+		String keyPrefixed = addPrefix(key);
+		if (!config.contains(keyPrefixed)) {
+			throw new DHUtilsException("No such config item: " + keyPrefixed);
+		}
+		descConfig.set(keyPrefixed, desc);
+	}
+
+	public String getDescription(String key) {
+		String keyPrefixed = addPrefix(key);
+		if (!config.contains(keyPrefixed)) {
+			throw new DHUtilsException("No such config item: " + keyPrefixed);
+		}
+		return descConfig.getString(keyPrefixed, "");
+	}
+
 	@SuppressWarnings("unchecked")
 	private void setItem(String key, String val) {
 		Class<?> c = getType(key);
@@ -150,7 +169,7 @@ public class ConfigurationManager {
 			config.set(key, val);
 		}  else if (Enum.class.isAssignableFrom(c)) {
 			// this really isn't very pretty, but as far as I can tell there's no way to
-			// do this with a parameterised Enum type		
+			// do this with a parameterised Enum type
 			@SuppressWarnings("rawtypes")
 			Class<? extends Enum> cSub = c.asSubclass(Enum.class);
 			try {
