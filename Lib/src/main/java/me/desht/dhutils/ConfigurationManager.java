@@ -81,7 +81,7 @@ public class ConfigurationManager {
 	}
 
 	public Class<?> getType(String key) {
-		return forceTypes.containsKey(key) ? forceTypes.get(key) : config.getDefaults().get(key).getClass();
+		return forceTypes.containsKey(key) ? forceTypes.get(key) : config.getDefaults().get(addPrefix(key)).getClass();
 	}
 
 	public Object get(String key) {
@@ -97,11 +97,7 @@ public class ConfigurationManager {
 	public void set(String key, String val) {
 		Object current = get(key);
 
-		if (listener != null) {
-			listener.onConfigurationValidate(this, key, val);
-		}
-
-		setItem(addPrefix(key), val);
+		setItem(key, val);
 
 		if (listener != null) {
 			listener.onConfigurationChanged(this, key, current, get(key));
@@ -115,11 +111,7 @@ public class ConfigurationManager {
 	public <T> void set(String key, List<T> val) {
 		Object current = get(key);
 
-		if (listener != null) {
-			listener.onConfigurationValidate(this, key, val);
-		}
-
-		setItem(addPrefix(key), val);
+		setItem(key, val);
 
 		if (listener != null) {
 			listener.onConfigurationChanged(this, key, current, get(key));
@@ -159,21 +151,23 @@ public class ConfigurationManager {
 		Class<?> c = getType(key);
 		LogUtils.finer("setItem: key = " + key + ", val = " + val + ", class = " + c.getName());
 
+		Object processedVal = null;
+
 		if (List.class.isAssignableFrom(c)) {
 			List<String>list = new ArrayList<String>(1);
 			list.add(val);
-			handleListValue(config, key, list);
+			processedVal = handleListValue(key, list);
 		} else if (String.class.isAssignableFrom(c)) {
 			// String config values are common, so this should be a little quicker than going
 			// through the default case below (using reflection)
-			config.set(key, val);
+			processedVal = val;
 		}  else if (Enum.class.isAssignableFrom(c)) {
 			// this really isn't very pretty, but as far as I can tell there's no way to
 			// do this with a parameterised Enum type
 			@SuppressWarnings("rawtypes")
 			Class<? extends Enum> cSub = c.asSubclass(Enum.class);
 			try {
-				config.set(key, Enum.valueOf(cSub, val.toUpperCase()));
+				processedVal = Enum.valueOf(cSub, val.toUpperCase());
 			} catch (IllegalArgumentException e) {
 				throw new DHUtilsException("'" + val + "' is not a valid value for '" + key + "'");
 			}
@@ -181,7 +175,7 @@ public class ConfigurationManager {
 			// the class we're converting to must have a constructor taking a single String argument
 			try {
 				Constructor<?> ctor = c.getDeclaredConstructor(String.class);
-				config.set(key, ctor.newInstance(val));
+				processedVal = ctor.newInstance(val);
 			} catch (NoSuchMethodException e) {
 				throw new DHUtilsException("Cannot convert '" + val + "' into a " + c.getName());
 			} catch (IllegalArgumentException e) {
@@ -198,24 +192,37 @@ public class ConfigurationManager {
 				}
 			}
 		}
+
+		if (processedVal != null) {
+			if (listener != null) {
+				listener.onConfigurationValidate(this, key, get(key), processedVal);
+			}
+			config.set(addPrefix(key), processedVal);
+		} else {
+			throw new DHUtilsException("Don't know what to do with " + key + " = " + val);
+		}
 	}
 
 	private <T> void setItem(String key, List<T> list) {
-		if (config.getDefaults().get(key) == null) {
+		String keyPrefixed = addPrefix(key);
+		if (config.getDefaults().get(keyPrefixed) == null) {
 			throw new DHUtilsException("No such key '" + key + "'");
 		}
-		if (!(config.getDefaults().get(key) instanceof List<?>)) {
+		if (!(config.getDefaults().get(keyPrefixed) instanceof List<?>)) {
 			throw new DHUtilsException("Key '" + key + "' does not accept a list of values");
 		}
-		handleListValue(config, key, list);
+		if (listener != null) {
+			listener.onConfigurationValidate(this, key, get(key), list);
+		}
+		config.set(addPrefix(key), handleListValue(key, list));
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> void handleListValue(Configuration config, String key, List<T> list) {
-		HashSet<T> current = new HashSet<T>((List<T>)config.getList(key));
+	private <T> List<T> handleListValue(String key, List<T> list) {
+		HashSet<T> current = new HashSet<T>((List<T>)config.getList(addPrefix(key)));
 
 		if (list.get(0).equals("-")) {
-			// remove specifed item from list
+			// remove specified item from list
 			list.remove(0);
 			current.removeAll(list);
 		} else if (list.get(0).equals("=")) {
@@ -231,7 +238,6 @@ public class ConfigurationManager {
 			current.addAll(list);
 		}
 
-		config.set(key, new ArrayList<T>(current));
+		return new ArrayList<T>(current);
 	}
-
 }
