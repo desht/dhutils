@@ -1,22 +1,22 @@
 package me.desht.dhutils.commands;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Sound;
+import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.google.common.base.Joiner;
-
-import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
 
 /**
  * @author des
@@ -324,6 +324,48 @@ public abstract class AbstractCommand {
 	 */
 	protected List<String> noCompletions(CommandSender sender) {
 		return CommandManager.noCompletions(sender);
+	}
+
+	/**
+	 * Given a collection of String and a String prefix, return a List of those collection members
+	 * which start with the prefix.  The sender is used for notification purposes if no members are
+	 * matched, and may be null.
+	 *
+	 * @param sender
+	 * @param c
+	 * @param prefix
+	 * @return
+	 */
+	protected List<String> filterPrefix(CommandSender sender, Collection<String> c, String prefix) {
+		List<String> res = new ArrayList<String>();
+		for (String s : c) {
+			if (prefix == null || prefix.isEmpty() || s.toLowerCase().startsWith(prefix.toLowerCase())) {
+				res.add(s);
+			}
+		}
+		return getResult(res, sender, true);
+	}
+
+	/**
+	 * Given a list of Strings, return the list, possibly sorted.  If a sender is supplied, notify the
+	 * sender if the list is empty.
+	 *
+	 * @param res
+	 * @param sender
+	 * @param sorted
+	 * @return
+	 */
+	protected List<String> getResult(List<String> res, CommandSender sender, boolean sorted) {
+		if (res.isEmpty()) return sender == null ? noCompletions() : noCompletions(sender);
+		return sorted ? MiscUtil.asSortedList(res) : res;
+	}
+
+	protected List<String> getEnumCompletions(CommandSender sender, Class<? extends Enum<?>> c, String prefix) {
+		List<String> res = new ArrayList<String>();
+		for (Object o1 : c.getEnumConstants()) {
+			res.add(o1.toString());
+		}
+		return filterPrefix(sender, res, prefix);
 	}
 
 	/**
