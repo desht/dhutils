@@ -12,7 +12,9 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -364,6 +366,33 @@ public abstract class AbstractCommand {
 		List<String> res = new ArrayList<String>();
 		for (Object o1 : c.getEnumConstants()) {
 			res.add(o1.toString());
+		}
+		return filterPrefix(sender, res, prefix);
+	}
+
+	protected List<String> getConfigCompletions(CommandSender sender, ConfigurationSection config, String prefix) {
+		List<String> res = new ArrayList<String>();
+		for (String k : config.getKeys(true)) {
+			if (!config.isConfigurationSection(k)) {
+				res.add(k);
+			}
+		}
+		return filterPrefix(sender, res, prefix);
+	}
+
+	protected List<String> getConfigValueCompletions(CommandSender sender, String key, Object obj, String desc, String prefix) {
+		List<String> res = new ArrayList<String>();
+		if (obj instanceof Enum<?>) {
+			MiscUtil.alertMessage(sender, key + ":" + desc);
+			for (Object o1 : obj.getClass().getEnumConstants()) {
+				res.add(o1.toString());
+			}
+		} else if (obj instanceof Boolean) {
+			MiscUtil.alertMessage(sender, key + ":" + desc);
+			res.add("true");
+			res.add("false");
+		} else {
+			MiscUtil.alertMessage(sender, key + " = <" + obj.getClass().getSimpleName() + ">" + desc);
 		}
 		return filterPrefix(sender, res, prefix);
 	}
