@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import org.bukkit.entity.Player;
 
-
 /**
  * @author desht
  *
@@ -30,8 +29,7 @@ public class ExperienceManager {
 
 	static {
 		// 25 is an arbitrary value for the initial table size - the actual
-		// value isn't critically
-		// important since the tables are resized as needed.
+		// value isn't critically important since the tables are resized as needed.
 		initLookupTables(25);
 	}
 

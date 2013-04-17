@@ -197,7 +197,7 @@ public class Cost {
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots;
 		switch (getType()) {
 		case MONEY:
-			return economy == null ? false : economy.has(player.getName(), getQuantity());
+			return economy == null || !economy.isEnabled() ? false : economy.has(player.getName(), getQuantity());
 		case ITEM:
 			matchingInvSlots = player.getInventory().all(Material.getMaterial(getId()));
 			int remainingCheck = (int) getQuantity();
@@ -336,7 +336,7 @@ public class Cost {
 				if (remainingCheck < 0) {
 					entry.getValue().setAmount(-remainingCheck);
 					break;
-				} else if (remainingCheck == 0) {	
+				} else if (remainingCheck == 0) {
 					player.getInventory().removeItem(entry.getValue());
 					break;
 				} else {

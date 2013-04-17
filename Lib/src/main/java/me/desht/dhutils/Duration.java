@@ -36,9 +36,11 @@ public class Duration {
 	}
 
 	/**
-	 * Create a new Duration object
+	 * Create a new Duration object from a String specifier
 	 * 
-	 * @param duration	Duration specification 
+	 * @param duration	Duration specification
+	 * @throws IllegalArgumentException if the number of arguments is incorrect
+	 * @throws NumberFormatException if any number is wrongly specified
 	 */
 	public Duration(String duration) {
 		duration = duration.replaceAll("(\\d)(\\D)", "$1 $2");
@@ -118,7 +120,7 @@ public class Duration {
 			return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds);
 		} else {  // if (days > 0 && milliseconds > 0)
 			return String.format("%dd%02d:%02d:%02d.%03d", days, hours, minutes, seconds, milliseconds);
-		} 
+		}
 	}
 
 	public String toString() {
@@ -127,13 +129,13 @@ public class Duration {
 			sb.append(days + " d ");
 		}
 		if (hours > 0) {
-			sb.append(hours + " hr ");	
+			sb.append(hours + " hr ");
 		}
 		if (minutes > 0) {
-			sb.append(minutes + " min ");	
+			sb.append(minutes + " min ");
 		}
 		if (seconds > 0) {
-			sb.append(seconds + " sec");		
+			sb.append(seconds + " sec");
 		}
 		if (milliseconds > 0) {
 			sb.append(milliseconds + " ms");
