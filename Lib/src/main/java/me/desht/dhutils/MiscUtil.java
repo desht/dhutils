@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -22,6 +21,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -30,26 +30,30 @@ import org.bukkit.plugin.Plugin;
 public class MiscUtil {
 	private static Map<String, ChatColor> prevColours = new HashMap<String, ChatColor>();
 
-	protected static final Logger logger = Logger.getLogger("Minecraft");
-	protected static String messageFormat = "[?]: %s";
+//	private static String messagePrefix = "";
+	private static boolean colouredConsole = true;
 
 	public static void init(Plugin plugin) {
-		messageFormat = "[" + plugin.getDescription().getName() + "]: %s";
+//		messagePrefix = "[" + plugin.getDescription().getName() + "]: ";
+	}
+
+	public static void setColouredConsole(boolean coloured) {
+		colouredConsole = coloured;
 	}
 
 	public static void errorMessage(CommandSender sender, String string) {
 		setPrevColour(sender.getName(), ChatColor.RED);
-		message(sender, string, ChatColor.RED, Level.WARNING);
+		message(sender, ChatColor.RED + string, Level.WARNING);
 	}
 
 	public static void statusMessage(CommandSender sender, String string) {
 		setPrevColour(sender.getName(), ChatColor.AQUA);
-		message(sender, string, ChatColor.AQUA, Level.INFO);
+		message(sender, ChatColor.AQUA + string, Level.INFO);
 	}
 
 	public static void alertMessage(CommandSender sender, String string) {
 		setPrevColour(sender.getName(), ChatColor.YELLOW);
-		message(sender, string, ChatColor.YELLOW, Level.INFO);
+		message(sender, ChatColor.YELLOW + string, Level.INFO);
 	}
 
 	public static void generalMessage(CommandSender sender, String string) {
@@ -75,31 +79,23 @@ public class MiscUtil {
 	}
 
 	public static void rawMessage(CommandSender sender, String string) {
-		for (String line : string.split("\\n")) { //$NON-NLS-1$
-			if (sender instanceof Player) {
-				sender.sendMessage(line);
+		boolean strip = sender instanceof ConsoleCommandSender && !colouredConsole;
+		for (String line : string.split("\\n")) {
+			if (strip) {
+				sender.sendMessage(ChatColor.stripColor(line));
 			} else {
-				LogUtils.info(ChatColor.stripColor(parseColourSpec(sender, line)));
+				sender.sendMessage(line);
 			}
 		}
 	}
 
 	private static void message(CommandSender sender, String string, Level level) {
-		for (String line : string.split("\\n")) { //$NON-NLS-1$
-			if (sender instanceof Player) {
+		boolean strip = sender instanceof ConsoleCommandSender && !colouredConsole;
+		for (String line : string.split("\\n")) {
+			if (strip) {
+				LogUtils.log(level, ChatColor.stripColor(parseColourSpec(sender, line)));
+			} else {
 				sender.sendMessage(parseColourSpec(sender, line));
-			} else {
-				LogUtils.log(level, ChatColor.stripColor(parseColourSpec(sender, line)));
-			}
-		}
-	}
-
-	private static void message(CommandSender sender, String string, ChatColor colour, Level level) {
-		for (String line : string.split("\\n")) { //$NON-NLS-1$
-			if (sender instanceof Player) {
-				sender.sendMessage(colour + parseColourSpec(sender, line));
-			} else {
-				LogUtils.log(level, ChatColor.stripColor(parseColourSpec(sender, line)));
 			}
 		}
 	}
@@ -145,6 +141,13 @@ public class MiscUtil {
 		return spec.replaceAll("\u00A7", "&");
 	}
 
+	/**
+	 * Find the given world by name.
+	 *
+	 * @param worldName name of the world to find
+	 * @return the World object representing the world name
+	 * @throws IllegalArgumentException if the given world cannot be found
+	 */
 	public static World findWorld(String worldName) {
 		World w = Bukkit.getServer().getWorld(worldName);
 		if (w != null) {
@@ -154,6 +157,15 @@ public class MiscUtil {
 		}
 	}
 
+	/**
+	 * Split the given string, but ensure single & double quoted sections of the string are 
+	 * kept together.
+	 * <p>
+	 * E.g. the String 'one "two three" four' will be split into [ "one", "two three", "four" ]
+	 *
+	 * @param s the String to split
+	 * @return a List of items
+	 */
 	public static List<String> splitQuotedString(String s) {
 		List<String> matchList = new ArrayList<String>();
 
@@ -176,6 +188,12 @@ public class MiscUtil {
 		return matchList;
 	}
 
+	/**
+	 * Return the given collection (of Comparable items) as a sorted list.
+	 *
+	 * @param c	the collection to sort
+	 * @return a list of the sorted items in the collection
+	 */
 	public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
 		List<T> list = new ArrayList<T>(c);
 		java.util.Collections.sort(list);
