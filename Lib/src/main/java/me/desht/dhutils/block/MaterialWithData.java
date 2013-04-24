@@ -3,6 +3,7 @@ package me.desht.dhutils.block;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.dhutils.FactoryMethod;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.cuboid.Cuboid;
 
@@ -97,6 +98,7 @@ public class MaterialWithData implements Cloneable {
 	 * @throws IllegalArgumentException
 	 *             if the specification is invalid
 	 */
+	@FactoryMethod
 	public static MaterialWithData get(String spec) {
 		spec = spec.toLowerCase();
 		if (!materialCache.containsKey(spec)) {
@@ -187,6 +189,15 @@ public class MaterialWithData implements Cloneable {
 	 */
 	public String[] getText() {
 		return metadata;
+	}
+
+	/**
+	 * Get the Bukkit Material for this MaterialWithData object
+	 * 
+	 * @return the Bukkit Material object
+	 */
+	public Material getBukkitMaterial() {
+		return Material.getMaterial(matId);
 	}
 
 	/**

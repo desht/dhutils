@@ -2,6 +2,8 @@ package me.desht.dhutils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -161,7 +163,7 @@ public class ConfigurationManager {
 			// String config values are common, so this should be a little quicker than going
 			// through the default case below (using reflection)
 			processedVal = val;
-		}  else if (Enum.class.isAssignableFrom(c)) {
+		} else if (Enum.class.isAssignableFrom(c)) {
 			// this really isn't very pretty, but as far as I can tell there's no way to
 			// do this with a parameterised Enum type
 			@SuppressWarnings("rawtypes")
@@ -172,10 +174,22 @@ public class ConfigurationManager {
 				throw new DHUtilsException("'" + val + "' is not a valid value for '" + key + "'");
 			}
 		} else {
-			// the class we're converting to must have a constructor taking a single String argument
+			// the class we're converting to must either have a static method annotated with @FactoryMethod,
+			// or have a constructor taking a single String argument
 			try {
-				Constructor<?> ctor = c.getDeclaredConstructor(String.class);
-				processedVal = ctor.newInstance(val);
+				for (Method method : c.getDeclaredMethods()) {
+					Class<?>[] params = method.getParameterTypes();
+					if (params.length != 1 || !String.class.isAssignableFrom(params[0]))
+						continue;
+					if (method.isAnnotationPresent(FactoryMethod.class) && Modifier.isStatic(method.getModifiers())) {
+						processedVal = method.invoke(null, val);
+						break;
+					}
+				}
+				if (processedVal == null) {
+					Constructor<?> ctor = c.getDeclaredConstructor(String.class);
+					processedVal = ctor.newInstance(val);
+				}
 			} catch (NoSuchMethodException e) {
 				throw new DHUtilsException("Cannot convert '" + val + "' into a " + c.getName());
 			} catch (IllegalArgumentException e) {
@@ -187,6 +201,8 @@ public class ConfigurationManager {
 			} catch (InvocationTargetException e) {
 				if (e.getCause() instanceof NumberFormatException) {
 					throw new DHUtilsException("Invalid numeric value: " + val);
+				} else if (e.getCause() instanceof IllegalArgumentException) {
+					throw new DHUtilsException(e.getMessage());
 				} else {
 					e.printStackTrace();
 				}
