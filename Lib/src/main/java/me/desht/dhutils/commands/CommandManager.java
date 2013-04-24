@@ -9,6 +9,7 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.commands.AbstractCommand.CommandRecord;
 
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -35,7 +36,7 @@ public class CommandManager {
 	public boolean dispatch(CommandSender sender, String label, String[] args) {
 		boolean res = true;
 
-		List<AbstractCommand> possibleMatches = getPossibleMatches(label, args, false);
+		List<AbstractCommand> possibleMatches = getPossibleMatches(label, args, true);
 
 		if (possibleMatches.size() == 1) {
 			// good - a unique match
@@ -93,7 +94,11 @@ public class CommandManager {
 			Set<String> completions = new HashSet<String>();
 			for (AbstractCommand cmd : possibleMatches) {
 				LogUtils.finer("add completion: " + cmd);
-				completions.add(cmd.getMatchedCommand().subCommand(args.length - 1));
+				CommandRecord rec = cmd.getMatchedCommand();
+				if (rec.size() >= args.length) {
+					completions.add(cmd.getMatchedCommand().subCommand(args.length - 1));
+				}
+//				completions.add(cmd.getMatchedCommand().lastSubCommand());
 			}
 			return MiscUtil.asSortedList(completions);
 		}

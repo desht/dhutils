@@ -12,7 +12,6 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -65,7 +64,7 @@ public abstract class AbstractCommand {
 	}
 
 	public boolean matchesSubCommand(String label, String[] args, boolean partialOk) {
-		for (CommandRecord rec : cmdRecs) {
+		CMDREC: for (CommandRecord rec : cmdRecs) {
 			if (!label.equalsIgnoreCase(rec.command))
 				continue;
 
@@ -77,7 +76,8 @@ public abstract class AbstractCommand {
 				if (rec.subCommands[i].startsWith(args[i])) {
 					match++;
 				} else {
-					return false;
+					// match failed; try the next command record, if any
+					continue CMDREC;
 				}
 			}
 			if (partialOk || match == rec.subCommands.length) {
@@ -86,7 +86,7 @@ public abstract class AbstractCommand {
 			}
 		}
 
-		return false;
+	return false;
 	}
 
 	public boolean matchesArgCount(String label, String args[]) {
@@ -232,22 +232,38 @@ public abstract class AbstractCommand {
 	}
 
 	protected int getIntOption(String opt) {
-		if (!optVals.containsKey(opt)) return 0;
+		return getIntOption(opt, 0);
+	}
+
+	protected int getIntOption(String opt, int def) {
+		if (!optVals.containsKey(opt)) return def;
 		return (Integer) optVals.get(opt);
 	}
 
 	protected String getStringOption(String opt) {
-		if (!optVals.containsKey(opt)) return null;
+		return getStringOption(opt, null);
+	}
+
+	protected String getStringOption(String opt, String def) {
+		if (!optVals.containsKey(opt)) return def;
 		return (String) optVals.get(opt);
 	}
 
 	protected double getDoubleOption(String opt) {
-		if (!optVals.containsKey(opt)) return 0.0;
+		return getDoubleOption(opt, 0.0);
+	}
+
+	protected double getDoubleOption(String opt, double def) {
+		if (!optVals.containsKey(opt)) return def;
 		return (Double) optVals.get(opt);
 	}
 
 	protected boolean getBooleanOption(String opt) {
-		if (!optVals.containsKey(opt)) return false;
+		return getBooleanOption(opt, false);
+	}
+
+	protected boolean getBooleanOption(String opt, boolean def) {
+		if (!optVals.containsKey(opt)) return def;
 		return (Boolean) optVals.get(opt);
 	}
 
@@ -424,6 +440,10 @@ public abstract class AbstractCommand {
 
 		public String subCommand(int idx) {
 			return subCommands[idx];
+		}
+
+		public String lastSubCommand() {
+			return subCommands[subCommands.length - 1];
 		}
 	}
 
