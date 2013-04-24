@@ -6,15 +6,11 @@ import java.util.List;
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.nms.api.NMSAbstraction;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 public class CraftMassBlockUpdate implements MassBlockUpdate {
 	private final World world;
-	private final List<DeferredBlock> deferredBlocks = new ArrayList<DeferredBlock>();
+	//	private final List<DeferredBlock> deferredBlocks = new ArrayList<DeferredBlock>();
 
 	private int minX = Integer.MAX_VALUE;
 	private int minZ = Integer.MAX_VALUE;
@@ -48,22 +44,37 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		int oldBlockId = world.getBlockTypeIdAt(x & 0x0f, y, z & 0x0f);
 		boolean res = nms.setBlockFast(world, x, y, z, blockId, (byte)data);
 
-		if (nms.getBlockLightEmission(oldBlockId) != nms.getBlockLightEmission(blockId)
-				|| nms.getBlockLightBlocking(oldBlockId) != nms.getBlockLightBlocking(oldBlockId)) {
+		if (nms.getBlockLightBlocking(oldBlockId) != nms.getBlockLightBlocking(oldBlockId)
+				|| nms.getBlockLightEmission(oldBlockId) != nms.getBlockLightEmission(blockId)) {
 			// lighting or light blocking by this block has changed; force a recalculation
 			switch (relightingStrategy) {
 			case IMMEDIATE:
 				nms.recalculateBlockLighting(world, x, y, z);
 				break;
-			case DEFERRED:
-				deferredBlocks.add(new DeferredBlock(x, y, z, blockId));
-				break;
+				//			case DEFERRED:
+				//				deferredBlocks.add(new DeferredBlock(x, y, z, blockId));
+				//				break;
 			case NEVER:
 			default:
 				break;
 			}
 		}
 		return res;
+	}
+
+	@Override
+	public void notifyClients() {
+		for (ChunkCoords cc : calculateChunks()) {
+			world.refreshChunk(cc.x, cc.z);
+		}
+	}
+
+	@Override
+	public void setRelightingStrategy(RelightingStrategy strategy) {
+//		if (strategy == RelightingStrategy.DEFERRED) {
+//			throw new NotImplementedException("DEFERRED re-lighting strategy not yet supported");
+//		}
+		this.relightingStrategy = strategy;
 	}
 
 	private List<ChunkCoords> calculateChunks() {
@@ -76,47 +87,9 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		for (int x = x1; x <= x2; x ++) {
 			for (int z = z1; z <= z2; z ++) {
 				res.add(new ChunkCoords(x, z));
-			}	
-		}
-		return res;
-	}
-
-	private void sendClientChanges(List<ChunkCoords> affected) {
-		// A player is considered within viewing distance of the change if they're
-		// within the change's bounding box expanded by the server view distance.
-		int threshold = (Bukkit.getServer().getViewDistance() << 4);
-		int x1 = minX - threshold, x2 = maxX + threshold;
-		int z1 = minZ - threshold, z2 = maxZ + threshold;
-
-		for (Player player : world.getPlayers()) {
-			Location loc = player.getLocation();
-			int px = loc.getBlockX();
-			int pz = loc.getBlockZ();
-			if (px >= x1 && px <= x2 && pz >= z1 && pz <= z2) {
-				for (ChunkCoords pair : affected) {
-					nms.queueChunkForUpdate(player, pair.x, pair.z);
-				}
 			}
 		}
-	}
-
-	@Override
-	public void notifyClients() {
-		List<ChunkCoords> affectedChunks = calculateChunks();
-		if (!affectedChunks.isEmpty()) {
-			sendClientChanges(affectedChunks);
-			blocksModified = 0;
-			minX = minZ = Integer.MIN_VALUE;
-			maxX = maxZ = Integer.MAX_VALUE;
-		}
-	}
-
-	@Override
-	public void setRelightingStrategy(RelightingStrategy strategy) {
-		if (strategy == RelightingStrategy.DEFERRED) {
-			throw new NotImplementedException("DEFERRED re-lighting strategy not yet supported");
-		}
-		this.relightingStrategy = strategy;
+		return res;
 	}
 
 	/**
@@ -137,15 +110,15 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		}
 	}
 
-	private class DeferredBlock {
-		public final int x, y, z;
-		public final int blockId;
-
-		public DeferredBlock(int x, int y, int z, int blockId) {
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.blockId = blockId;
-		}
-	}
+	//	private class DeferredBlock {
+	//		public final int x, y, z;
+	//		public final int blockId;
+	//
+	//		public DeferredBlock(int x, int y, int z, int blockId) {
+	//			this.x = x;
+	//			this.y = y;
+	//			this.z = z;
+	//			this.blockId = blockId;
+	//		}
+	//	}
 }
