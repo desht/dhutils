@@ -10,8 +10,12 @@ public class LogUtils {
 
 	private static Logger logger;
 
+	public static void init(String name) {
+		logger = Logger.getLogger(name);
+	}
+
 	public static void init(Plugin plugin) {
-		logger = plugin == null ? Logger.getLogger("Minecraft") : plugin.getLogger();
+		logger = plugin.getLogger();
 
 		// this feels a bit hack-ish, but it avoids the problem where we would need to 
 		// modify the parent logger (which is the Bukkit.getServer().getLogger() logger,
