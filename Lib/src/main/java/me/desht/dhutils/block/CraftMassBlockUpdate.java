@@ -1,26 +1,39 @@
 package me.desht.dhutils.block;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.nms.api.NMSAbstraction;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
-public class CraftMassBlockUpdate implements MassBlockUpdate {
+public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
+	private final Plugin plugin;
 	private final World world;
-	//	private final List<DeferredBlock> deferredBlocks = new ArrayList<DeferredBlock>();
+	private final NMSAbstraction nms;
+
+	private RelightingStrategy relightingStrategy = RelightingStrategy.IMMEDIATE;
+
+	private static final int MAX_BLOCKS_PER_TIME_CHECK = 1000;
+	private final Queue<DeferredBlock> deferredBlocks = new ArrayDeque<DeferredBlock>();
+	private BukkitTask relightTask = null;
+	private long maxRelightTimePerTick = TimeUnit.NANOSECONDS.convert(1, TimeUnit.MILLISECONDS);
 
 	private int minX = Integer.MAX_VALUE;
 	private int minZ = Integer.MAX_VALUE;
 	private int maxX = Integer.MIN_VALUE;
 	private int maxZ = Integer.MIN_VALUE;
 	private int blocksModified = 0;
-	private RelightingStrategy relightingStrategy = RelightingStrategy.IMMEDIATE;
-	private final NMSAbstraction nms;
 
-	public CraftMassBlockUpdate(org.bukkit.World world) {
+	public CraftMassBlockUpdate(Plugin plugin, org.bukkit.World world) {
+		this.plugin = plugin;
 		this.world = world;
 		this.nms = NMSHelper.getNMS();
 		if (nms == null) {
@@ -41,22 +54,18 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		maxZ = Math.max(maxZ, z);
 
 		blocksModified++;
-		int oldBlockId = world.getBlockTypeIdAt(x & 0x0f, y, z & 0x0f);
+		int oldBlockId = world.getBlockTypeIdAt(x, y, z);
 		boolean res = nms.setBlockFast(world, x, y, z, blockId, (byte)data);
 
-		if (nms.getBlockLightBlocking(oldBlockId) != nms.getBlockLightBlocking(oldBlockId)
-				|| nms.getBlockLightEmission(oldBlockId) != nms.getBlockLightEmission(blockId)) {
-			// lighting or light blocking by this block has changed; force a recalculation
-			switch (relightingStrategy) {
-			case IMMEDIATE:
-				nms.recalculateBlockLighting(world, x, y, z);
-				break;
-				//			case DEFERRED:
-				//				deferredBlocks.add(new DeferredBlock(x, y, z, blockId));
-				//				break;
-			case NEVER:
-			default:
-				break;
+		if (relightingStrategy != RelightingStrategy.NEVER) {
+			if (nms.getBlockLightBlocking(oldBlockId) != nms.getBlockLightBlocking(blockId)
+					|| nms.getBlockLightEmission(oldBlockId) != nms.getBlockLightEmission(blockId)) {
+				// lighting or light blocking by this block has changed; force a recalculation
+				if (relightingStrategy == RelightingStrategy.IMMEDIATE) {
+					nms.recalculateBlockLighting(world, x, y, z);
+				} else if (relightingStrategy == RelightingStrategy.DEFERRED) {
+					deferredBlocks.add(new DeferredBlock(x, y, z));
+				}
 			}
 		}
 		return res;
@@ -64,17 +73,51 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 
 	@Override
 	public void notifyClients() {
-		for (ChunkCoords cc : calculateChunks()) {
-			world.refreshChunk(cc.x, cc.z);
+		if (relightingStrategy == RelightingStrategy.DEFERRED) {
+			relightTask = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
+		} else {
+			for (ChunkCoords cc : calculateChunks()) {
+				world.refreshChunk(cc.x, cc.z);
+			}
+		}
+	}
+
+	public void run() {
+		long now = System.nanoTime();
+		int n = 1;
+
+		while (deferredBlocks.peek() != null) {
+			DeferredBlock db = deferredBlocks.poll();
+			nms.recalculateBlockLighting(world, db.x, db.y, db.z);
+			if (n++ % MAX_BLOCKS_PER_TIME_CHECK == 0) {
+				if (System.nanoTime() - now > maxRelightTimePerTick) {
+					break;
+				}
+			}
+		}
+
+		if (deferredBlocks.isEmpty()) {
+			relightTask.cancel();
+			relightTask = null;
+			for (ChunkCoords cc : calculateChunks()) {
+				world.refreshChunk(cc.x, cc.z);
+			}
 		}
 	}
 
 	@Override
 	public void setRelightingStrategy(RelightingStrategy strategy) {
-//		if (strategy == RelightingStrategy.DEFERRED) {
-//			throw new NotImplementedException("DEFERRED re-lighting strategy not yet supported");
-//		}
 		this.relightingStrategy = strategy;
+	}
+
+	@Override
+	public void setMaxRelightTimePerTick(long value, TimeUnit timeUnit) {
+		maxRelightTimePerTick = timeUnit.toNanos(value);
+	}
+
+	@Override
+	public int getBlocksToRelight() {
+		return deferredBlocks.size();
 	}
 
 	private List<ChunkCoords> calculateChunks() {
@@ -84,8 +127,8 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		}
 		int x1 = minX >> 4; int x2 = maxX >> 4;
 		int z1 = minZ >> 4; int z2 = maxZ >> 4;
-		for (int x = x1; x <= x2; x ++) {
-			for (int z = z1; z <= z2; z ++) {
+		for (int x = x1; x <= x2; x++) {
+			for (int z = z1; z <= z2; z++) {
 				res.add(new ChunkCoords(x, z));
 			}
 		}
@@ -93,13 +136,13 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 	}
 
 	/**
-	 * TODO: this should be a method in the Bukkit World class, e.g world.createMassBlockUpdater()
-	 * 
+	 * TODO: this should be a method in the Bukkit CraftWorld class, e.g world.createMassBlockUpdate()
+	 *
 	 * @param world
 	 * @return
 	 */
-	public static MassBlockUpdate createMassBlockUpdater(org.bukkit.World world) {
-		return new CraftMassBlockUpdate(world);
+	public static MassBlockUpdate createMassBlockUpdater(Plugin plugin, org.bukkit.World world) {
+		return new CraftMassBlockUpdate(plugin, world);
 	}
 
 	private class ChunkCoords {
@@ -110,15 +153,13 @@ public class CraftMassBlockUpdate implements MassBlockUpdate {
 		}
 	}
 
-	//	private class DeferredBlock {
-	//		public final int x, y, z;
-	//		public final int blockId;
-	//
-	//		public DeferredBlock(int x, int y, int z, int blockId) {
-	//			this.x = x;
-	//			this.y = y;
-	//			this.z = z;
-	//			this.blockId = blockId;
-	//		}
-	//	}
+	private class DeferredBlock {
+		public final int x, y, z;
+
+		public DeferredBlock(int x, int y, int z) {
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
+	}
 }
