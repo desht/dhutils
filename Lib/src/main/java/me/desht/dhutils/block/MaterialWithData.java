@@ -279,17 +279,25 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Apply this MaterialWithData to all the blocks within the given Cuboid using fast NMS calls. The caller is
-	 * responsible for subsequently ensuring that lighting is re-initialised and clients are notified of any changes.
+	 * Apply this MaterialWithData to all the blocks within the given Cuboid using fast MBU calls.
 	 * 
-	 * @param c
+	 * @param c the Cuboid to fill
+	 * @param mbu the MassBlockUpdate object to control fast block updating
 	 */
-	public void applyToCuboid(Cuboid c) {
-		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(c.getWorld());
+	public void applyToCuboid(Cuboid c, MassBlockUpdate mbu) {
 		c.fill(matId, (byte)data, mbu);
 		mbu.notifyClients();
 	}
 
+	/**
+	 * Apply this MaterialWithData to all the blocks within the given Cuboid.
+	 * 
+	 * @param c the Cuboid to fill
+	 */
+	public void applyToCuboid(Cuboid c) {
+		c.fill(matId, (byte)data);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
