@@ -22,7 +22,7 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 	private RelightingStrategy relightingStrategy = RelightingStrategy.IMMEDIATE;
 
 	private static final int MAX_BLOCKS_PER_TIME_CHECK = 1000;
-	private final Queue<DeferredBlock> deferredBlocks = new ArrayDeque<DeferredBlock>();
+	private Queue<DeferredBlock> deferredBlocks = new ArrayDeque<DeferredBlock>();
 	private BukkitTask relightTask = null;
 	private long maxRelightTimePerTick = TimeUnit.NANOSECONDS.convert(1, TimeUnit.MILLISECONDS);
 
@@ -41,12 +41,10 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 		}
 	}
 
-	@Override
 	public boolean setBlock(int x, int y, int z, int blockId) {
 		return setBlock(x, y, z, blockId, 0);
 	}
 
-	@Override
 	public boolean setBlock(int x, int y, int z, int blockId, int data) {
 		minX = Math.min(minX, x);
 		minZ = Math.min(minZ, z);
@@ -71,7 +69,6 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 		return res;
 	}
 
-	@Override
 	public void notifyClients() {
 		if (relightingStrategy == RelightingStrategy.DEFERRED) {
 			relightTask = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
@@ -105,19 +102,28 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 		}
 	}
 
-	@Override
 	public void setRelightingStrategy(RelightingStrategy strategy) {
 		this.relightingStrategy = strategy;
 	}
 
-	@Override
 	public void setMaxRelightTimePerTick(long value, TimeUnit timeUnit) {
 		maxRelightTimePerTick = timeUnit.toNanos(value);
 	}
 
-	@Override
 	public int getBlocksToRelight() {
 		return deferredBlocks.size();
+	}
+
+	public void setDeferredBufferSize(int size) {
+		if (!deferredBlocks.isEmpty()) {
+			// resizing an existing buffer is not supported
+			throw new IllegalStateException("setDeferredBufferSize() called after block updates made");
+		}
+		if (relightingStrategy != RelightingStrategy.DEFERRED) {
+			// reduce accidental memory wastage if called when not needed
+			throw new IllegalStateException("setDeferredBufferSize() called when relighting strategy not DEFERRED");
+		}
+		deferredBlocks = new ArrayDeque<CraftMassBlockUpdate.DeferredBlock>(size);
 	}
 
 	private List<ChunkCoords> calculateChunks() {
