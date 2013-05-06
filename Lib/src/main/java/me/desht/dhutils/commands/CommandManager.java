@@ -93,6 +93,9 @@ public class CommandManager {
 			// tab completion done here; try to fill in the subcommand
 			Set<String> completions = new HashSet<String>();
 			for (AbstractCommand cmd : possibleMatches) {
+				if (cmd.getPermissionNode() != null && !PermissionUtils.isAllowedTo(sender, cmd.getPermissionNode())) {
+					continue;
+				}
 				LogUtils.finer("add completion: " + cmd);
 				CommandRecord rec = cmd.getMatchedCommand();
 				if (rec.size() >= args.length) {
