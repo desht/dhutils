@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import me.desht.dhutils.StringUtil;
+import com.sk89q.util.StringUtil;
 
 /**
  * Block types.
@@ -177,8 +177,21 @@ public enum BlockType {
     CARROTS(BlockID.CARROTS, "Carrots", "carrots", "carrotsplant", "carrotsblock"),
     POTATOES(BlockID.POTATOES, "Potatoes", "patatoes", "potatoesblock"),
     WOODEN_BUTTON(BlockID.WOODEN_BUTTON, "Wooden button", "woodbutton", "woodenbutton"),
-    HEAD(BlockID.HEAD, "Head", "head", "headmount", "mount"),
-    ANVIL(BlockID.ANVIL, "Anvil", "anvil", "blacksmith");
+    HEAD(BlockID.HEAD, "Head", "head", "skull"),
+    ANVIL(BlockID.ANVIL, "Anvil", "anvil", "blacksmith"),
+    TRAPPED_CHEST(BlockID.TRAPPED_CHEST, "Trapped Chest", "trappedchest", "redstonechest"),
+    PRESSURE_PLATE_LIGHT(BlockID.PRESSURE_PLATE_LIGHT, "Weighted Pressure Plate (Light)", "lightpressureplate"),
+    PRESSURE_PLATE_HEAVY(BlockID.PRESSURE_PLATE_HEAVY, "Weighted Pressure Plate (Heavy)", "heavypressureplate"),
+    COMPARATOR_OFF(BlockID.COMPARATOR_OFF, "Redstone Comparator (inactive)", "redstonecomparator", "comparator"),
+    COMPARATOR_ON(BlockID.COMPARATOR_ON, "Redstone Comparator (active)", "redstonecomparatoron", "comparatoron"),
+    DAYLIGHT_SENSOR(BlockID.DAYLIGHT_SENSOR, "Daylight Sesnor", "daylightsensor", "lightsensor"),
+    REDSTONE_BLOCK(BlockID.REDSTONE_BLOCK, "Block of Redstone", "redstoneblock", "blockofredstone"),
+    QUARTZ_ORE(BlockID.QUARTZ_ORE, "Nether Quartz Ore", "quartzore", "netherquartzore"),
+    HOPPER(BlockID.HOPPER, "Hopper", "hopper"),
+    QUARTZ_BLOCK(BlockID.QUARTZ_BLOCK, "Block of Quartz", "quartzblock", "quartz"),
+    QUARTZ_STAIRS(BlockID.QUARTZ_STAIRS, "Quartz Stairs", "quartzstairs"),
+    ACTIVATOR_RAIL(BlockID.ACTIVATOR_RAIL, "Activator Rail", "activatorrail", "tntrail", "activatortrack"),
+    DROPPER(BlockID.DROPPER, "Dropper", "dropper");
 
     /**
      * Stores a map of the IDs for fast access.
@@ -329,6 +342,11 @@ public enum BlockType {
         shouldPlaceLast.add(BlockID.POTATOES);
         shouldPlaceLast.add(BlockID.WOODEN_BUTTON);
         shouldPlaceLast.add(BlockID.HEAD);
+        shouldPlaceLast.add(BlockID.PRESSURE_PLATE_LIGHT);
+        shouldPlaceLast.add(BlockID.PRESSURE_PLATE_HEAVY);
+        shouldPlaceLast.add(BlockID.COMPARATOR_OFF);
+        shouldPlaceLast.add(BlockID.COMPARATOR_ON);
+        shouldPlaceLast.add(BlockID.ACTIVATOR_RAIL);
     }
 
     /**
@@ -427,6 +445,11 @@ public enum BlockType {
         canPassThrough.add(BlockID.POTATOES);
         canPassThrough.add(BlockID.WOODEN_BUTTON);
         canPassThrough.add(BlockID.HEAD);
+        canPassThrough.add(BlockID.PRESSURE_PLATE_LIGHT);
+        canPassThrough.add(BlockID.PRESSURE_PLATE_HEAVY);
+        canPassThrough.add(BlockID.COMPARATOR_OFF);
+        canPassThrough.add(BlockID.COMPARATOR_ON);
+        canPassThrough.add(BlockID.ACTIVATOR_RAIL);
     }
 
     /**
@@ -596,6 +619,13 @@ public enum BlockType {
         usesData.add(BlockID.WOODEN_BUTTON);
         usesData.add(BlockID.HEAD);
         usesData.add(BlockID.ANVIL);
+        usesData.add(BlockID.PRESSURE_PLATE_LIGHT);
+        usesData.add(BlockID.PRESSURE_PLATE_HEAVY);
+        usesData.add(BlockID.QUARTZ_BLOCK);
+        usesData.add(BlockID.QUARTZ_STAIRS);
+        usesData.add(BlockID.ACTIVATOR_RAIL);
+        usesData.add(BlockID.DROPPER);
+        usesData.add(BlockID.HOPPER);
     }
 
     /**
@@ -627,6 +657,9 @@ public enum BlockType {
         isContainerBlock.add(BlockID.BURNING_FURNACE);
         isContainerBlock.add(BlockID.CHEST);
         isContainerBlock.add(BlockID.BREWING_STAND);
+        isContainerBlock.add(BlockID.TRAPPED_CHEST);
+        isContainerBlock.add(BlockID.HOPPER);
+        isContainerBlock.add(BlockID.DROPPER);
         //isContainerBlock.add(BlockID.ENDER_CHEST); // ender chest has no own inventory, don't add this here
     }
 
@@ -675,6 +708,16 @@ public enum BlockType {
         isRedstoneBlock.add(BlockID.TRIPWIRE_HOOK);
         isRedstoneBlock.add(BlockID.COMMAND_BLOCK);
         isRedstoneBlock.add(BlockID.WOODEN_BUTTON);
+        isRedstoneBlock.add(BlockID.TRAPPED_CHEST);
+        isRedstoneBlock.add(BlockID.PRESSURE_PLATE_LIGHT);
+        isRedstoneBlock.add(BlockID.PRESSURE_PLATE_HEAVY);
+        isRedstoneBlock.add(BlockID.COMPARATOR_OFF);
+        isRedstoneBlock.add(BlockID.COMPARATOR_ON);
+        isRedstoneBlock.add(BlockID.DAYLIGHT_SENSOR);
+        isRedstoneBlock.add(BlockID.REDSTONE_BLOCK);
+        isRedstoneBlock.add(BlockID.HOPPER);
+        isRedstoneBlock.add(BlockID.ACTIVATOR_RAIL);
+        isRedstoneBlock.add(BlockID.DROPPER);
     }
 
     /**
@@ -706,6 +749,8 @@ public enum BlockType {
         canTransferRedstone.add(BlockID.REDSTONE_WIRE);
         canTransferRedstone.add(BlockID.REDSTONE_REPEATER_OFF);
         canTransferRedstone.add(BlockID.REDSTONE_REPEATER_ON);
+        canTransferRedstone.add(BlockID.COMPARATOR_OFF);
+        canTransferRedstone.add(BlockID.COMPARATOR_ON);
     }
 
     /**
@@ -743,6 +788,10 @@ public enum BlockType {
         isRedstoneSource.add(BlockID.STONE_BUTTON);
         isRedstoneSource.add(BlockID.TRIPWIRE_HOOK);
         isRedstoneSource.add(BlockID.WOODEN_BUTTON);
+        isRedstoneSource.add(BlockID.PRESSURE_PLATE_LIGHT);
+        isRedstoneSource.add(BlockID.PRESSURE_PLATE_HEAVY);
+        isRedstoneSource.add(BlockID.DAYLIGHT_SENSOR);
+        isRedstoneSource.add(BlockID.REDSTONE_BLOCK);
     }
 
     /**
@@ -772,6 +821,7 @@ public enum BlockType {
         isRailBlock.add(BlockID.POWERED_RAIL);
         isRailBlock.add(BlockID.DETECTOR_RAIL);
         isRailBlock.add(BlockID.MINECART_TRACKS);
+        isRailBlock.add(BlockID.ACTIVATOR_RAIL);
     }
 
     /**
@@ -812,6 +862,7 @@ public enum BlockType {
         isNaturalTerrainBlock.add(BlockID.NETHERSTONE);
         isNaturalTerrainBlock.add(BlockID.SLOW_SAND);
         isNaturalTerrainBlock.add(BlockID.LIGHTSTONE);
+        isNaturalTerrainBlock.add(BlockID.QUARTZ_ORE);
 
         // ores
         isNaturalTerrainBlock.add(BlockID.COAL_ORE);
@@ -867,6 +918,8 @@ public enum BlockType {
         emitsLight.add(BlockID.END_PORTAL);
         emitsLight.add(BlockID.REDSTONE_LAMP_ON);
         emitsLight.add(BlockID.ENDER_CHEST);
+        emitsLight.add(BlockID.BEACON);
+        emitsLight.add(BlockID.REDSTONE_BLOCK);
     }
 
     /**
@@ -965,6 +1018,15 @@ public enum BlockType {
         isTranslucent.add(BlockID.WOODEN_BUTTON);
         isTranslucent.add(BlockID.HEAD);
         isTranslucent.add(BlockID.ANVIL);
+        isTranslucent.add(BlockID.TRAPPED_CHEST);
+        isTranslucent.add(BlockID.PRESSURE_PLATE_LIGHT);
+        isTranslucent.add(BlockID.PRESSURE_PLATE_HEAVY);
+        isTranslucent.add(BlockID.COMPARATOR_OFF);
+        isTranslucent.add(BlockID.COMPARATOR_ON);
+        isTranslucent.add(BlockID.DAYLIGHT_SENSOR);
+        isTranslucent.add(BlockID.HOPPER);
+        isTranslucent.add(BlockID.QUARTZ_STAIRS);
+        isTranslucent.add(BlockID.ACTIVATOR_RAIL);
     }
 
     /**
@@ -977,4 +1039,555 @@ public enum BlockType {
         return isTranslucent.contains(id);
     }
 
+//    /**
+//     * HashMap for getBlockBagItem.
+//     */
+//    private static final Map<Integer, BaseItem> dataBlockBagItems = new HashMap<Integer, BaseItem>();
+//    private static final Map<Integer, BaseItem> nonDataBlockBagItems = new HashMap<Integer, BaseItem>();
+//    private static final BaseItem doNotDestroy = new BaseItemStack(BlockID.AIR, 0);
+//    static {
+//        /*
+//         * rules:
+//         *
+//         * 1. block yields itself => addIdentity
+//         * 2. block is part of a 2-block object => drop an appropriate item for one of the 2 blocks
+//         * 3. block can be placed by right-clicking an obtainable item on the ground => use that item
+//         * 4. block yields more than one item => addIdentities
+//         * 5. block yields exactly one item => use that item
+//         * 6. block is a liquid => drop nothing
+//         * 7. block is created from thin air by the game other than by the map generator => drop nothing
+//         */
+//
+//        nonDataBlockBagItems.put(BlockID.STONE, new BaseItem(BlockID.COBBLESTONE)); // rule 5
+//        nonDataBlockBagItems.put(BlockID.GRASS, new BaseItem(BlockID.DIRT)); // rule 5
+//        addIdentity(BlockID.DIRT); // rule 1
+//        addIdentity(BlockID.COBBLESTONE); // rule 1
+//        addIdentity(BlockID.WOOD); // rule 1
+//        addIdentities(BlockID.SAPLING, 3); // rule 1
+//        nonDataBlockBagItems.put(BlockID.BEDROCK, doNotDestroy); // exception
+//        // WATER, rule 6
+//        // STATIONARY_WATER, rule 6
+//        // LAVA, rule 6
+//        // STATIONARY_LAVA, rule 6
+//        addIdentity(BlockID.SAND); // rule 1
+//        addIdentity(BlockID.GRAVEL); // rule 1
+//        addIdentity(BlockID.GOLD_ORE); // rule 1
+//        addIdentity(BlockID.IRON_ORE); // rule 1
+//        nonDataBlockBagItems.put(BlockID.COAL_ORE, new BaseItem(ItemID.COAL)); // rule 5
+//        addIdentities(BlockID.LOG, 3); // rule 1
+//        addIdentities(BlockID.LEAVES, 4); // rule 1 with shears, otherwise rule 3
+//        addIdentity(BlockID.SPONGE); // rule 1
+//        addIdentity(BlockID.GLASS); // rule 3
+//        addIdentity(BlockID.LAPIS_LAZULI_ORE); // rule 4
+//        addIdentity(BlockID.LAPIS_LAZULI_BLOCK); // rule 1
+//        addIdentity(BlockID.DISPENSER); // rule 1
+//        addIdentity(BlockID.SANDSTONE); // rule 1
+//        addIdentity(BlockID.NOTE_BLOCK); // rule 1
+//        addIdentities(BlockID.BED, 8); // rule 2
+//        addIdentity(BlockID.POWERED_RAIL); // rule 1
+//        addIdentity(BlockID.DETECTOR_RAIL); // rule 1
+//        addIdentity(BlockID.PISTON_STICKY_BASE);
+//        nonDataBlockBagItems.put(BlockID.WEB, new BaseItem(ItemID.STRING)); // rule 5
+//        // LONG_GRASS
+//        // DEAD_BUSH
+//        addIdentity(BlockID.PISTON_BASE);
+//        // PISTON_EXTENSION, rule 7
+//        addIdentities(BlockID.CLOTH, 16); // rule 1
+//        // PISTON_MOVING_PIECE, rule 7
+//        addIdentity(BlockID.YELLOW_FLOWER); // rule 1
+//        addIdentity(BlockID.RED_FLOWER); // rule 1
+//        addIdentity(BlockID.BROWN_MUSHROOM); // rule 1
+//        addIdentity(BlockID.RED_MUSHROOM); // rule 1
+//        addIdentity(BlockID.GOLD_BLOCK); // rule 1
+//        addIdentity(BlockID.IRON_BLOCK); // rule 1
+//        addIdentities(BlockID.DOUBLE_STEP, 7); // rule 3
+//        addIdentities(BlockID.STEP, 7); // rule 1
+//        addIdentity(BlockID.BRICK); // rule 1
+//        addIdentity(BlockID.TNT);
+//        addIdentity(BlockID.BOOKCASE); // rule 3
+//        addIdentity(BlockID.MOSSY_COBBLESTONE); // rule 1
+//        addIdentity(BlockID.OBSIDIAN); // rule 1
+//        addIdentity(BlockID.TORCH); // rule 1
+//        // FIRE
+//        // MOB_SPAWNER
+//        addIdentity(BlockID.WOODEN_STAIRS); // rule 3
+//        addIdentity(BlockID.CHEST); // rule 1
+//        nonDataBlockBagItems.put(BlockID.REDSTONE_WIRE, new BaseItem(ItemID.REDSTONE_DUST)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.DIAMOND_ORE, new BaseItem(ItemID.DIAMOND)); // rule 5
+//        addIdentity(BlockID.DIAMOND_BLOCK); // rule 1
+//        addIdentity(BlockID.WORKBENCH); // rule 1
+//        nonDataBlockBagItems.put(BlockID.CROPS, new BaseItem(ItemID.SEEDS)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.SOIL, new BaseItem(BlockID.DIRT)); // rule 5
+//        addIdentity(BlockID.FURNACE); // rule 1
+//        nonDataBlockBagItems.put(BlockID.BURNING_FURNACE, new BaseItem(BlockID.FURNACE));
+//        nonDataBlockBagItems.put(BlockID.SIGN_POST, new BaseItem(ItemID.SIGN)); // rule 3
+//        addIdentities(BlockID.WOODEN_DOOR, 8); // rule 2
+//        addIdentity(BlockID.LADDER); // rule 1
+//        addIdentity(BlockID.MINECART_TRACKS); // rule 1
+//        addIdentity(BlockID.COBBLESTONE_STAIRS); // rule 3
+//        nonDataBlockBagItems.put(BlockID.WALL_SIGN, new BaseItem(ItemID.SIGN)); // rule 3
+//        addIdentity(BlockID.LEVER); // rule 1
+//        addIdentity(BlockID.STONE_PRESSURE_PLATE); // rule 1
+//        addIdentities(BlockID.IRON_DOOR, 8); // rule 2
+//        addIdentity(BlockID.WOODEN_PRESSURE_PLATE); // rule 1
+//        addIdentity(BlockID.REDSTONE_ORE); // rule 4
+//        nonDataBlockBagItems.put(BlockID.GLOWING_REDSTONE_ORE, new BaseItem(BlockID.REDSTONE_ORE)); // rule 4
+//        nonDataBlockBagItems.put(BlockID.REDSTONE_TORCH_OFF, new BaseItem(BlockID.REDSTONE_TORCH_ON)); // rule 3
+//        addIdentity(BlockID.REDSTONE_TORCH_ON); // rule 1
+//        addIdentity(BlockID.STONE_BUTTON); // rule 1
+//        addIdentity(BlockID.SNOW); // rule 1
+//        addIdentity(BlockID.ICE); // exception
+//        addIdentity(BlockID.SNOW_BLOCK); // rule 3
+//        addIdentity(BlockID.CACTUS);
+//        addIdentity(BlockID.CLAY); // rule 3
+//        nonDataBlockBagItems.put(BlockID.REED, new BaseItem(ItemID.SUGAR_CANE_ITEM)); // rule 3
+//        addIdentity(BlockID.JUKEBOX); // rule 1
+//        addIdentity(BlockID.FENCE); // rule 1
+//        addIdentity(BlockID.PUMPKIN); // rule 1
+//        addIdentity(BlockID.NETHERRACK); // rule 1
+//        addIdentity(BlockID.SLOW_SAND); // rule 1
+//        addIdentity(BlockID.LIGHTSTONE); // rule 4
+//        // PORTAL
+//        addIdentity(BlockID.JACKOLANTERN); // rule 1
+//        nonDataBlockBagItems.put(BlockID.CAKE_BLOCK, new BaseItem(ItemID.CAKE_ITEM)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.REDSTONE_REPEATER_OFF, new BaseItem(ItemID.REDSTONE_REPEATER)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.REDSTONE_REPEATER_ON, new BaseItem(ItemID.REDSTONE_REPEATER)); // rule 3
+//        addIdentity(BlockID.LOCKED_CHEST); // ???
+//        addIdentity(BlockID.TRAP_DOOR); // rule 1
+//        nonDataBlockBagItems.put(BlockID.SILVERFISH_BLOCK, doNotDestroy); // exception
+//        addIdentity(BlockID.STONE_BRICK); // rule 1
+//        addIdentity(BlockID.BROWN_MUSHROOM_CAP);
+//        addIdentity(BlockID.RED_MUSHROOM_CAP);
+//        addIdentity(BlockID.IRON_BARS); // rule 1
+//        addIdentity(BlockID.GLASS_PANE); // rule 1
+//        addIdentity(BlockID.MELON_BLOCK); // rule 3
+//        nonDataBlockBagItems.put(BlockID.PUMPKIN_STEM, new BaseItem(ItemID.PUMPKIN_SEEDS)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.MELON_STEM, new BaseItem(ItemID.MELON_SEEDS)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.VINE, doNotDestroy); // exception
+//        addIdentity(BlockID.FENCE_GATE); // rule 1
+//        addIdentity(BlockID.BRICK_STAIRS); // rule 3
+//        addIdentity(BlockID.STONE_BRICK_STAIRS); // rule 3
+//
+//        // 1.9 blocks
+//        nonDataBlockBagItems.put(BlockID.MYCELIUM, new BaseItem(BlockID.DIRT));
+//        addIdentity(BlockID.LILY_PAD);
+//        addIdentity(BlockID.NETHER_BRICK);
+//        addIdentity(BlockID.NETHER_BRICK_FENCE);
+//        addIdentity(BlockID.NETHER_BRICK_STAIRS);
+//        nonDataBlockBagItems.put(BlockID.NETHER_WART, new BaseItem(ItemID.NETHER_WART_SEED));
+//        addIdentity(BlockID.ENCHANTMENT_TABLE);
+//        nonDataBlockBagItems.put(BlockID.BREWING_STAND, new BaseItem(ItemID.BREWING_STAND));
+//        nonDataBlockBagItems.put(BlockID.CAULDRON, new BaseItem(ItemID.CAULDRON));
+//        nonDataBlockBagItems.put(BlockID.END_PORTAL, doNotDestroy);
+//        nonDataBlockBagItems.put(BlockID.END_PORTAL_FRAME, doNotDestroy);
+//        addIdentity(BlockID.END_STONE);
+//
+//        addIdentity(BlockID.REDSTONE_LAMP_OFF);
+//        nonDataBlockBagItems.put(BlockID.REDSTONE_LAMP_ON, new BaseItem(BlockID.REDSTONE_LAMP_OFF));
+//
+//        addIdentities(BlockID.DOUBLE_WOODEN_STEP, 7); // rule 3
+//        addIdentities(BlockID.WOODEN_STEP, 7); // rule 1
+//        nonDataBlockBagItems.put(BlockID.COCOA_PLANT, new BaseItem(ItemID.INK_SACK, (short) (15 - ClothColor.ID.BROWN))); // rule 3
+//        addIdentity(BlockID.SANDSTONE_STAIRS); // rule 1
+//        nonDataBlockBagItems.put(BlockID.EMERALD_ORE, new BaseItem(ItemID.EMERALD)); // rule 5
+//        addIdentity(BlockID.ENDER_CHEST); // rule 3
+//        addIdentity(BlockID.TRIPWIRE_HOOK); // rule 1
+//        nonDataBlockBagItems.put(BlockID.TRIPWIRE, new BaseItem(ItemID.STRING)); // rule 3
+//        addIdentity(BlockID.EMERALD_BLOCK); // rule 1
+//        addIdentity(BlockID.SPRUCE_WOOD_STAIRS); // rule 1
+//        addIdentity(BlockID.BIRCH_WOOD_STAIRS); // rule 1
+//        addIdentity(BlockID.JUNGLE_WOOD_STAIRS); // rule 1
+//        addIdentity(BlockID.COMMAND_BLOCK); // rule 1
+//        addIdentities(BlockID.COBBLESTONE_WALL, 1); // rule 4
+//        nonDataBlockBagItems.put(BlockID.FLOWER_POT, new BaseItemStack(ItemID.FLOWER_POT)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.CARROTS, new BaseItemStack(ItemID.CARROT)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.POTATOES, new BaseItemStack(ItemID.POTATO)); // rule 3
+//        addIdentity(BlockID.WOODEN_BUTTON); // rule 1
+//        nonDataBlockBagItems.put(BlockID.HEAD, doNotDestroy); // exception, can't handle TE data
+//        addIdentities(BlockID.ANVIL, 2); // rule 4
+//        addIdentity(BlockID.TRAPPED_CHEST); // rule 1
+//        addIdentity(BlockID.PRESSURE_PLATE_LIGHT); // rule 1
+//        addIdentity(BlockID.PRESSURE_PLATE_HEAVY); // rule 1
+//        nonDataBlockBagItems.put(BlockID.COMPARATOR_OFF, new BaseItemStack(ItemID.COMPARATOR)); // rule 3
+//        nonDataBlockBagItems.put(BlockID.COMPARATOR_ON, new BaseItemStack(ItemID.COMPARATOR)); // rule 3
+//        addIdentity(BlockID.DAYLIGHT_SENSOR); // rule 1
+//        addIdentity(BlockID.REDSTONE_BLOCK); // rule 1
+//        nonDataBlockBagItems.put(BlockID.QUARTZ_ORE, new BaseItemStack(ItemID.NETHER_QUARTZ)); // rule 3
+//        addIdentity(BlockID.HOPPER); // rule 1
+//        addIdentities(BlockID.QUARTZ_BLOCK, 1); // rule 4
+//        for (int i = 2; i <= 4; i++) {
+//            dataBlockBagItems.put(typeDataKey(BlockID.QUARTZ_BLOCK, i), new BaseItem(BlockID.QUARTZ_BLOCK, (short) 2)); // rule 4, quartz pillars
+//        }
+//        addIdentity(BlockID.QUARTZ_STAIRS); // rule 1
+//        addIdentity(BlockID.ACTIVATOR_RAIL); // rule 1
+//        addIdentity(BlockID.DROPPER); // rule 1
+//
+//    }
+//
+//    /**
+//     * Get the block or item that this block can be constructed from. If nothing is
+//     * dropped, a block with a BaseItemStack of type AIR and size 0 will be returned.
+//     * If the block should not be destroyed (i.e. bedrock), null will be returned.
+//     *
+//     * @param type
+//     * @param data
+//     * @return
+//     */
+//    public static BaseItem getBlockBagItem(int type, int data) {
+//        BaseItem dropped = nonDataBlockBagItems.get(type);
+//        if (dropped != null) return dropped;
+//
+//        dropped = dataBlockBagItems.get(typeDataKey(type, data));
+//
+//        if (dropped == null) {
+//            return new BaseItemStack(BlockID.AIR, 0);
+//        }
+//
+//        if (dropped == doNotDestroy) {
+//            return null;
+//        }
+//
+//        return dropped;
+//    }
+//
+//    private static void addIdentity(int type) {
+//        nonDataBlockBagItems.put(type, new BaseItem(type));
+//    }
+//
+//    private static void addIdentities(int type, int maxData) {
+//        for (int data = 0; data < maxData; ++data) {
+//            dataBlockBagItems.put(typeDataKey(type, data), new BaseItem(type, (short) data));
+//        }
+//    }
+//
+//    /**
+//     * Get the block or item that would have been dropped. If nothing is
+//     * dropped, 0 will be returned. If the block should not be destroyed
+//     * (i.e. bedrock), -1 will be returned.
+//     *
+//     * @param id
+//     * @return
+//     * @deprecated This function ignores the data value.
+//     */
+//    @Deprecated
+//    public static int getDroppedBlock(int id) {
+//        BaseItem dropped = nonDataBlockBagItems.get(id);
+//        if (dropped == null) {
+//            return BlockID.AIR;
+//        }
+//        return dropped.getType();
+//    }
+//
+//    public BaseItemStack getBlockDrop(short data) {
+//        return getBlockDrop(id, data);
+//    }
+//
+//    private static final Random random = new Random();
+//    public static BaseItemStack getBlockDrop(int id, short data) {
+//        int store;
+//        switch (id) {
+//        case BlockID.STONE:
+//            return new BaseItemStack(BlockID.COBBLESTONE);
+//
+//        case BlockID.GRASS:
+//            return new BaseItemStack(BlockID.DIRT);
+//
+//        case BlockID.GRAVEL:
+//            if (random.nextInt(10) == 0) {
+//                return new BaseItemStack(ItemID.FLINT);
+//            } else {
+//                return new BaseItemStack(BlockID.GRAVEL);
+//            }
+//
+//        case BlockID.COAL_ORE:
+//            return new BaseItemStack(ItemID.COAL);
+//
+//        case BlockID.LEAVES:
+//            if (random.nextDouble() > 0.95) {
+//                return new BaseItemStack(BlockID.SAPLING, 1, data);
+//            } else {
+//                return null;
+//            }
+//
+//        case BlockID.LAPIS_LAZULI_ORE:
+//            return new BaseItemStack(ItemID.INK_SACK, random.nextInt(5) + 4, (short) 4);
+//
+//        case BlockID.BED:
+//            return new BaseItemStack(ItemID.BED_ITEM);
+//
+//        case BlockID.LONG_GRASS:
+//            if (random.nextInt(8) == 0) {
+//                return new BaseItemStack(ItemID.SEEDS);
+//            } else {
+//                return null;
+//            }
+//
+//        case BlockID.DOUBLE_STEP:
+//            return new BaseItemStack(BlockID.STEP, 2, data);
+//
+//        case BlockID.REDSTONE_WIRE:
+//            return new BaseItemStack(ItemID.REDSTONE_DUST);
+//
+//        case BlockID.DIAMOND_ORE:
+//            return new BaseItemStack(ItemID.DIAMOND);
+//
+//        case BlockID.CROPS:
+//            if (data == 7) return new BaseItemStack(ItemID.WHEAT);
+//            return new BaseItemStack(ItemID.SEEDS);
+//
+//        case BlockID.SOIL:
+//            return new BaseItemStack(BlockID.DIRT);
+//
+//        case BlockID.BURNING_FURNACE:
+//            return new BaseItemStack(BlockID.FURNACE);
+//
+//        case BlockID.SIGN_POST:
+//            return new BaseItemStack(ItemID.SIGN);
+//
+//        case BlockID.WOODEN_DOOR:
+//            return new BaseItemStack(ItemID.WOODEN_DOOR_ITEM);
+//
+//        case BlockID.WALL_SIGN:
+//            return new BaseItemStack(ItemID.SIGN);
+//
+//        case BlockID.IRON_DOOR:
+//            return new BaseItemStack(ItemID.IRON_DOOR_ITEM);
+//
+//        case BlockID.REDSTONE_ORE:
+//        case BlockID.GLOWING_REDSTONE_ORE:
+//            return new BaseItemStack(ItemID.REDSTONE_DUST, (random.nextInt(2) + 4));
+//
+//        case BlockID.REDSTONE_TORCH_OFF:
+//            return new BaseItemStack(BlockID.REDSTONE_TORCH_ON);
+//
+//        case BlockID.CLAY:
+//            return new BaseItemStack(ItemID.CLAY_BALL, 4);
+//
+//        case BlockID.REED:
+//            return new BaseItemStack(ItemID.SUGAR_CANE_ITEM);
+//
+//        case BlockID.LIGHTSTONE:
+//            return new BaseItemStack(ItemID.LIGHTSTONE_DUST, (random.nextInt(3) + 2));
+//
+//        case BlockID.REDSTONE_REPEATER_OFF:
+//        case BlockID.REDSTONE_REPEATER_ON:
+//            return new BaseItemStack(ItemID.REDSTONE_REPEATER);
+//
+//        case BlockID.BROWN_MUSHROOM_CAP:
+//            store = random.nextInt(10);
+//            if (store == 0) {
+//                return new BaseItemStack(BlockID.BROWN_MUSHROOM, 2);
+//            } else if (store == 1) {
+//                return new BaseItemStack(BlockID.BROWN_MUSHROOM);
+//            } else {
+//                return null;
+//            }
+//
+//        case BlockID.RED_MUSHROOM_CAP:
+//            store = random.nextInt(10);
+//            if (store == 0) {
+//                return new BaseItemStack(BlockID.RED_MUSHROOM, 2);
+//            } else if (store == 1) {
+//                return new BaseItemStack(BlockID.RED_MUSHROOM);
+//            } else {
+//                return null;
+//            }
+//
+//        case BlockID.MELON_BLOCK:
+//            return new BaseItemStack(ItemID.MELON, (random.nextInt(5) + 3));
+//
+//        case BlockID.PUMPKIN_STEM:
+//            return new BaseItemStack(ItemID.PUMPKIN_SEEDS);
+//
+//        case BlockID.MELON_STEM:
+//            return new BaseItemStack(ItemID.MELON_SEEDS);
+//
+//        case BlockID.MYCELIUM:
+//            return new BaseItemStack(BlockID.DIRT);
+//
+//        case BlockID.LILY_PAD:
+//            return new BaseItemStack(BlockID.LILY_PAD);
+//
+//        case BlockID.NETHER_WART:
+//            return new BaseItemStack(ItemID.NETHER_WART_SEED, random.nextInt(3) + 1);
+//
+//        case BlockID.BREWING_STAND:
+//            return new BaseItemStack(ItemID.BREWING_STAND);
+//
+//        case BlockID.CAULDRON:
+//            return new BaseItemStack(ItemID.CAULDRON);
+//
+//        case BlockID.REDSTONE_LAMP_ON:
+//            return new BaseItemStack(BlockID.REDSTONE_LAMP_OFF);
+//
+//        case BlockID.DOUBLE_WOODEN_STEP:
+//            return new BaseItemStack(BlockID.WOODEN_STEP, 2, data);
+//
+//        case BlockID.COCOA_PLANT:
+//            return new BaseItemStack(ItemID.INK_SACK, (data >= 2 ? 3 : 1), (short) 3);
+//
+//        case BlockID.EMERALD_ORE:
+//            return new BaseItemStack(ItemID.EMERALD);
+//
+//        case BlockID.TRIPWIRE:
+//            return new BaseItemStack(ItemID.STRING);
+//
+//        case BlockID.FLOWER_POT:
+//            return new BaseItemStack(ItemID.FLOWER_POT);
+//
+//        case BlockID.CARROTS:
+//            return new BaseItemStack(ItemID.CARROT, random.nextInt(3) + 1);
+//
+//        case BlockID.POTATOES:
+//            return new BaseItemStack(ItemID.POTATO, random.nextInt(3) + 1);
+//
+//        case BlockID.COMPARATOR_OFF:
+//        case BlockID.COMPARATOR_ON:
+//            return new BaseItemStack(ItemID.COMPARATOR);
+//
+//        case BlockID.QUARTZ_ORE:
+//            return new BaseItemStack(ItemID.NETHER_QUARTZ);
+//
+//        case BlockID.QUARTZ_BLOCK:
+//            return new BaseItemStack(BlockID.QUARTZ_BLOCK, (data >= 2 ? 2 : data));
+//
+//        case BlockID.WOODEN_STAIRS:
+//        case BlockID.COBBLESTONE_STAIRS:
+//        case BlockID.BRICK_STAIRS:
+//        case BlockID.STONE_BRICK_STAIRS:
+//        case BlockID.NETHER_BRICK_STAIRS:
+//        case BlockID.SPRUCE_WOOD_STAIRS:
+//        case BlockID.BIRCH_WOOD_STAIRS:
+//        case BlockID.JUNGLE_WOOD_STAIRS:
+//        case BlockID.QUARTZ_STAIRS:
+//            return new BaseItemStack(id); // strip data from stairs
+//
+//        case BlockID.BEDROCK:
+//        case BlockID.WATER:
+//        case BlockID.STATIONARY_WATER:
+//        case BlockID.LAVA:
+//        case BlockID.STATIONARY_LAVA:
+//        case BlockID.GLASS:
+//        case BlockID.PISTON_EXTENSION:
+//        case BlockID.BOOKCASE:
+//        case BlockID.FIRE:
+//        case BlockID.MOB_SPAWNER:
+//        case BlockID.SNOW:
+//        case BlockID.ICE:
+//        case BlockID.PORTAL:
+//        case BlockID.AIR:
+//        case BlockID.LOCKED_CHEST:
+//        case BlockID.SILVERFISH_BLOCK:
+//        case BlockID.VINE:
+//        case BlockID.END_PORTAL:
+//        case BlockID.END_PORTAL_FRAME:
+//        case BlockID.HEAD:
+//            return null;
+//        }
+//
+//        if (usesData(id)) {
+//            return new BaseItemStack(id, 1, data);
+//        } else {
+//            return new BaseItemStack(id);
+//        }
+//    }
+//
+//    private static final Map<Integer, PlayerDirection> dataAttachments = new HashMap<Integer, PlayerDirection>();
+//    private static final Map<Integer, PlayerDirection> nonDataAttachments = new HashMap<Integer, PlayerDirection>();
+//    static {
+//        nonDataAttachments.put(BlockID.SAPLING, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.POWERED_RAIL, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.DETECTOR_RAIL, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.LONG_GRASS, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.DEAD_BUSH, PlayerDirection.DOWN);
+//        for (int offset = 0; offset <= 8; offset += 8) {
+//            dataAttachments.put(typeDataKey(BlockID.PISTON_EXTENSION, offset + 0), PlayerDirection.UP);
+//            dataAttachments.put(typeDataKey(BlockID.PISTON_EXTENSION, offset + 1), PlayerDirection.DOWN);
+//            addCardinals(BlockID.PISTON_EXTENSION, offset + 2, offset + 5, offset + 3, offset + 4);
+//        }
+//        nonDataAttachments.put(BlockID.YELLOW_FLOWER, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.RED_FLOWER, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.BROWN_MUSHROOM, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.RED_MUSHROOM, PlayerDirection.DOWN);
+//        for (int blockId : new int[] { BlockID.TORCH, BlockID.REDSTONE_TORCH_ON, BlockID.REDSTONE_TORCH_OFF }) {
+//            dataAttachments.put(typeDataKey(blockId, 5), PlayerDirection.DOWN);
+//            addCardinals(blockId, 4, 1, 3, 2);
+//        }
+//        nonDataAttachments.put(BlockID.REDSTONE_WIRE, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.CROPS, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.SIGN_POST, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.WOODEN_DOOR, PlayerDirection.DOWN);
+//        addCardinals(BlockID.LADDER, 2, 5, 3, 4);
+//        nonDataAttachments.put(BlockID.MINECART_TRACKS, PlayerDirection.DOWN);
+//        addCardinals(BlockID.WALL_SIGN, 2, 5, 3, 4);
+//        for (int offset = 0; offset <= 8; offset += 8) {
+//            addCardinals(BlockID.LEVER, offset + 4, offset + 1, offset + 3, offset + 2);
+//            dataAttachments.put(typeDataKey(BlockID.LEVER, offset + 5), PlayerDirection.DOWN);
+//            dataAttachments.put(typeDataKey(BlockID.LEVER, offset + 6), PlayerDirection.DOWN);
+//        }
+//        nonDataAttachments.put(BlockID.STONE_PRESSURE_PLATE, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.IRON_DOOR, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.WOODEN_PRESSURE_PLATE, PlayerDirection.DOWN);
+//        // redstone torches: see torches
+//        for (int offset = 0; offset <= 8; offset += 8) {
+//            addCardinals(BlockID.STONE_BUTTON, offset + 4, offset + 1, offset + 3, offset + 2);
+//            addCardinals(BlockID.WOODEN_BUTTON, offset + 4, offset + 1, offset + 3, offset + 2);
+//        }
+//        nonDataAttachments.put(BlockID.CACTUS, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.REED, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.CAKE_BLOCK, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.REDSTONE_REPEATER_OFF, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.REDSTONE_REPEATER_ON, PlayerDirection.DOWN);
+//        for (int offset = 0; offset <= 4; offset += 4) {
+//            addCardinals(BlockID.TRAP_DOOR, offset + 0, offset + 3, offset + 1, offset + 2);
+//        }
+//        nonDataAttachments.put(BlockID.PUMPKIN_STEM, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.MELON_STEM, PlayerDirection.DOWN);
+//        // vines are complicated, but I'll list the single-attachment variants anyway
+//        dataAttachments.put(typeDataKey(BlockID.VINE, 0), PlayerDirection.UP);
+//        addCardinals(BlockID.VINE, 1, 2, 4, 8);
+//        nonDataAttachments.put(BlockID.NETHER_WART, PlayerDirection.DOWN);
+//        for (int offset = 0; offset <= 4; offset += 4) {
+//            addCardinals(BlockID.COCOA_PLANT, offset + 0, offset + 1, offset + 2, offset + 3);
+//        }
+//        for (int offset = 0; offset <= 4; offset += 4) {
+//            addCardinals(BlockID.TRIPWIRE_HOOK, offset + 2, offset + 3, offset + 0, offset + 1);
+//        }
+//        nonDataAttachments.put(BlockID.TRIPWIRE, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.FLOWER_POT, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.CARROTS, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.POTATOES, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.ANVIL, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.PRESSURE_PLATE_LIGHT, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.PRESSURE_PLATE_HEAVY, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.COMPARATOR_OFF, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.COMPARATOR_ON, PlayerDirection.DOWN);
+//        nonDataAttachments.put(BlockID.ACTIVATOR_RAIL, PlayerDirection.DOWN);
+//    }
+//
+//    /**
+//     * Returns the direction to the block(B) this block(A) is attached to.
+//     * Attached means that if block B is destroyed, block A will pop off.
+//     *
+//     * @param type The block id of block A
+//     * @param data The data value of block A
+//     * @return direction to block B
+//     */
+//    public static PlayerDirection getAttachment(int type, int data) {
+//        PlayerDirection direction = nonDataAttachments.get(type);
+//        if (direction != null) return direction;
+//
+//        return dataAttachments.get(typeDataKey(type, data));
+//    }
+//
+//    private static int typeDataKey(int type, int data) {
+//        return (type << 4) | (data & 0xf);
+//    }
+//
+//    private static void addCardinals(int type, int west, int north, int east, int south) {
+//        dataAttachments.put(typeDataKey(type, west), PlayerDirection.WEST);
+//        dataAttachments.put(typeDataKey(type, north), PlayerDirection.NORTH);
+//        dataAttachments.put(typeDataKey(type, east), PlayerDirection.EAST);
+//        dataAttachments.put(typeDataKey(type, south), PlayerDirection.SOUTH);
+//    }
 }
