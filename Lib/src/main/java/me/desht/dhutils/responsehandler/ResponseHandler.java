@@ -3,9 +3,22 @@ package me.desht.dhutils.responsehandler;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.bukkit.plugin.Plugin;
+
 public class ResponseHandler {
 
+	private final Plugin plugin;
+
 	private final ConcurrentMap<String, ExpectBase> exp = new ConcurrentHashMap<String, ExpectBase>();
+
+	@Deprecated
+	public ResponseHandler() {
+		this(null);
+	}
+
+	public ResponseHandler(Plugin plugin) {
+		this.plugin = plugin;
+	}
 
 	public void expect(String playerName, ExpectBase data) {
 		expect(playerName, data, null);
@@ -41,6 +54,10 @@ public class ResponseHandler {
 
 	public <T extends ExpectBase> T getAction(String playerName, Class<T> action) {
 		return action.cast(exp.get(genKey(playerName, action)));
+	}
+
+	public Plugin getPlugin() {
+		return plugin;
 	}
 
 }
