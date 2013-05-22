@@ -50,7 +50,7 @@ public class PersistableLocation implements ConfigurationSerializable {
 		this.z = z;
 		this.pitch = this.yaw = 0.0f;
 	}
-	
+
 	public String getWorldName() {
 		return worldName;
 	}
@@ -94,9 +94,13 @@ public class PersistableLocation implements ConfigurationSerializable {
 		loc.setYaw(yaw);
 		return loc;
 	}
-	
+
 	public Block getBlock() {
 		return getLocation().getBlock();
+	}
+
+	public boolean isWorldAvailable() {
+		return Bukkit.getWorld(worldName) != null;
 	}
 
 	public Map<String, Object> serialize() {
