@@ -75,7 +75,7 @@ public class CommandManager {
 		LogUtils.fine("tab complete: sender=" + sender.getName() + ", cmd=" + command.getName() +
 		              ", label=" + label + ", args=[" + Joiner.on(",").join(args) + "]");
 
-		List<AbstractCommand> possibleMatches = getPossibleMatches(label, args, true);
+		List<AbstractCommand> possibleMatches = getPossibleMatches(command.getName(), args, true);
 
 		if (possibleMatches.size() == 0) {
 			return noCompletions(sender);
