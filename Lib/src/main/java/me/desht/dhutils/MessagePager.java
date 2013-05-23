@@ -136,7 +136,7 @@ public class MessagePager {
 	 */
 	public int getLineLength() {
 		// players have a little extra graphics at the front
-		return senderRef instanceof Player ? 58 : 60;
+		return senderRef instanceof Player ? 56 : 60;
 	}
 
 	/**

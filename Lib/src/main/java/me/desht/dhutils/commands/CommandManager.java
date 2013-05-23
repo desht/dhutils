@@ -1,10 +1,12 @@
 package me.desht.dhutils.commands;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import me.desht.dhutils.ClassEnumerator;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
@@ -30,7 +32,27 @@ public class CommandManager {
 	}
 
 	public void registerCommand(AbstractCommand cmd) {
+		LogUtils.finer("register command: " + cmd.getClass().getName());
 		cmdList.add(cmd);
+	}
+
+	public void registerAllCommands(String packageName) {
+		Package p = Package.getPackage(packageName);
+		if (p == null) {
+			throw new IllegalArgumentException("Unknown package: " + packageName);
+		}
+		List<Class<?>> classes = ClassEnumerator.getClassesForPackage(plugin, p);
+		for (Class<?> c : classes) {
+			if (AbstractCommand.class.isAssignableFrom(c) && !Modifier.isAbstract(c.getModifiers())) {
+				AbstractCommand cmd;
+				try {
+					cmd = (AbstractCommand) c.newInstance();
+					registerCommand(cmd);
+				} catch (Exception e) {
+					LogUtils.warning("can't register command for " + c.getName() + ": " + e.getMessage());
+				}
+			}
+		}
 	}
 
 	public boolean dispatch(CommandSender sender, String label, String[] args) {
