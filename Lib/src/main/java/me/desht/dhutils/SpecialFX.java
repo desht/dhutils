@@ -46,11 +46,11 @@ public class SpecialFX {
 		args(EffectType.SOUND, "name", "volume", "pitch");
 		args(EffectType.FIREWORK, "type", "color", "fade", "flicker", "trail");
 	}
-	
+
 	/**
 	 * Create a SpecialFX object from the given configuration section.  This could be read from the plugin's
-	 * config.yml (a common case) or just as easily constructed internally by the plugin. 
-	 * 
+	 * config.yml (a common case) or constructed internally by the plugin.
+	 *
 	 * @param conf configuration object which maps logical (plugin-defined) effect names to the effect specification
 	 */
 	public SpecialFX(ConfigurationSection conf) {
@@ -61,7 +61,7 @@ public class SpecialFX {
 
 	/**
 	 * Play the named effect at the given location.
-	 * 
+	 *
 	 * @param loc
 	 * @param effectName
 	 * @throws IllegalArgumentException if the effect name is unknown or its definition is invalid
@@ -99,7 +99,7 @@ public class SpecialFX {
 		public SpecialEffect(String spec) {
 			this(spec, 1.0f);
 		}
-		
+
 		public SpecialEffect(String spec, float volume) {
 			this.volumeMult = volume;
 
@@ -123,15 +123,27 @@ public class SpecialFX {
 		}
 
 		/**
+		 * Validate this effect.
+		 *
+		 * @throws IllegalArgumentException if any effect parameter is not valid
+		 * @throws NumberFormatException if any numeric parameter is misformed
+		 */
+		public void validate() {
+			play(null);
+		}
+
+		/**
 		 * Play this effect at the given location.  A null location may be passed, in which case no
 		 * effect will be played, but validation of the effect specification will still be done.
 		 * 
-		 * @param loc
+		 * @param loc Location at which to play the effect
+		 * @throws IllegalArgumentException if any effect parameter is not valid
+		 * @throws NumberFormatException if any numeric parameter is misformed
 		 */
 		public void play(Location loc) {
 			switch (type) {
 			case LIGHTNING:
-				int lPower = params.getInt("power", 0);
+				int lPower = Integer.parseInt(params.getString("power", "0"));
 				if (lPower > 0) {
 					if (loc != null) loc.getWorld().strikeLightning(loc);
 				} else {
@@ -139,16 +151,16 @@ public class SpecialFX {
 				}
 				break;
 			case EXPLOSION:
-				float ePower = (float) params.getDouble("power", 0.0);
-				boolean fire = params.getBoolean("fire", false);
+				float ePower = Float.parseFloat(params.getString("power", "1.0"));
+				boolean fire = Boolean.parseBoolean(params.getString("fire", "false"));
 				if (loc != null) loc.getWorld().createExplosion(loc, ePower, fire);
 				break;
 			case EFFECT:
 				String effectName = params.getString("name");
 				if (effectName != null && !effectName.isEmpty()) {
 					Effect effect = Effect.valueOf(effectName.toUpperCase());
-					int data = params.getInt("data", 0);
-					int radius = params.getInt("radius", 64);
+					int data = Integer.parseInt(params.getString("data", "0"));
+					int radius = Integer.parseInt(params.getString("radius", "64"));
 					if (loc != null) loc.getWorld().playEffect(loc, effect, data, radius);
 				}
 				break;
@@ -156,8 +168,8 @@ public class SpecialFX {
 				String soundName = params.getString("name");
 				if (soundName != null && !soundName.isEmpty()) {
 					Sound s = Sound.valueOf(soundName.toUpperCase());
-					float volume = (float) params.getDouble("volume", 1.0);
-					float pitch = (float) params.getDouble("pitch", 1.0);
+					float volume = Float.parseFloat(params.getString("volume", "1.0"));
+					float pitch = Float.parseFloat(params.getString("pitch", "1.0"));
 					if (loc != null) loc.getWorld().playSound(loc, s, volume * volumeMult, pitch);
 				}
 				break;
@@ -174,7 +186,9 @@ public class SpecialFX {
 				if (params.contains("fade")) {
 					b = b.withColor(getColors(params.getString("fade")));
 				}
-				b = b.flicker(params.getBoolean("flicker", false)).trail(params.getBoolean("trail", false));
+				boolean flicker = Boolean.parseBoolean(params.getString("flicker", "false"));
+				boolean trail = Boolean.parseBoolean(params.getString("trail", "false"));
+				b = b.flicker(flicker).trail(trail);
 				if (loc != null) {
 					try {
 						FireworkEffectPlayer fwp = new FireworkEffectPlayer();
