@@ -1,10 +1,13 @@
 package me.desht.dhutils;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import me.desht.dhutils.midi.MidiUtil;
 
 import org.bukkit.Color;
 import org.bukkit.Effect;
@@ -22,7 +25,7 @@ import org.bukkit.configuration.MemoryConfiguration;
  * @author desht
  */
 public class SpecialFX {
-	public enum EffectType { EXPLOSION, LIGHTNING, EFFECT, SOUND, FIREWORK };
+	public enum EffectType { EXPLOSION, LIGHTNING, EFFECT, SOUND, FIREWORK, MIDI };
 
 	private final ConfigurationSection conf;
 	private final Map<String, SpecialEffect> effects;
@@ -45,6 +48,7 @@ public class SpecialFX {
 		args(EffectType.EFFECT, "name", "data", "radius");
 		args(EffectType.SOUND, "name", "volume", "pitch");
 		args(EffectType.FIREWORK, "type", "color", "fade", "flicker", "trail");
+		args(EffectType.MIDI, "file", "tempo");
 	}
 
 	/**
@@ -106,7 +110,7 @@ public class SpecialFX {
 			if (spec == null) {
 				throw new IllegalArgumentException("null spec not permitted (unknown effect name?)");
 			}
-			String[] fields = spec.toLowerCase().split(",");
+			String[] fields = spec.split(",");
 			type = EffectType.valueOf(fields[0].toUpperCase());
 
 			for (int i = 1; i < fields.length; i++) {
@@ -115,7 +119,7 @@ public class SpecialFX {
 					throw new IllegalArgumentException("invalid parameter: " + val[0]);
 				}
 				if (val.length == 2) {
-					params.set(val[0], val[1]);
+					params.set(val[0].toLowerCase(), val[1]);
 				} else {
 					LogUtils.warning("missing value for parameter '" + fields[i] + "' - ignored");
 				}
@@ -195,6 +199,20 @@ public class SpecialFX {
 						fwp.playFirework(loc.getWorld(), loc, b.build());
 					} catch (Exception e) {
 						LogUtils.warning("can't play firework effect: "	 + e.getMessage());
+					}
+				}
+				break;
+			case MIDI:
+				String file = effectName = params.getString("file");
+				float tempo = Float.parseFloat(params.getString("tempo", "1.0"));
+				if (file != null && !file.isEmpty()) {
+					File f = new File(file);
+					if (f.exists()) {
+						if (loc != null) {
+							MidiUtil.playMidiQuietly(f, tempo, loc);
+						}
+					} else {
+						LogUtils.warning("non-existent midi file " + f.getAbsolutePath());
 					}
 				}
 				break;
