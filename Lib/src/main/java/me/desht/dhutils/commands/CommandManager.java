@@ -55,30 +55,35 @@ public class CommandManager {
 		}
 	}
 
-	public boolean dispatch(CommandSender sender, String label, String[] args) {
+	private boolean dispatch(CommandSender sender, String cmdName, String label, String[] args) {
 		boolean res = true;
 
-		List<AbstractCommand> possibleMatches = getPossibleMatches(label, args, true);
+		List<AbstractCommand> possibleMatches = getPossibleMatches(cmdName, args, true);
+
+		String desc = plugin.getDescription().getFullName();
 
 		if (possibleMatches.size() == 1) {
 			// good - a unique match
 			AbstractCommand cmd = possibleMatches.get(0);
-			if (cmd.matchesArgCount(label, args)) {
+			if (cmd.matchesArgCount(cmdName, args)) {
 				if (cmd.getPermissionNode() != null) {
 					PermissionUtils.requirePerms(sender, cmd.getPermissionNode());
 				}
 				res = cmd.execute(plugin, sender, cmd.getMatchedArgs());
 			} else {
-				cmd.showUsage(sender);
+				cmd.showUsage(sender, label);
 			}
 		} else if (possibleMatches.size() == 0) {
 			// no match
-			res = false;
+			MiscUtil.errorMessage(sender, cmdList.size() + " possible matching commands in " + desc + ":");
+			for (AbstractCommand cmd : MiscUtil.asSortedList(cmdList)) {
+				cmd.showUsage(sender, label);
+			}
 		} else {
 			// multiple possible matches
-			MiscUtil.errorMessage(sender, possibleMatches.size() + " possible matching commands:");
-			for (AbstractCommand cmd : possibleMatches) {
-				cmd.showUsage(sender);
+			MiscUtil.errorMessage(sender, possibleMatches.size() + " possible matching commands in " + desc + ":");
+			for (AbstractCommand cmd : MiscUtil.asSortedList(possibleMatches)) {
+				cmd.showUsage(sender, label);
 			}
 		}
 		return res;
@@ -86,7 +91,7 @@ public class CommandManager {
 
 	public boolean dispatch(CommandSender sender, Command command, String label, String[] args) {
 		try {
-			return dispatch(sender, command.getName(), args);
+			return dispatch(sender, command.getName(), label, args);
 		} catch (DHUtilsException e) {
 			MiscUtil.errorMessage(sender, e.getMessage());
 			return true;
@@ -121,7 +126,7 @@ public class CommandManager {
 				LogUtils.finer("add completion: " + cmd);
 				CommandRecord rec = cmd.getMatchedCommand();
 				if (rec.size() >= args.length) {
-					completions.add(cmd.getMatchedCommand().subCommand(args.length - 1));
+					completions.add(cmd.getMatchedCommand().getSubCommand(args.length - 1));
 				}
 //				completions.add(cmd.getMatchedCommand().lastSubCommand());
 			}
@@ -137,16 +142,16 @@ public class CommandManager {
 		return res;
 	}
 
-	private List<AbstractCommand> getPossibleMatches(String label, String[] args, boolean partialOk) {
+	private List<AbstractCommand> getPossibleMatches(String cmdName, String[] args, boolean partialOk) {
 		List<AbstractCommand> possibleMatches = new ArrayList<AbstractCommand>();
 
 		for (AbstractCommand cmd : cmdList) {
-			if (cmd.matchesSubCommand(label, args, partialOk)) {
+			if (cmd.matchesSubCommand(cmdName, args, partialOk)) {
 				possibleMatches.add(cmd);
 			}
 		}
 
-		LogUtils.fine("found " + possibleMatches.size() + " possible matches for " + label);
+		LogUtils.fine("found " + possibleMatches.size() + " possible matches for " + cmdName);
 
 		return possibleMatches;
 	}

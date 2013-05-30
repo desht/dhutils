@@ -23,7 +23,7 @@ import com.google.common.base.Joiner;
  * @author des
  *
  */
-public abstract class AbstractCommand {
+public abstract class AbstractCommand implements Comparable<AbstractCommand> {
 	private enum OptType { BOOL, STRING, INT, DOUBLE }
 
 	private final int minArgs, maxArgs;
@@ -65,7 +65,7 @@ public abstract class AbstractCommand {
 
 	public boolean matchesSubCommand(String label, String[] args, boolean partialOk) {
 		CMDREC: for (CommandRecord rec : cmdRecs) {
-			if (!label.equalsIgnoreCase(rec.command))
+			if (!label.equalsIgnoreCase(rec.getCommand()))
 				continue;
 
 			if (!partialOk && args.length < rec.subCommands.length)
@@ -86,12 +86,12 @@ public abstract class AbstractCommand {
 			}
 		}
 
-	return false;
+		return false;
 	}
 
 	public boolean matchesArgCount(String label, String args[]) {
 		for (CommandRecord rec : cmdRecs) {
-			if (!label.equalsIgnoreCase(rec.command))
+			if (!label.equalsIgnoreCase(rec.getCommand()))
 				continue;
 
 			int nArgs;
@@ -109,6 +109,10 @@ public abstract class AbstractCommand {
 		}
 		matchedArgs = null;
 		return false;
+	}
+
+	List<CommandRecord> getCmdRecs() {
+		return cmdRecs;
 	}
 
 	private void storeMatchedArgs(String[] args, CommandRecord rec) {
@@ -160,16 +164,22 @@ public abstract class AbstractCommand {
 		matchedArgs = l.toArray(new String[l.size()]);
 	}
 
-	protected void showUsage(CommandSender sender) {
+	protected void showUsage(CommandSender sender, String alias) {
+		String indent = sender instanceof Player ? "         " : "       ";
 		if (usage != null) {
 			for (int i = 0; i < usage.length; i++) {
+				String s = alias == null ? usage[i] : usage[i].replace("<command>", alias);
 				if (i == 0) {
-					MiscUtil.errorMessage(sender, "Usage: " + usage[i]);
+					MiscUtil.errorMessage(sender, "Usage: " + s);
 				} else {
-					MiscUtil.errorMessage(sender, "         " + usage[i]);
+					MiscUtil.errorMessage(sender, indent + s);
 				}
 			}
 		}
+	}
+
+	protected void showUsage(CommandSender sender) {
+		showUsage(sender, getMatchedCommand().getCommand());
 	}
 
 	CommandRecord getMatchedCommand() {
@@ -438,13 +448,24 @@ public abstract class AbstractCommand {
 			return subCommands.length;
 		}
 
-		public String subCommand(int idx) {
+		public String getCommand() {
+			return command;
+		}
+
+		public String getSubCommand(int idx) {
 			return subCommands[idx];
 		}
 
-		public String lastSubCommand() {
+		public String getLastSubCommand() {
 			return subCommands[subCommands.length - 1];
 		}
+	}
+
+	@Override
+	public int compareTo(AbstractCommand other) {
+		List<CommandRecord> recs = getCmdRecs();
+		List<CommandRecord> recs2 = other.getCmdRecs();
+		return recs.toString().compareTo(recs2.toString());
 	}
 
 	@Override
