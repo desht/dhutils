@@ -31,6 +31,7 @@ public class MiscUtil {
 	private static Map<String, ChatColor> prevColours = new HashMap<String, ChatColor>();
 
 //	private static String messagePrefix = "";
+	private static final String BROADCAST_PREFIX = ChatColor.RED + "\u2731&- ";
 	private static boolean colouredConsole = true;
 
 	public static void init(Plugin plugin) {
@@ -64,7 +65,7 @@ public class MiscUtil {
 	public static void broadcastMessage(String string) {
 		CommandSender sender = Bukkit.getConsoleSender();
 		setPrevColour(sender.getName(), ChatColor.YELLOW);
-		Bukkit.getServer().broadcastMessage(parseColourSpec(sender, "&4::&-" + string)); //$NON-NLS-1$
+		Bukkit.getServer().broadcastMessage(parseColourSpec(sender, BROADCAST_PREFIX + string));
 	}
 
 	private static void setPrevColour(String name, ChatColor colour) {
