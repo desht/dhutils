@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,6 +201,21 @@ public class MiscUtil {
 		java.util.Collections.sort(list);
 		return list;
 	}
+
+    /**
+     * @param list
+     * @param nLists
+     * @return
+     */
+    public static <T> List<T>[] splitList(List<T> list, int nLists) {
+    	@SuppressWarnings("unchecked")
+		List<T>[] res = (ArrayList<T>[]) new ArrayList[nLists];
+    	Collections.shuffle(list);
+    	for (int i = 0; i < list.size(); i++) {
+    		res[i % nLists].add(list.get(i));
+    	}
+    	return res;
+    }
 
 	/**
 	 * Get a list of all files in the given JAR (or ZIP) file within the given path, and with the
