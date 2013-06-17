@@ -333,7 +333,7 @@ public class MessagePager {
 	private String[] wrap(String line) {
 		CommandSender sender = senderRef.get();
 		if (sender != null && sender instanceof Player) {
-			return ChatPaginator.wordWrap(MiscUtil.parseColourSpec(sender, line), 60);
+			return ChatPaginator.wordWrap(MiscUtil.parseColourSpec(sender, line), getLineLength());
 		} else {
 			return new String[] { line };
 		}
