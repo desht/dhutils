@@ -25,7 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.sk89q.util.StringUtil;
+import me.desht.dhutils.StringUtil;
+
+//import com.sk89q.util.StringUtil;
 
 /**
  * Block types.
