@@ -83,7 +83,28 @@ public class ConfigurationManager {
 	}
 
 	public Class<?> getType(String key) {
-		return forceTypes.containsKey(key) ? forceTypes.get(key) : config.getDefaults().get(addPrefix(key)).getClass();
+		if (forceTypes.containsKey(key)) {
+			return forceTypes.get(key);
+		} else {
+			key = addPrefix(key);
+			if (config.getDefaults().contains(key)) {
+				return config.getDefaults().get(addPrefix(key)).getClass();
+			} else if (config.contains(key)) {
+				return config.get(addPrefix(key)).getClass();
+			} else {
+				throw new IllegalArgumentException("can't determine type for unknown key '" + key + "'");
+			}
+		}
+	}
+
+	public void insert(String key, Object def) {
+		String keyPrefixed = addPrefix(key);
+		if (config.contains(keyPrefixed)) {
+			throw new DHUtilsException("Config item already exists: " + keyPrefixed);
+		}
+		config.addDefault(keyPrefixed, def);
+		config.getDefaults().set(key, def);
+		System.out.println("default inserted: " + key + " = " + def);
 	}
 
 	public Object get(String key) {
@@ -92,6 +113,12 @@ public class ConfigurationManager {
 		if (!config.contains(keyPrefixed)) {
 			throw new DHUtilsException("No such config item: " + keyPrefixed);
 		}
+
+		return config.get(keyPrefixed);
+	}
+
+	public Object check(String key) {
+		String keyPrefixed = addPrefix(key);
 
 		return config.get(keyPrefixed);
 	}
