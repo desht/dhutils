@@ -155,7 +155,7 @@ public class SpecialFX {
 				}
 				break;
 			case EXPLOSION:
-				float ePower = Float.parseFloat(params.getString("power", "1.0"));
+				float ePower = Float.parseFloat(params.getString("power", "0.0"));
 				boolean fire = Boolean.parseBoolean(params.getString("fire", "false"));
 				if (loc != null) loc.getWorld().createExplosion(loc, ePower, fire);
 				break;
