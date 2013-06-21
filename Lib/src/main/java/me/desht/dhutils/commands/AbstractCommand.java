@@ -12,6 +12,7 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -47,6 +48,7 @@ public abstract class AbstractCommand implements Comparable<AbstractCommand> {
 	public AbstractCommand(String label, int minArgs, int maxArgs) {
 		quotedArgs = false;
 
+		setUsage("");
 		addAlias(label);
 		this.minArgs = minArgs;
 		this.maxArgs = maxArgs;
@@ -151,10 +153,12 @@ public abstract class AbstractCommand implements Comparable<AbstractCommand> {
 					case DOUBLE:
 						optVals.put(opt, Double.parseDouble(tmpArgs[++i])); break;
 					default:
-						throw new IllegalStateException("unexpected option type for " + tmpArgs[i]);	
+						throw new IllegalStateException("unexpected option type for " + tmpArgs[i]);
 					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					throw new DHUtilsException("Missing value for option '" + tmpArgs[i - 1] + "'");
 				} catch (Exception e) {
-					throw new DHUtilsException("invalid value for option '" + tmpArgs[i] + "'");
+					throw new DHUtilsException("Invalid value for option '" + tmpArgs[i - 1] + "'");
 				}
 			} else {
 				l.add(tmpArgs[i]);
@@ -164,18 +168,27 @@ public abstract class AbstractCommand implements Comparable<AbstractCommand> {
 		matchedArgs = l.toArray(new String[l.size()]);
 	}
 
-	protected void showUsage(CommandSender sender, String alias) {
-		String indent = sender instanceof Player ? "         " : "       ";
-		if (usage != null) {
-			for (int i = 0; i < usage.length; i++) {
-				String s = alias == null ? usage[i] : usage[i].replace("<command>", alias);
-				if (i == 0) {
-					MiscUtil.errorMessage(sender, "Usage: " + s);
-				} else {
-					MiscUtil.errorMessage(sender, indent + s);
-				}
-			}
+
+	protected void showUsage(CommandSender sender, String alias, String prefix) {
+		if (usage.length == 0) {
+			return;
 		}
+		String indent;
+		if (prefix == null || prefix.isEmpty()) {
+			indent = "";
+		} else {
+			int l = prefix.length();
+			indent = sender instanceof Player ? StringUtils.repeat(" ", l + 2) : StringUtils.repeat(" ", l);
+		}
+
+		for (int i = 0; i < usage.length; i++) {
+			String s = alias == null ? usage[i] : usage[i].replace("<command>", alias);
+			MiscUtil.errorMessage(sender, (i == 0 ? prefix : indent) + s);
+		}
+	}
+
+	protected void showUsage(CommandSender sender, String alias) {
+		showUsage(sender, alias, "Usage: ");
 	}
 
 	protected void showUsage(CommandSender sender) {

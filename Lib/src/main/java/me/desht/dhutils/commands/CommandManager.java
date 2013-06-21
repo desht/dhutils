@@ -75,15 +75,16 @@ public class CommandManager {
 			}
 		} else if (possibleMatches.size() == 0) {
 			// no match
-			MiscUtil.errorMessage(sender, cmdList.size() + " possible matching commands in " + desc + ":");
+			String s = cmdList.size() == 1 ? "" : "s";
+			MiscUtil.errorMessage(sender, cmdList.size() + " possible matching command" + s + " in " + desc + ":");
 			for (AbstractCommand cmd : MiscUtil.asSortedList(cmdList)) {
-				cmd.showUsage(sender, label);
+				cmd.showUsage(sender, label, "\u2022 ");
 			}
 		} else {
 			// multiple possible matches
 			MiscUtil.errorMessage(sender, possibleMatches.size() + " possible matching commands in " + desc + ":");
 			for (AbstractCommand cmd : MiscUtil.asSortedList(possibleMatches)) {
-				cmd.showUsage(sender, label);
+				cmd.showUsage(sender, label, "\u2022 ");
 			}
 		}
 		return res;
