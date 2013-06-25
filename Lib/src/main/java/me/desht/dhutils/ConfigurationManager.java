@@ -229,7 +229,7 @@ public class ConfigurationManager {
 				if (e.getCause() instanceof NumberFormatException) {
 					throw new DHUtilsException("Invalid numeric value: " + val);
 				} else if (e.getCause() instanceof IllegalArgumentException) {
-					throw new DHUtilsException(e.getMessage());
+					throw new DHUtilsException("Invalid argument: " + val);
 				} else {
 					e.printStackTrace();
 				}
