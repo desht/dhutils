@@ -104,7 +104,6 @@ public class ConfigurationManager {
 		}
 		config.addDefault(keyPrefixed, def);
 		config.getDefaults().set(key, def);
-		System.out.println("default inserted: " + key + " = " + def);
 	}
 
 	public Object get(String key) {
@@ -182,7 +181,9 @@ public class ConfigurationManager {
 
 		Object processedVal = null;
 
-		if (List.class.isAssignableFrom(c)) {
+		if (val == null) {
+			processedVal = null;
+		} else if (List.class.isAssignableFrom(c)) {
 			List<String>list = new ArrayList<String>(1);
 			list.add(val);
 			processedVal = handleListValue(key, list);
@@ -236,7 +237,7 @@ public class ConfigurationManager {
 			}
 		}
 
-		if (processedVal != null) {
+		if (processedVal != null || val == null) {
 			if (listener != null) {
 				listener.onConfigurationValidate(this, key, get(key), processedVal);
 			}
