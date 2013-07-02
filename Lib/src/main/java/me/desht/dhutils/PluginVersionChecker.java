@@ -4,10 +4,10 @@ import org.bukkit.plugin.Plugin;
 
 public class PluginVersionChecker {
 	public PluginVersionChecker(Plugin plugin, PluginVersionListener listener) {
-		
+
 		String currentVersion = plugin.getDescription().getVersion();
 		String lastVersion = listener.getPreviousVersion();
-		
+
 		if (currentVersion != null && !lastVersion.equals(currentVersion)) {
 			listener.onVersionChanged(getRelease(lastVersion), getRelease(currentVersion));
 			listener.setPreviousVersion(currentVersion);
@@ -23,7 +23,7 @@ public class PluginVersionChecker {
 	 * @return
 	 */
 	private static int getRelease(String ver) {
-		String[] a = ver.split("\\.");
+		String[] a = ver.replaceAll("-SNAPSHOT$", "").split("\\.");
 		try {
 			int major = Integer.parseInt(a[0]);
 			int minor;
