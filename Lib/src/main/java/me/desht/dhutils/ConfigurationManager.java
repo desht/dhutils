@@ -88,9 +88,9 @@ public class ConfigurationManager {
 		} else {
 			key = addPrefix(key);
 			if (config.getDefaults().contains(key)) {
-				return config.getDefaults().get(addPrefix(key)).getClass();
+				return config.getDefaults().get(key).getClass();
 			} else if (config.contains(key)) {
-				return config.get(addPrefix(key)).getClass();
+				return config.get(key).getClass();
 			} else {
 				throw new IllegalArgumentException("can't determine type for unknown key '" + key + "'");
 			}
