@@ -272,7 +272,8 @@ public class Cost {
 			player.setFoodLevel(getNewQuantity(player.getFoodLevel(), getQuantity(), 1, 20));
 			break;
 		case HEALTH:
-			player.setHealth(getNewQuantity(player.getHealth(), getQuantity(), 1, 20));
+			// note: player.getHealth() returns a double in CB 1.6+ but we still work with ints for now
+			player.setHealth(getNewQuantity((int) player.getHealth(), getQuantity(), 1, 20));
 			break;
 		case DURABILITY:
 			chargeDurability(player);
