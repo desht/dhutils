@@ -12,8 +12,9 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class ItemNames {
     static final Map<String,String> map = new HashMap<String,String>();
-    
+
     static {
+    	// Blocks
         map.put("1", "Stone");
         map.put("2", "Grass Block");
         map.put("3", "Dirt");
@@ -212,6 +213,13 @@ public class ItemNames {
         map.put("155", "Block of Quartz");
         map.put("156", "Quartz Stairs");
         map.put("157", "Activator Rail");
+        map.put("158", "Dropper");
+        map.put("159", "Stained Clay");
+        map.put("170", "Hay Block");
+        map.put("171", "Carpet");
+        map.put("172", "Hardened Clay");
+        map.put("173", "Block of Coal");
+        // Items
         map.put("256", "Iron Shovel");
         map.put("257", "Iron Pickaxe");
         map.put("258", "Iron Axe");
@@ -426,7 +434,13 @@ public class ItemNames {
         map.put("404", "Redstone Comparator");
         map.put("405", "Nether Brick");
         map.put("406", "Nether Quartz");
-        map.put("407", "Minecart with TNT ");
+        map.put("407", "Minecart with TNT");
+        map.put("408", "Minecart with Hopper");
+        map.put("417", "Iron Horse Armor");
+        map.put("418", "Gold Horse Armor");
+        map.put("419", "Diamond Horse Armor");
+        map.put("420", "Lead");
+        map.put("421", "Name Tag");
         map.put("2256", "Music Disk (13)");
         map.put("2257", "Music Disk (Cat)");
         map.put("2258", "Music Disk (Blocks)");
