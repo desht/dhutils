@@ -107,6 +107,13 @@
             <type>jar</type>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>me.desht</groupId>
+            <artifactId>dhutils-v1_6_R2</artifactId>
+            <version>v1_6_R2</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
