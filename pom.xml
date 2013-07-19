@@ -11,6 +11,34 @@
   </properties>
   <description>Collection of useful classes I use in my plugins</description>
 
+  <scm>
+    <connection>scm:git:git://github.com/desht/dhutils.git</connection>
+    <developerConnection>scm:git:git@github.com:desht/desht.git</developerConnection>
+    <url>https://github.com/desht/dhutils</url>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>GNU GENERAL PUBLIC LICENSE - Version 2, June 1991</name>
+      <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>desht</id>
+      <name>Des Herriott</name>
+      <email>des.herriott@gmail.com</email>
+      <url>http://github.com/desht</url>
+      <roles>
+        <role>developer</role>
+        <role>maintainer</role>
+      </roles>
+      <timezone>1</timezone>
+    </developer>
+  </developers>
+
   <modules>
     <module>API</module>
     <module>PreRefactor</module>
