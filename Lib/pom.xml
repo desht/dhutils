@@ -23,6 +23,11 @@
             <id>bukkit-repo</id>
             <url>http://repo.bukkit.org/content/groups/public</url>
         </repository>      
+        <repository>
+            <id>comphenix-rep</id>
+            <name>Comphenix Repository</name>
+            <url>http://repo.comphenix.net/content/groups/public</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -42,6 +47,12 @@
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
             <version>1.2.24-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+       <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>2.4.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
