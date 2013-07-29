@@ -153,9 +153,12 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	 * @return Location at the centre of the Cuboid
 	 */
 	public Location getCenter() {
-		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()) / 2,
-		                    getLowerY() + (getUpperY() - getLowerY()) / 2,
-		                    getLowerZ() + (getUpperZ() - getLowerZ()) / 2);
+		int x1 = getUpperX() + 1;
+		int y1 = getUpperY() + 1;
+		int z1 = getUpperZ() + 1;
+		return new Location(getWorld(), getLowerX() + (x1 - getLowerX()) / 2.0,
+		                    getLowerY() + (y1 - getLowerY()) / 2.0,
+		                    getLowerZ() + (z1 - getLowerZ()) / 2.0);
 	}
 
 	/**
