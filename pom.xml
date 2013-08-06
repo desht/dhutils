@@ -17,6 +17,13 @@
     <url>https://github.com/desht/dhutils</url>
   </scm>
 
+  <distributionManagement>        
+    <repository>            
+      <id>dropbox</id>                        
+      <url>file://${user.home}/Dropbox/Public/maven-repo</url>                      
+    </repository>           
+  </distributionManagement>
+
   <licenses>
     <license>
       <name>GNU GENERAL PUBLIC LICENSE - Version 2, June 1991</name>

@@ -10,6 +10,12 @@
     </properties>
     <description>Collection of useful classes I use in my plugins</description>
 
+    <parent>
+      <groupId>me.desht</groupId>
+        <artifactId>dhutils-parent</artifactId>
+      <version>parent</version>
+    </parent>
+
     <repositories>
         <repository>
             <id>sk89q-maven</id>
@@ -19,10 +25,6 @@
             <id>vault-repo</id>
             <url>http://ci.herocraftonline.com/plugin/repository/everything</url>
         </repository>
-        <repository>
-            <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
-        </repository>      
         <repository>
             <id>comphenix-rep</id>
             <name>Comphenix Repository</name>
