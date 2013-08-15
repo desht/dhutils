@@ -2,13 +2,10 @@ package me.desht.dhutils;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.util.PriorityQueue;
 
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -33,60 +32,67 @@ import com.comphenix.protocol.events.PacketContainer;
 public class ItemMessage {
 	private static final int INTERVAL = 20;  // ticks
 	private static final int DEFAULT_DURATION = 2; // seconds
-
+	private static final int DEFAULT_PRIORITY = 0;
 	private static final String DEF_FORMAT_1 = "%s";
 	private static final String DEF_FORMAT_2 = " %s ";
+	private static final String METADATA_Q_KEY = "item-message:msg-queue";
+	private static final String METADATA_ID_KEY = "item-message:id";
 
 	private final Plugin plugin;
-	private final Map<String, WeakReference<Player>> players = new HashMap<String, WeakReference<Player>>();
 	private String[] formats = new String[] { DEF_FORMAT_1, DEF_FORMAT_2 };
 
 	/**
-	 * Create a new ItemMessage object for the given plugin and player.
+	 * Construct a new ItemMessage object for the given plugin
 	 *
 	 * @param plugin the plugin instance
-	 * @param players the player(s)
-	 * @throws IllegalStateException if the ProtocolLib plugin is not available
 	 */
-	public ItemMessage(Plugin plugin, Player... players) {
+	public ItemMessage(Plugin plugin) {
 		Plugin p = Bukkit.getPluginManager().getPlugin("ProtocolLib");
 		if (p == null || !p.isEnabled()) {
 			throw new IllegalStateException("ItemMessage can not be used without ProtocolLib");
 		}
 		this.plugin = plugin;
-		for (Player player : players) {
-			this.players.put(player.getName(), new WeakReference<Player>(player));
-		}
 	}
 
 	/**
-	 * Get the players for this ItemMessage object.  Note that any players who went offline
-	 * since the object was created will not be included in the list.
+	 * Send a popup message to the player, with a default duration of 2 seconds and default
+	 * priority level of 0.
 	 *
-	 * @return a list of the players in this object 
+	 * @param message the message to send
+	 * @throws IllegalStateException if the player is unavailable (e.g. went offline)
 	 */
-	public List<Player> getPlayers() {
-		List<Player> result = new ArrayList<Player>();
-		Iterator<WeakReference<Player>> iter = players.values().iterator();
-		while (iter.hasNext()) {
-			WeakReference<Player> ref = iter.next();
-			if (ref.get() != null) {
-				result.add(ref.get());
-			} else {
-				iter.remove();
-			}
-		}
-		return result;
+	public void sendMessage(Player player, String message) {
+		sendMessage(player, message, DEFAULT_DURATION, DEFAULT_PRIORITY);
 	}
 
 	/**
-	 * Add the given player(s) as message recipients.
+	 * Send a popup message to the player, for the given duration and default priority level
+	 * of 0.
 	 *
-	 * @param players the player(s) to add
+	 * @param message the message to send
+	 * @param duration the duration, in seconds, for which the message will be displayed
+	 * @throws IllegalStateException if the player is unavailable (e.g. went offline)
 	 */
-	public void addPlayers(Player... players) {
-		for (Player player : players) {
-			this.players.put(player.getName(), new WeakReference<Player>(player));
+	public void sendMessage(Player player, String message, int duration) {
+		sendMessage(player, message, duration, DEFAULT_PRIORITY);
+	}
+
+	/**
+	 * Send a popup message to the player, for the given duration and priority level.
+	 *
+	 * @param message the message to send
+	 * @param duration the duration, in seconds, for which the message will be displayed
+	 * @param priority priority of this message
+	 * @throws IllegalStateException if the player is unavailable (e.g. went offline)
+	 */
+	public void sendMessage(Player player, String message, int duration, int priority) {
+		PriorityQueue<MessageRecord> msgQueue = getMessageQueue(player);
+		msgQueue.add(new MessageRecord(message, duration, priority, getNextId(player)));
+		if (msgQueue.size() == 1) {
+			// there was nothing in the queue previously - kick off a NamerTask
+			// (if there was already something in the queue, a new NamerTask will be kicked off
+			//  when the current task completes - see notifyDone())
+			new NamerTask(player, msgQueue.peek()).runTaskTimer(plugin, 1L, INTERVAL);
 		}
 	}
 
@@ -106,61 +112,83 @@ public class ItemMessage {
 		formats[1] = f2;
 	}
 
-	private Player getPlayer(String playerName) {
-		return players.get(playerName).get();
+	private long getNextId(Player player) {
+		long id = player.hasMetadata(METADATA_ID_KEY) ? player.getMetadata(METADATA_ID_KEY).get(0).asLong() : 1L;
+		player.setMetadata(METADATA_ID_KEY, new FixedMetadataValue(plugin, id + 1));
+		return id;
+	}
+
+	@SuppressWarnings("unchecked")
+	private PriorityQueue<MessageRecord> getMessageQueue(Player player) {
+		if (!player.hasMetadata(METADATA_Q_KEY)) {
+			player.setMetadata(METADATA_Q_KEY, new FixedMetadataValue(plugin, new PriorityQueue<MessageRecord>()));
+		}
+		for (MetadataValue v : player.getMetadata(METADATA_Q_KEY)) {
+			if (v.value() instanceof PriorityQueue<?>) {
+				return (PriorityQueue<MessageRecord>) v.value();
+			}
+		}
+		return null;
+	}
+
+	private void notifyDone(Player player) {
+		PriorityQueue<MessageRecord> msgQueue = getMessageQueue(player);
+		msgQueue.poll();
+		if (!msgQueue.isEmpty()) {
+			MessageRecord rec = importOtherMessageRecord(msgQueue.peek());
+			new NamerTask(player, rec).runTaskTimer(plugin, 1L, INTERVAL);
+		}
 	}
 
 	/**
-	 * Check if the player for this ItemMessage object is available.
+	 * Import a foreign MessageRecord object, if possible.  Why is this necessary?  There may be multiple
+	 * plugins putting message records into a player's metadata, and objects from different plugins are
+	 * likely to be (should be!) in different packages, and will not be castable to one another.  So we
+	 * use reflection to convert the foreign MessageRecord's data into our local object.
 	 *
-	 * @return true if the player is available, false otherwise
+	 * @param other the foreign message record
+	 * @return a MessageRecord with the imported data, or null if there was a problem
 	 */
-	public boolean isPlayerAvailable(String playerName) {
-		return players.containsKey(playerName) && players.get(playerName).get() != null;
-	}
-
-	/**
-	 * Send a popup message to the player, with a default duration of 2 seconds.
-	 *
-	 * @param message the message to send
-	 * @throws IllegalStateException if the player is unavailable (e.g. went offline)
-	 */
-	public void sendMessage(String message) {
-		sendMessage(message, DEFAULT_DURATION);
-	}
-
-	/**
-	 * Send a popup message to the player, keeping it on-screen for the given duration.
-	 *
-	 * @param message the message to send
-	 * @param duration the duration to keep the message on-screen for, in seconds
-	 * @throws IllegalStateException if the player is unavailable (e.g. went offline)
-	 */
-	public void sendMessage(String message, int duration) {
-		for (Player player : getPlayers()) {
-			final int held = player.getInventory().getHeldItemSlot();
-			new NamerTask(player.getName(), message, held, duration).runTaskTimer(plugin, 1L, INTERVAL);
+	private MessageRecord importOtherMessageRecord(Object other) {
+		if (other.getClass().getName().endsWith(".ItemMessage$MessageRecord")) {
+			// looks like the same class as us - we make no assumptions about what package it's in, though
+			try {
+				Method m1 = other.getClass().getMethod("getId");
+				Method m2 = other.getClass().getMethod("getPriority");
+				Method m3 = other.getClass().getMethod("getMessage");
+				Method m4 = other.getClass().getMethod("getDuration");
+				long otherId = (Long) m1.invoke(other);
+				int otherPriority = (Integer) m2.invoke(other);
+				String otherMessage = (String) m3.invoke(other);
+				int otherDuration = (Integer) m4.invoke(other);
+				return new MessageRecord(otherMessage, otherDuration, otherPriority, otherId);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return null;
 		}
 	}
 
 	private class NamerTask extends BukkitRunnable implements Listener	{
-		private final String playerName;
+		private final WeakReference<Player> playerRef;
+		private final String message;
 		private int slot;
 		private int iterations;
-		private final String message;
 
-		public NamerTask(String playerName, String message, int slot, int duration) {
-			this.playerName = playerName;
-			this.iterations = Math.max(1, (duration * 20) / INTERVAL);
-			this.slot = slot;
-			this.message = message;
+		public NamerTask(Player player, MessageRecord rec) {
+			this.playerRef = new WeakReference<Player>(player);
+			this.iterations = Math.max(1, (rec.getDuration() * 20) / INTERVAL);
+			this.slot = player.getInventory().getHeldItemSlot();
+			this.message = rec.getMessage();
 			Bukkit.getPluginManager().registerEvents(this, plugin);
 		}
 
 		@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 		public void onItemHeldChange(PlayerItemHeldEvent event) {
 			Player player = event.getPlayer();
-			if (isPlayerAvailable(player.getName())) {
+			if (player.equals(playerRef.get())) {
 				sendItemSlotChange(player, event.getPreviousSlot(), player.getInventory().getItem(event.getPreviousSlot()));
 				slot = event.getNewSlot();
 				refresh(event.getPlayer());
@@ -169,16 +197,17 @@ public class ItemMessage {
 
 		@Override
 		public void run() {
-			if (isPlayerAvailable(playerName)) {
+			Player player = playerRef.get();
+			if (player != null) {
 				if (iterations-- <= 0) {
 					// finished - restore the previous item data and tidy up
-					finish(getPlayer(playerName));
+					finish(player);
 				} else {
 					// refresh the item data
-					refresh(getPlayer(playerName));
+					refresh(player);
 				}
 			} else {
-				// player probably disconnected
+				// player probably disconnected - whatever, we're done here
 				cleanup();
 			}
 		}
@@ -189,6 +218,7 @@ public class ItemMessage {
 
 		private void finish(Player player) {
 			sendItemSlotChange(player, slot, player.getInventory().getItem(slot));
+			notifyDone(player);
 			cleanup();
 		}
 
@@ -224,6 +254,50 @@ public class ItemMessage {
 				ProtocolLibrary.getProtocolManager().sendServerPacket(player, setSlot);
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
+			}
+		}
+	}
+
+	public class MessageRecord implements Comparable<Object> {
+		private final String message;
+		private final int duration;
+		private final int priority;
+		private final long id;
+
+		public MessageRecord(String message, int duration, int priority, long id) {
+			this.message = message;
+			this.duration = duration;
+			this.priority = priority;
+			this.id = id;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public int getDuration() {
+			return duration;
+		}
+
+		public int getPriority() {
+			return priority;
+		}
+
+		public long getId() {
+			return id;
+		}
+
+		@Override
+		public int compareTo(Object other) {
+			MessageRecord rec = importOtherMessageRecord(other);
+			if (rec != null) {
+				if (this.priority == rec.getPriority()) {
+					return (Long.valueOf(this.id)).compareTo(rec.getId());
+				} else {
+					return (Integer.valueOf(this.priority)).compareTo(rec.getPriority());
+				}
+			} else {
+				return 0;
 			}
 		}
 	}
