@@ -3,6 +3,7 @@ package me.desht.dhutils;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.PriorityQueue;
 
 import org.apache.commons.lang.Validate;
@@ -14,6 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -113,7 +115,13 @@ public class ItemMessage {
 	}
 
 	private long getNextId(Player player) {
-		long id = player.hasMetadata(METADATA_ID_KEY) ? player.getMetadata(METADATA_ID_KEY).get(0).asLong() : 1L;
+		long id;
+		if (player.hasMetadata(METADATA_ID_KEY)) {
+			List<MetadataValue> l = player.getMetadata(METADATA_ID_KEY);
+			id = l.size() >= 1 ? l.get(0).asLong() : 1L;
+		} else {
+			id = 1L;
+		}
 		player.setMetadata(METADATA_ID_KEY, new FixedMetadataValue(plugin, id + 1));
 		return id;
 	}
@@ -150,7 +158,9 @@ public class ItemMessage {
 	 * @return a MessageRecord with the imported data, or null if there was a problem
 	 */
 	private MessageRecord importOtherMessageRecord(Object other) {
-		if (other.getClass().getName().endsWith(".ItemMessage$MessageRecord")) {
+		if (other instanceof MessageRecord) {
+			return (MessageRecord) other;
+		} else if (other.getClass().getName().endsWith(".ItemMessage$MessageRecord")) {
 			// looks like the same class as us - we make no assumptions about what package it's in, though
 			try {
 				Method m1 = other.getClass().getMethod("getId");
@@ -192,6 +202,15 @@ public class ItemMessage {
 				sendItemSlotChange(player, event.getPreviousSlot(), player.getInventory().getItem(event.getPreviousSlot()));
 				slot = event.getNewSlot();
 				refresh(event.getPlayer());
+			}
+		}
+
+		@EventHandler
+		public void onPluginDisable(PluginDisableEvent event) {
+			Player player = playerRef.get();
+			if (event.getPlugin() == plugin && player != null) {
+				getMessageQueue(player).clear();
+				finish(playerRef.get());
 			}
 		}
 
