@@ -1,5 +1,6 @@
 package me.desht.dhutils.nms.v1_4_5;
 
+import me.desht.dhutils.nms.api.NMSAbstraction;
 import net.minecraft.server.v1_4_5.Block;
 import net.minecraft.server.v1_4_5.Chunk;
 import net.minecraft.server.v1_4_5.ChunkCoordIntPair;
@@ -9,8 +10,6 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
 import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-
-import me.desht.dhutils.nms.api.NMSAbstraction;
 
 public class NMSHandler implements NMSAbstraction {
 
@@ -48,4 +47,6 @@ public class NMSHandler implements NMSAbstraction {
 		net.minecraft.server.v1_4_5.World w = ((CraftWorld) world).getHandle();
 		w.z(x, y, z);
 	}
+
+
 }
