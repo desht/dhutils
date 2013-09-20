@@ -58,6 +58,7 @@
     <module>v1_6_R1</module>
     <module>v1_6_R2</module>
     <module>Lib</module>
+    <module>../workspace/dhutils-v1_6_R3</module>
   </modules>
 
   <!-- Define the repo here since multiple modules will be using it -->
