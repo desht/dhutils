@@ -8,6 +8,7 @@ import java.util.PriorityQueue;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -88,13 +89,19 @@ public class ItemMessage {
 	 * @throws IllegalStateException if the player is unavailable (e.g. went offline)
 	 */
 	public void sendMessage(Player player, String message, int duration, int priority) {
-		PriorityQueue<MessageRecord> msgQueue = getMessageQueue(player);
-		msgQueue.add(new MessageRecord(message, duration, priority, getNextId(player)));
-		if (msgQueue.size() == 1) {
-			// there was nothing in the queue previously - kick off a NamerTask
-			// (if there was already something in the queue, a new NamerTask will be kicked off
-			//  when the current task completes - see notifyDone())
-			new NamerTask(player, msgQueue.peek()).runTaskTimer(plugin, 1L, INTERVAL);
+		if (player.getGameMode() == GameMode.CREATIVE) {
+			// TODO: this doesn't work properly in creative mode.  Need to investigate further
+			// if it can be made to work, but for now, just send an old-fashioned chat message.
+			player.sendMessage(message);
+		} else {
+			PriorityQueue<MessageRecord> msgQueue = getMessageQueue(player);
+			msgQueue.add(new MessageRecord(message, duration, priority, getNextId(player)));
+			if (msgQueue.size() == 1) {
+				// there was nothing in the queue previously - kick off a NamerTask
+				// (if there was already something in the queue, a new NamerTask will be kicked off
+				//  when the current task completes - see notifyDone())
+				new NamerTask(player, msgQueue.peek()).runTaskTimer(plugin, 1L, INTERVAL);
+			}
 		}
 	}
 
