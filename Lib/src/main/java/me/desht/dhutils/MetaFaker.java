@@ -18,21 +18,21 @@ public class MetaFaker {
 	private final Plugin plugin;
 	private final ProtocolManager protocolManager;
 	private final MetadataFilter filter;
-	private PacketListener listener;
+	private final PacketListener listener;
 
 	public MetaFaker(Plugin plugin, MetadataFilter filter) {
 		this.plugin = plugin;
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
 		this.filter = filter;
-		this.registerListener();
+		this.listener = registerListener();
 	}
 
 	public void shutdown() {
 		protocolManager.removePacketListener(listener);
 	}
 
-	private void registerListener() {
-		listener = new PacketAdapter(plugin, ConnectionSide.SERVER_SIDE, 0x67, 0x68) {
+	private PacketListener registerListener() {
+		PacketListener l = new PacketAdapter(plugin, ConnectionSide.SERVER_SIDE, 0x67, 0x68) {
 			@Override
 			public void onPacketSending(PacketEvent event) {
 				PacketContainer packet = event.getPacket();
@@ -58,7 +58,8 @@ public class MetaFaker {
 				}
 			}
 		};
-		protocolManager.addPacketListener(listener);
+		protocolManager.addPacketListener(l);
+		return l;
 	}
 
 	private void filterMetaData(ItemStack stack, Player player) {
