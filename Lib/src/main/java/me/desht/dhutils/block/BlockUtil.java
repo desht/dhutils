@@ -6,6 +6,8 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.material.Attachable;
 import org.bukkit.util.Vector;
 
 public class BlockUtil {
@@ -67,5 +69,23 @@ public class BlockUtil {
 			}
 		}
 		return wantedFace;
+	}
+
+	/**
+	 * Check if the given block is an attachable material, and if so, if the block it's
+	 * attached to can actually hold it.
+	 *
+	 * @param block the block to check
+	 * @return false if the block is still attached OK, true if it has become detached
+	 */
+	public static boolean isAttachableDetached(Block block) {
+		BlockState bs = block.getState();
+		if (bs.getData() instanceof Attachable) {
+			Attachable a = (Attachable) bs.getData();
+			Block attachedBlock = block.getRelative(a.getAttachedFace());
+			return !attachedBlock.getType().isSolid();
+		} else {
+			return false;
+		}
 	}
 }
