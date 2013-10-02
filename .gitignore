@@ -1,16 +1,18 @@
-# Eclipse stuff                                                                                                                                                
-.classpath                                                                                                                                                    
-.project                                                                                                                                                      
-.settings   
 
-# netbeans                                                                                                                                                     
-/nbproject                                                                                                                                                     
-                                                                                                                                                               
-# we use maven!                                                                                                                                                
-/build.xml                                                                                                                                                     
-                                                                                                                                                               
-# maven                                                                                                                                                        
-target/**/*
+# Eclipse stuff
+.classpath
+.project
+.settings
+
+# netbeans
+/nbproject
+
+# we use maven!
+/build.xml
+
+# maven
+/target
+*/target
 
 # vim
 .*.sw[a-p]
@@ -28,4 +30,4 @@ target/**/*
 *.iml
 *.ipr
 *.iws
-
+/.idea
