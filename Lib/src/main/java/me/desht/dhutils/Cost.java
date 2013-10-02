@@ -19,6 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 import me.desht.dhutils.ExperienceManager;
 import me.desht.dhutils.MiscUtil;
 
+@Deprecated
 public class Cost {
 
 	private static Economy economy = null;
