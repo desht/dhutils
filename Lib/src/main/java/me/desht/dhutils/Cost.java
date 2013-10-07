@@ -20,6 +20,9 @@ import me.desht.dhutils.ExperienceManager;
 import me.desht.dhutils.MiscUtil;
 
 @Deprecated
+/**
+ * @deprecated Use {@link me.desht.dhutils.cost.Cost}
+ */
 public class Cost {
 
 	private static Economy economy = null;
@@ -31,7 +34,7 @@ public class Cost {
 
 	/**
 	 * Construct a new Cost object, charging 1 of the given item ID
-	 * 
+	 *
 	 * @param id	ID of the item to charge, 0 for economy credits
 	 */
 	public Cost(int id) {
@@ -40,7 +43,7 @@ public class Cost {
 
 	/**
 	 * Construct a new Cost object.
-	 * 
+	 *
 	 * @param id	ID of the item to charge, 0 for economy credits
 	 * @param data	Data value of the item, may be null
 	 * @param quantity	Quantity to charge, may be negative
@@ -51,7 +54,7 @@ public class Cost {
 
 	/**
 	 * Construct a new Cost object of the given type.
-	 * 
+	 *
 	 * @param type	Type of cost to apply
 	 * @param id	ID of the item to charge, 0 for economy credits
 	 * @param data	Data value of the item, may be null
@@ -66,7 +69,7 @@ public class Cost {
 
 	/**
 	 * Construct a new Cost object from the given string specification.
-	 * 
+	 *
 	 * @param costSpec	The specification, in the format <i>id[:data],quantity</i>
 	 * @throws IllegalArgumentException if the specification contains an error
 	 */
@@ -259,7 +262,7 @@ public class Cost {
 			}
 			break;
 		case ITEM:
-			if (getQuantity() > 0) 
+			if (getQuantity() > 0)
 				chargeItems(player);
 			else
 				grantItems(player);
@@ -295,7 +298,7 @@ public class Cost {
 
 	/**
 	 * Give items to a player.
-	 * 
+	 *
 	 * @param player
 	 */
 	public void grantItems(Player player) {
@@ -321,7 +324,7 @@ public class Cost {
 	/**
 	 * Take items from a player's inventory.  Doesn't check to see if there is enough -
 	 * use playerCanAfford() for that.
-	 * 
+	 *
 	 * @param player
 	 */
 	public void chargeItems(Player player) {
@@ -410,7 +413,7 @@ public class Cost {
 
 	/**
 	 * Charge a list of costs to the given player.
-	 * 
+	 *
 	 * @param sender	The player to charge
 	 * @param costs		A List of Cost objects
 	 */
@@ -422,7 +425,7 @@ public class Cost {
 
 	/**
 	 * Check if the player can afford to pay the costs.
-	 * 
+	 *
 	 * @param sender
 	 * @param costs
 	 * @return	True if the costs are affordable, false otherwise
@@ -437,7 +440,7 @@ public class Cost {
 
 	/**
 	 * Check if the costs are applicable.
-	 * 
+	 *
 	 * @param sender
 	 * @param costs
 	 * @return
@@ -455,7 +458,7 @@ public class Cost {
 		if (newQuantity < min) {
 			newQuantity = min;
 		} else if (newQuantity > max) {
-			newQuantity = max;	
+			newQuantity = max;
 		}
 		return newQuantity;
 	}
