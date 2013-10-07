@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 public class ItemCost extends Cost {
 	private final Material material;
 	private final short data;
+	private boolean itemsDropped;
 
 	public ItemCost(Material mat, double quantity) {
         this(mat, (short)0, quantity);
@@ -30,6 +31,10 @@ public class ItemCost extends Cost {
 
 	public short getData() {
 		return data;
+	}
+
+	public boolean isItemsDropped() {
+		return itemsDropped;
 	}
 
 	@Override
@@ -80,9 +85,7 @@ public class ItemCost extends Cost {
 		}
 		dropped += addItems(player, quantity);
 
-		if (dropped > 0) {
-			MiscUtil.statusMessage(player, "&6Your inventory is full.  Some items dropped.");
-		}
+		itemsDropped = dropped > 0;
 	}
 
 	private void chargeItems(Player player) {
