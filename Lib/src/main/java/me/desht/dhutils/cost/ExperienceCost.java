@@ -17,12 +17,13 @@ public class ExperienceCost extends Cost {
 
 	@Override
 	public boolean isAffordable(Player player) {
-		return player.getTotalExperience() >= getQuantity();
+		ExperienceManager em = new ExperienceManager(player);
+		return em.getCurrentExp() >= getQuantity();
 	}
 
 	@Override
 	public void apply(Player player) {
 		ExperienceManager em = new ExperienceManager(player);
-		em.changeExp((int) -getQuantity());
+		em.changeExp(-getQuantity());
 	}
 }
