@@ -3,6 +3,7 @@ package me.desht.dhutils;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.entity.Player;
 
 /**
@@ -18,10 +19,9 @@ import org.bukkit.entity.Player;
  * 
  */
 public class ExperienceManager {
-	// this is to stop the lookup tables growing without control
+	// this is to stop the lookup table growing without control
 	private static int hardMaxLevel = 100000;
 
-	private static int xpRequiredForNextLevel[];
 	private static int xpTotalToReachLevel[];
 
 	private final WeakReference<Player> player;
@@ -29,58 +29,54 @@ public class ExperienceManager {
 
 	static {
 		// 25 is an arbitrary value for the initial table size - the actual
-		// value isn't critically important since the tables are resized as needed.
+		// value isn't critically important since the table is resized as needed.
 		initLookupTables(25);
 	}
 
 	/**
 	 * Create a new ExperienceManager for the given player.
 	 * 
-	 * @param player The player for this ExperienceManager object
+	 * @param player the player for this ExperienceManager object
+	 * @throws IllegalArgumentException if the player is null
 	 */
 	public ExperienceManager(Player player) {
-		if (player == null)
-			throw new IllegalArgumentException("Player cannot be null.");
-
+		Validate.notNull(player, "Player cannot be null");
 		this.player = new WeakReference<Player>(player);
 		this.playerName = player.getName();
 	}
 
+	/**
+	 * Get the current hard max level for which calculations will be done.
+	 *
+	 * @return the current hard max level
+	 */
 	public static int getHardMaxLevel() {
 		return hardMaxLevel;
 	}
 
+	/**
+	 * Set the current hard max level for which calculations will be done.
+	 *
+	 * @param hardMaxLevel the new hard max level
+	 */
 	public static void setHardMaxLevel(int hardMaxLevel) {
 		ExperienceManager.hardMaxLevel = hardMaxLevel;
 	}
 
 	/**
-	 * Initialize the XP lookup tables. Basing this on observations noted in
-	 * https://bukkit.atlassian.net/browse/BUKKIT-47
-	 * 
-	 * 7 XP to get to level 1, 17 to level 2, 31 to level 3... At each level,
-	 * the increment to get to the next level increases alternately by 3 and 4
-	 * 
+	 * Initialize the XP lookup table. See http://minecraft.gamepedia.com/Experience
+	 *
 	 * @param maxLevel The highest level handled by the lookup tables
 	 */
 	private static void initLookupTables(int maxLevel) {
-		xpRequiredForNextLevel = new int[maxLevel];
 		xpTotalToReachLevel = new int[maxLevel];
 
-		xpTotalToReachLevel[0] = 0;
-
-		// Valid for MC 1.3 and later
-		int incr = 17;
-		for (int i = 1; i < xpTotalToReachLevel.length; i++) {
-			xpRequiredForNextLevel[i - 1] = incr;
-			xpTotalToReachLevel[i] = xpTotalToReachLevel[i - 1] + incr;
-			if (i >= 30) {
-				incr += 7;
-			} else if (i >= 16) {
-				incr += 3;
-			}
+		for (int i = 0; i < xpTotalToReachLevel.length; i++) {
+			xpTotalToReachLevel[i] = 
+					i >= 30 ? (int) (3.5 * i * i - 151.5 * i + 2220) :
+						i >= 16 ? (int) (1.5 * i * i - 29.5 * i + 360) : 
+							17 * i;
 		}
-		xpRequiredForNextLevel[xpRequiredForNextLevel.length - 1] = incr;
 	}
 
 	/**
@@ -112,7 +108,6 @@ public class ExperienceManager {
 	 */
 	public Player getPlayer() {
 		Player p = player.get();
-
 		if (p == null) {
 			throw new IllegalStateException("Player " + playerName + " is not online");
 		}
@@ -121,7 +116,7 @@ public class ExperienceManager {
 
 	/**
 	 * Adjust the player's XP by the given amount in an intelligent fashion.
-	 * Works around some of the non-intuitive behavior of the basic Bukkit
+	 * Works around some of the non-intuitive behaviour of the basic Bukkit
 	 * player.giveExp() method.
 	 * 
 	 * @param amt Amount of XP, may be negative
@@ -132,7 +127,7 @@ public class ExperienceManager {
 
 	/**
 	 * Adjust the player's XP by the given amount in an intelligent fashion.
-	 * Works around some of the non-intuitive behavior of the basic Bukkit
+	 * Works around some of the non-intuitive behaviour of the basic Bukkit
 	 * player.giveExp() method.
 	 * 
 	 * @param amt Amount of XP, may be negative
@@ -160,10 +155,7 @@ public class ExperienceManager {
 	}
 
 	private void setExp(double base, double amt) {
-		int xp = (int) (base + amt);
-
-		if (xp < 0)
-			xp = 0;
+		int xp = (int) Math.max(base + amt, 0);
 
 		Player player = getPlayer();
 		int curLvl = player.getLevel();
@@ -178,7 +170,7 @@ public class ExperienceManager {
 			player.setTotalExperience(player.getTotalExperience() + xp - (int)base);
 		}
 
-		double pct = (base - getXpForLevel(newLvl) + amt) / (double) (xpRequiredForNextLevel[newLvl]);
+		double pct = (base - getXpForLevel(newLvl) + amt) / (double) (getXpNeededToLevelUp(newLvl));
 		player.setExp((float) pct);
 	}
 
@@ -191,19 +183,20 @@ public class ExperienceManager {
 		Player player = getPlayer();
 
 		int lvl = player.getLevel();
-		int cur = getXpForLevel(lvl) + (int) Math.round(xpRequiredForNextLevel[lvl] * player.getExp());
+		int cur = getXpForLevel(lvl) + (int) Math.round(getXpNeededToLevelUp(lvl) * player.getExp());
 		return cur;
 	}
 
 	/**
 	 * Get the player's current fractional XP.
+	 * 
 	 * @return The player's total XP with fractions.
 	 */
 	private double getCurrentFractionalXP() {
 		Player player = getPlayer();
 
 		int lvl = player.getLevel();
-		double cur = getXpForLevel(lvl) + (double) (xpRequiredForNextLevel[lvl] * player.getExp());
+		double cur = getXpForLevel(lvl) + (double) (getXpNeededToLevelUp(lvl) * player.getExp());
 		return cur;
 	}
 
@@ -230,19 +223,18 @@ public class ExperienceManager {
 	/**
 	 * Get the level that the given amount of XP falls within.
 	 * 
-	 * @param exp The amount to check for.
-	 * @return The level that a player with this amount total XP would be.
+	 * @param exp the amount to check for
+	 * @return the level that a player with this amount total XP would be
+	 * @throws IllegalArgumentException if the given XP is less than 0
 	 */
 	public int getLevelForExp(int exp) {
-		if (exp <= 0)
+		if (exp <= 0) {
 			return 0;
+		}
 		if (exp > xpTotalToReachLevel[xpTotalToReachLevel.length - 1]) {
 			// need to extend the lookup tables
 			int newMax = calculateLevelForExp(exp) * 2;
-			if (newMax > hardMaxLevel) {
-				throw new IllegalArgumentException("Level for exp " + exp + " > hard max level "
-						+ hardMaxLevel);
-			}
+			Validate.isTrue(newMax <= hardMaxLevel, "Level for exp " + exp + " > hard max level " + hardMaxLevel);
 			initLookupTables(newMax);
 		}
 		int pos = Arrays.binarySearch(xpTotalToReachLevel, exp);
@@ -251,16 +243,14 @@ public class ExperienceManager {
 
 	/**
 	 * Retrieves the amount of experience the experience bar can hold at the given level.
-	 * @param level - level to check.
-	 * @return The amount of experience at this level in the level bar.
+	 *
+	 * @param level the level to check
+	 * @return the amount of experience at this level in the level bar
+	 * @throws IllegalArgumentException if the level is less than 0
 	 */
 	public int getXpNeededToLevelUp(int level) {
-		if (level < 0)
-			throw new IllegalArgumentException("Level cannot be negative.");
-
-		// Initialize lookup tables
-		getXpForLevel(level);
-		return xpRequiredForNextLevel[level];
+		Validate.isTrue(level >= 0, "Level may not be negative.");
+		return level > 30 ? 62 + (level - 30) * 7 : level >= 16 ? 17 + (level - 15) * 3 : 17;
 	}
 
 	/**
@@ -268,13 +258,10 @@ public class ExperienceManager {
 	 * 
 	 * @param level The level to check for.
 	 * @return The amount of XP needed for the level.
+	 * @throws IllegalArgumentException if the level is less than 0 or greater than the current hard maximum
 	 */
 	public int getXpForLevel(int level) {
-		if (level > hardMaxLevel) {
-			throw new IllegalArgumentException("Level " + level + " > hard max level "
-					+ hardMaxLevel);
-		}
-
+		Validate.isTrue(level >= 0 && level <= hardMaxLevel, "Invalid level " + level + "(must be in range 0.." + hardMaxLevel + ")");
 		if (level >= xpTotalToReachLevel.length) {
 			initLookupTables(level * 2);
 		}
