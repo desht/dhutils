@@ -53,8 +53,14 @@ public class ItemMessage {
 		this.plugin = plugin;
 	}
 	
+	/**
+	 * set the interval the player will receive packets with the formatted message
+	 * Default is 20 for every second
+	 * @param interval in ticks
+	 * @throws IllegalArgumentException if interval is below 1
+	 */
 	public void setInterval(int interval){
-		Validate.isTrue(interval > 0, "Intervall can't be below 1!");
+		Validate.isTrue(interval > 0, "Interval can't be below 1!");
 		this.interval = interval;
 	}
 	
@@ -62,6 +68,7 @@ public class ItemMessage {
 	 * Set which item the player should held if he receives a message
 	 * without having something in his hand. Default is a snow layer
 	 * @param material
+	 * @throws IllegalArgumentException if material is null
 	 */
 	public void setEmptyHandReplacement(Material material){
 		Validate.notNull(material,"There must be a replacement for an empty hand!");
