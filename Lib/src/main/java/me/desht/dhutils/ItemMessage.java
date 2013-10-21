@@ -40,7 +40,7 @@ public class ItemMessage {
 	private static final String DEF_FORMAT_2 = " %s ";
 	private static final String METADATA_Q_KEY = "item-message:msg-queue";
 	private static final String METADATA_ID_KEY = "item-message:id";
-	private Plugin plugin;
+	private final Plugin plugin;
 
 	private String[] formats = new String[] { DEF_FORMAT_1, DEF_FORMAT_2 };
 	private Material emptyHandReplacement = Material.SNOW;
@@ -58,6 +58,11 @@ public class ItemMessage {
 		this.interval = interval;
 	}
 	
+	/**
+	 * Set which item the player should held if he receives a message
+	 * without having something in his hand. Default is a snow layer
+	 * @param material
+	 */
 	public void setEmptyHandReplacement(Material material){
 		Validate.notNull(material,"There must be a replacement for an empty hand!");
 		this.emptyHandReplacement = material;
@@ -119,10 +124,9 @@ public class ItemMessage {
 	 * @throws IllegalArgumentException if the strings are the same, or do not contain a %s
 	 */
 	public void setFormats(String... formats){
-		Validate.notEmpty(formats,"There have to be more than one format!");
 		Validate.isTrue(formats.length > 1, "Two formats are minimum!");
-		for(String format:formats){
-			Validate.isTrue(format.contains("%s"), "format string \""+format+"\" must contain a %s");
+		for(String format : formats){
+			Validate.isTrue(format.contains("%s"), "format string \"" + format + "\" must contain a %s");
 		}
 		this.formats = formats;
 	}
