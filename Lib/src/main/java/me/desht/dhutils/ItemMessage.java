@@ -33,22 +33,18 @@ import com.comphenix.protocol.events.PacketContainer;
  * where you don't want to clutter up the chat window.
  */
 public class ItemMessage {
-	private static final int INTERVAL = 20;  // ticks
+	private int interval = 20;  // ticks
 	private static final int DEFAULT_DURATION = 2; // seconds
 	private static final int DEFAULT_PRIORITY = 0;
 	private static final String DEF_FORMAT_1 = "%s";
 	private static final String DEF_FORMAT_2 = " %s ";
 	private static final String METADATA_Q_KEY = "item-message:msg-queue";
 	private static final String METADATA_ID_KEY = "item-message:id";
+	private Plugin plugin;
 
-	private final Plugin plugin;
 	private String[] formats = new String[] { DEF_FORMAT_1, DEF_FORMAT_2 };
+	private Material emptyHandReplacement = Material.SNOW;
 
-	/**
-	 * Construct a new ItemMessage object for the given plugin
-	 *
-	 * @param plugin the plugin instance
-	 */
 	public ItemMessage(Plugin plugin) {
 		Plugin p = Bukkit.getPluginManager().getPlugin("ProtocolLib");
 		if (p == null || !p.isEnabled()) {
@@ -56,7 +52,17 @@ public class ItemMessage {
 		}
 		this.plugin = plugin;
 	}
-
+	
+	public void setInterval(int interval){
+		Validate.isTrue(interval > 0, "Intervall can't be below 1!");
+		this.interval = interval;
+	}
+	
+	public void setEmptyHandReplacement(Material material){
+		Validate.notNull(material,"There must be a replacement for an empty hand!");
+		this.emptyHandReplacement = material;
+	}
+	
 	/**
 	 * Send a popup message to the player, with a default duration of 2 seconds and default
 	 * priority level of 0.
@@ -100,7 +106,7 @@ public class ItemMessage {
 				// there was nothing in the queue previously - kick off a NamerTask
 				// (if there was already something in the queue, a new NamerTask will be kicked off
 				//  when the current task completes - see notifyDone())
-				new NamerTask(player, msgQueue.peek()).runTaskTimer(plugin, 1L, INTERVAL);
+				new NamerTask(player, msgQueue.peek()).runTaskTimer(plugin, 1L, interval);
 			}
 		}
 	}
@@ -109,16 +115,16 @@ public class ItemMessage {
 	 * Set the alternating format strings for message display.  The strings must be different
 	 * and must each contain one (and only one) occurrence of '%s'.
 	 *
-	 * @param f1 the first format string
-	 * @param f2 the second format string
+	 * @param formats the format strings
 	 * @throws IllegalArgumentException if the strings are the same, or do not contain a %s
 	 */
-	public void setFormats(String f1, String f2) {
-		Validate.isTrue(!f1.equals(f2), "format strings must be different");
-		Validate.isTrue(f1.contains("%s"), "format string 1 must contain a %s");
-		Validate.isTrue(f2.contains("%s"), "format string 2 must contain a %s");
-		formats[0] = f1;
-		formats[1] = f2;
+	public void setFormats(String... formats){
+		Validate.notEmpty(formats,"There have to be more than one format!");
+		Validate.isTrue(formats.length > 1, "Two formats are minimum!");
+		for(String format:formats){
+			Validate.isTrue(format.contains("%s"), "format string \""+format+"\" must contain a %s");
+		}
+		this.formats = formats;
 	}
 
 	private long getNextId(Player player) {
@@ -151,7 +157,7 @@ public class ItemMessage {
 		msgQueue.poll();
 		if (!msgQueue.isEmpty()) {
 			MessageRecord rec = importOtherMessageRecord(msgQueue.peek());
-			new NamerTask(player, rec).runTaskTimer(plugin, 1L, INTERVAL);
+			new NamerTask(player, rec).runTaskTimer(plugin, 1L, interval);
 		}
 	}
 
@@ -196,7 +202,7 @@ public class ItemMessage {
 
 		public NamerTask(Player player, MessageRecord rec) {
 			this.playerRef = new WeakReference<Player>(player);
-			this.iterations = Math.max(1, (rec.getDuration() * 20) / INTERVAL);
+			this.iterations = Math.max(1, (rec.getDuration() * 20) / interval);
 			this.slot = player.getInventory().getHeldItemSlot();
 			this.message = rec.getMessage();
 			Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -259,13 +265,13 @@ public class ItemMessage {
 			if (stack0 == null || stack0.getType() == Material.AIR) {
 				// an empty slot can't display any custom item name, so we need to fake an item
 				// a snow layer is a good choice, since it's visually quite unobtrusive
-				stack = new ItemStack(Material.SNOW, 1);
+				stack = new ItemStack(emptyHandReplacement, 1);
 			} else {
 				stack = new ItemStack(stack0.getType(), stack0.getAmount(), stack0.getDurability());
 			}
 			ItemMeta meta = Bukkit.getItemFactory().getItemMeta(stack.getType());
 			// fool the client into thinking the item name has changed, so it actually (re)displays it
-			meta.setDisplayName(String.format(formats[iterations % 2], message));
+			meta.setDisplayName(String.format(formats[iterations % formats.length], message));
 			stack.setItemMeta(meta);
 			return stack;
 		}
