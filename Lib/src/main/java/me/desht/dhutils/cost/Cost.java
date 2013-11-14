@@ -32,7 +32,7 @@ public abstract class Cost {
 		double q = itemAndQuantity.length < 2 ? 1.0 : Double.parseDouble(itemAndQuantity[1]);
 
 		String[] typeAndData = itemAndQuantity[0].split(":");
-		Validate.isTrue(typeAndData.length >= 1 && typeAndData.length <= 2, "cost: item format must be <id[:data]>");
+		Validate.isTrue(typeAndData.length >= 1 && typeAndData.length <= 2, "cost: item format must be <material[:data]>");
 		String costType = typeAndData[0].toUpperCase();
 		short data = typeAndData.length == 2 ? Short.parseShort(typeAndData[1]) : 0;
 
