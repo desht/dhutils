@@ -26,8 +26,8 @@
 
   <licenses>
     <license>
-      <name>GNU GENERAL PUBLIC LICENSE - Version 2, June 1991</name>
-      <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+      <name>GNU LESSER GENERAL PUBLIC LICENSE - Version 3, 29 June 2007</name>
+      <url>http://www.gnu.org/licenses/lgpl.html</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
