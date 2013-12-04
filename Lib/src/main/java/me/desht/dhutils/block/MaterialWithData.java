@@ -9,8 +9,10 @@ import me.desht.dhutils.LogUtils;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.SkullType;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.Skull;
 import org.bukkit.inventory.ItemStack;
 
 import com.google.common.base.Joiner;
@@ -19,9 +21,9 @@ public class MaterialWithData implements Cloneable {
 
 	private final static Map<String, MaterialWithData> materialCache = new HashMap<String, MaterialWithData>();
 
-	final int matId;
-	final short data;
-	final String[] metadata; // e.g. sign text
+	private final int matId;
+	private final short data;
+	private final String[] metadata; // e.g. sign text
 
 	private MaterialWithData(int matId, short data) {
 		this.matId = matId;
@@ -68,7 +70,7 @@ public class MaterialWithData implements Cloneable {
 		} else {
 			if (matAndData[1].matches("^[0-9]+$")) {
 				data = Short.parseShort(matAndData[1]);
-			} else if (matId == Material.WOOL.getId()) {
+			} else if (matId == Material.WOOL.getId() || matId == Material.CARPET.getId() || matId == Material.STAINED_CLAY.getId() || matId == 95) {
 				// First look for the dye color string in the WorldEdit ClothColor class
 				// and if that fails, check for a Bukkit DyeColor
 				// and if that fails, just throw an IllegalArgumentException
@@ -91,40 +93,38 @@ public class MaterialWithData implements Cloneable {
 	/**
 	 * Get a MaterialData object from a String specification. The specification is a string or numeric Material name,
 	 * optionally followed by a colon (:) and a numeric data byte.
-	 * 
-	 * @param spec
-	 *            The specification
+	 *
+	 * @param spec the specification
 	 * @return The MaterialWithData object
-	 * @throws IllegalArgumentException
-	 *             if the specification is invalid
+	 * @throws IllegalArgumentException if the specification is invalid
 	 */
 	@FactoryMethod
 	public static MaterialWithData get(String spec) {
-		spec = spec.toLowerCase();
-		if (!materialCache.containsKey(spec)) {
+		String key = spec.toLowerCase();
+		if (materialCache.containsKey(key)) {
+			return materialCache.get(key);
+		} else {
 			MaterialWithData mat = new MaterialWithData(spec);
-			materialCache.put(spec, mat);
+			materialCache.put(key, mat);
+			return mat;
 		}
-		return materialCache.get(spec);
 	}
 
-	/**
-	 * Get a MaterialData from a numeric ID and data byte, and extra material-dependent metadata (e.g. the text on a
-	 * sign).
-	 * 
-	 * @param id
-	 *            material ID
-	 * @param data
-	 *            material data byte
-	 * @param metadata
-	 *            list of Strings representing extra data for this object
-	 * @return The MaterialWithData object
-	 */
+
 	@Deprecated
 	public static MaterialWithData get(int id, byte data, String[] metadata) {
 		return get(id, (short)data, metadata);
 	}
-	
+
+	/**
+	 * Get a MaterialData from a numeric ID and data byte, and extra material-dependent (tile entity) data
+	 * (e.g. the text on a sign).
+	 *
+	 * @param id material ID
+	 * @param data material metadata
+	 * @param metadata list of Strings representing extra data for this object
+	 * @return the MaterialWithData object
+	 */
 	public static MaterialWithData get(int id, short data, String[] metadata) {
 		String key = metadata == null ? String.format("%d:%d", id, data) : String.format("%d:%d=%s", id, data, Joiner.on(";").join(metadata));
 		return get(key);
@@ -132,33 +132,29 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Get a MaterialData from a numeric ID and data byte.
-	 * 
-	 * @param id
-	 *            the material ID
-	 * @param data
-	 *            the material data byte
-	 * @return The MaterialWithData object
+	 *
+	 * @param id the material ID
+	 * @param data the material data byte
+	 * @return the MaterialWithData object
 	 */
 	@Deprecated
 	public static MaterialWithData get(int id, byte data) {
 		return get(String.format("%d:%d", id, data));
 	}
-	
+
 	public static MaterialWithData get(int id, short data) {
 		return get(String.format("%d:%d", id, data));
 	}
-	
 
 	public static MaterialWithData get(Block b) {
 		return get(String.format("%d:%d", b.getTypeId(), (short)b.getData()));
 	}
-	
+
 	/**
 	 * Get a MaterialData from a numeric ID. The data byte will be 0.
-	 * 
-	 * @param id
-	 *            the material ID
-	 * @return The MaterialWithData object
+	 *
+	 * @param id the material ID
+	 * @return the MaterialWithData object
 	 */
 	public static MaterialWithData get(int id) {
 		return get(String.format("%d:%d", id, 0));
@@ -166,7 +162,7 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Get the data byte for this MaterialWithData object
-	 * 
+	 *
 	 * @return the material data byte
 	 */
 	public short getData() {
@@ -175,7 +171,7 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Get the material ID for this MaterialWithData object
-	 * 
+	 *
 	 * @return the material ID
 	 */
 	public int getId() {
@@ -184,7 +180,7 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Get the extra data for this MaterialWithData object
-	 * 
+	 *
 	 * @return list of Strings representing extra data for this object
 	 */
 	public String[] getText() {
@@ -193,7 +189,7 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Get the Bukkit Material for this MaterialWithData object
-	 * 
+	 *
 	 * @return the Bukkit Material object
 	 */
 	public Material getBukkitMaterial() {
@@ -202,7 +198,7 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Return an item stack of this material.
-	 * 
+	 *
 	 * @return
 	 */
 	public ItemStack makeItemStack() {
@@ -219,7 +215,7 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Get a rotated version of this MaterialData by altering the data byte appropriately.
-	 * 
+	 *
 	 * @param rotation
 	 *            The rotation in degrees; must be one of 90, 180 or 270 (any other value will return the original
 	 *            material unchanged)
@@ -244,63 +240,51 @@ public class MaterialWithData implements Cloneable {
 
 	/**
 	 * Apply this MaterialWithData to the given block.
-	 * 
-	 * @param b
-	 *            The block to apply the material to
+	 *
+	 * @param b the block to apply the material to
 	 */
 	public void applyToBlock(Block b) {
 		b.setTypeIdAndData(matId, (byte)data, false);
-		if (metadata != null && (matId == 63 || matId == 68)) {
-			// updating a wall sign or floor sign, with text
-			Sign sign = (Sign) b.getState().getData();
-			for (int i = 0; i < 4; i++) {
-				sign.setLine(i, metadata[i]);
-			}
-			sign.update();
-		}
+		applyTileEntityData(b);
 	}
 
 	/**
-	 * Apply this MaterialWithData to the given block.
-	 * 
-	 * @param b
-	 *            The block to apply the material to
+	 * Apply this MaterialWithData to the given block with fast MBU
+	 *
+	 * @param b the block to apply the material to
+	 * @param mbu the MBU object
 	 */
 	public void applyToBlock(Block b, MassBlockUpdate mbu) {
 		mbu.setBlock(b.getX(), b.getY(), b.getZ(), matId, data);
-		if (metadata != null && (matId == 63 || matId == 68)) {
-			// updating a wall sign or floor sign, with text
-			Sign sign = (Sign) b.getState().getData();
-			for (int i = 0; i < 4; i++) {
-				sign.setLine(i, metadata[i]);
+		applyTileEntityData(b);
+	}
+
+	private void applyTileEntityData(Block b) {
+		if (metadata != null) {
+			if (matId == 63 || matId == 68) {
+				// updating a wall sign or floor sign, with text
+				Sign sign = (Sign) b.getState().getData();
+				for (int i = 0; i < metadata.length && i < 4; i++) {
+					sign.setLine(i, metadata[i]);
+				}
+				sign.update();
+			} else if (matId == 144) {
+				// updating a mob head with extra info
+				Skull skull = (Skull) b.getState();
+				if (metadata[0].startsWith("*")) {
+					skull.setSkullType(SkullType.valueOf(metadata[0].substring(1).toUpperCase()));
+				} else {
+					skull.setSkullType(SkullType.PLAYER);
+					skull.setOwner(metadata[0]);
+				}
+				skull.update();
 			}
-			sign.update();
 		}
 	}
 
-//	/**
-//	 * Apply this MaterialWithData to all the blocks within the given Cuboid using fast MBU calls.
-//	 * 
-//	 * @param c the Cuboid to fill
-//	 * @param mbu the MassBlockUpdate object to control fast block updating
-//	 */
-//	public void applyToCuboid(Cuboid c, MassBlockUpdate mbu) {
-//		c.fill(matId, (byte)data, mbu);
-//		mbu.notifyClients();
-//	}
-//
-//	/**
-//	 * Apply this MaterialWithData to all the blocks within the given Cuboid.
-//	 * 
-//	 * @param c the Cuboid to fill
-//	 */
-//	public void applyToCuboid(Cuboid c) {
-//		c.fill(matId, (byte)data);
-//	}
-
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -318,7 +302,7 @@ public class MaterialWithData implements Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -328,7 +312,7 @@ public class MaterialWithData implements Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -342,7 +326,7 @@ public class MaterialWithData implements Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
