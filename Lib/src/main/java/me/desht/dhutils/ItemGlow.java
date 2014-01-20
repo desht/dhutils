@@ -14,7 +14,7 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 
 /**
- * Use ProtocolLib to a glow to unenchanted items.  With thanks to Comphenix; see
+ * Use ProtocolLib to add a glow to unenchanted items.  With thanks to Comphenix; see
  * https://gist.github.com/aadnk/4580551
  */
 public class ItemGlow {
@@ -54,7 +54,10 @@ public class ItemGlow {
 			throw new IllegalStateException("ItemGlow system has not been initialised.  Call ItemGlow.init(plugin) first.");
 		}
 		if (glowing) {
-			stack.addUnsafeEnchantment(GLOW_FLAG, GLOW_FLAG_LEVEL);
+			// if the item already has a real enchantment, let's not overwrite it!
+			if (!stack.getItemMeta().hasEnchant(GLOW_FLAG)) {
+				stack.addUnsafeEnchantment(GLOW_FLAG, GLOW_FLAG_LEVEL);
+			}
 		} else if (stack.getEnchantmentLevel(GLOW_FLAG) == GLOW_FLAG_LEVEL) {
 			stack.removeEnchantment(GLOW_FLAG);
 		}
