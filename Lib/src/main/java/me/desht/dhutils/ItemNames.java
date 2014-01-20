@@ -3,6 +3,9 @@ package me.desht.dhutils;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.WordUtils;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -147,7 +150,7 @@ public class ItemNames {
 		map.put("92", "Cake (Block)");
 		map.put("93", "Redstone Repeater (Block Off)");
 		map.put("94", "Redstone Repeater (Block On)");
-		map.put("95", "Locked Chest");
+		map.put("95", "Stained Glass");
 		map.put("96", "Trapdoor");
 		map.put("97", "Silverfish Stone");
 		map.put("98", "Stone Bricks");
@@ -214,10 +217,20 @@ public class ItemNames {
 		map.put("157", "Activator Rail");
 		map.put("158", "Dropper");
 		map.put("159", "Stained Clay");
+		map.put("160", "Stained Glass Pane");
+		map.put("161:1", "Acacia Leaves");
+		map.put("161:2", "Dark Oak Leaves");
+		map.put("162:1", "Acacia Wood");
+		map.put("162:2", "Dark Oak Wood");
+		map.put("163", "Acacia Wood Stairs");
+		map.put("164", "Dark Oak Wood Stairs");
+		map.put("165", "Slime Block");
 		map.put("170", "Hay Block");
 		map.put("171", "Carpet");
 		map.put("172", "Hardened Clay");
 		map.put("173", "Block of Coal");
+		map.put("174", "Packed Ice");
+		map.put("175", "Large Flowers");
 		// Items
 		map.put("256", "Iron Shovel");
 		map.put("257", "Iron Pickaxe");
@@ -465,7 +478,11 @@ public class ItemNames {
 			}
 		} else {
 			String key;
-			if (is.getDurability() != 0) {
+			Material mat = is.getType();
+			if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
+				DyeColor dc = DyeColor.getByWoolData((byte)is.getDurability());
+				result = WordUtils.capitalizeFully(dc.toString()) + " " + map.get(Integer.toString(is.getTypeId()));
+			} else if (is.getDurability() != 0) {
 				key = String.format("%d:%d", is.getTypeId(), is.getDurability());
 				if (map.containsKey(key)) {
 					result = map.get(key);
