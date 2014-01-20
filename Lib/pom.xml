@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dhutils-lib</artifactId>
-    <version>2.9.2-SNAPSHOT</version>
+    <version>2.9.3-SNAPSHOT</version>
     <name>DH Utils Library</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -137,6 +137,13 @@
             <groupId>me.desht</groupId>
             <artifactId>dhutils-v1_7_R1</artifactId>
             <version>v1_7_R1</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>me.desht</groupId>
+            <artifactId>dhutils-fallback</artifactId>
+            <version>fallback</version>
             <type>jar</type>
             <optional>true</optional>
         </dependency>
