@@ -51,6 +51,14 @@ public class PersistableLocation implements ConfigurationSerializable {
 		this.pitch = this.yaw = 0.0f;
 	}
 
+	public PersistableLocation(String worldName, int x, int y, int z) {
+		this.worldName = worldName;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.pitch = this.yaw = 0.0f;
+	}
+
 	public String getWorldName() {
 		return worldName;
 	}
