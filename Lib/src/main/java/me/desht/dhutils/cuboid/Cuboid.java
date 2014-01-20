@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
@@ -655,7 +656,27 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 				}
 			}
 		}
-		LogUtils.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
+		Debugger.getInstance().debug(2, "Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
+	}
+
+	/**
+	 * Reset the light level of all blocks within this Cuboid.
+	 */
+	public void resetLightLevel() {
+		long start = System.nanoTime();
+		NMSAbstraction nms = NMSHelper.getNMS();
+		if (nms == null) {
+			return;
+		}
+		World world = getWorld();
+		for (int x = getLowerX(); x < getUpperX(); x++) {
+			for (int z = getLowerZ(); z < getUpperZ(); z++) {
+				for (int y = getLowerY(); y < getUpperY(); y++) {
+					nms.recalculateBlockLighting(world, x, y, z);
+				}
+			}
+		}
+		Debugger.getInstance().debug(2, "Cuboid: resetLightLevel: " + this + " in " + (System.nanoTime() - start) + " ns");
 	}
 
 	/* (non-Javadoc)
