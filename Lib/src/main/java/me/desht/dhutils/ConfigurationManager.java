@@ -23,6 +23,7 @@ public class ConfigurationManager {
 
 	private ConfigurationListener listener;
 	private String prefix;
+	private boolean validate = true;
 
 	public ConfigurationManager(Plugin plugin, ConfigurationListener listener) {
 		this.plugin = plugin;
@@ -47,6 +48,14 @@ public class ConfigurationManager {
 		this.listener = null;
 		this.config = config;
 		this.descConfig = new MemoryConfiguration();
+	}
+
+	public boolean isValidate() {
+		return validate;
+	}
+
+	public void setValidate(boolean validate) {
+		this.validate = validate;
 	}
 
 	public Plugin getPlugin() {
@@ -238,7 +247,7 @@ public class ConfigurationManager {
 		}
 
 		if (processedVal != null || val == null) {
-			if (listener != null) {
+			if (listener != null && validate) {
 				listener.onConfigurationValidate(this, key, get(key), processedVal);
 			}
 			config.set(addPrefix(key), processedVal);
@@ -255,7 +264,7 @@ public class ConfigurationManager {
 		if (!(config.getDefaults().get(keyPrefixed) instanceof List<?>)) {
 			throw new DHUtilsException("Key '" + key + "' does not accept a list of values");
 		}
-		if (listener != null) {
+		if (listener != null && validate) {
 			listener.onConfigurationValidate(this, key, get(key), list);
 		}
 		config.set(addPrefix(key), handleListValue(key, list));
