@@ -27,6 +27,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Vector;
 
 public class MiscUtil {
 	private static Map<String, ChatColor> prevColours = new HashMap<String, ChatColor>();
@@ -160,7 +161,7 @@ public class MiscUtil {
 	}
 
 	/**
-	 * Split the given string, but ensure single & double quoted sections of the string are 
+	 * Split the given string, but ensure single & double quoted sections of the string are
 	 * kept together.
 	 * <p>
 	 * E.g. the String 'one "two three" four' will be split into [ "one", "two three", "four" ]
@@ -220,7 +221,7 @@ public class MiscUtil {
 	/**
 	 * Get a list of all files in the given JAR (or ZIP) file within the given path, and with the
 	 * given extension.
-	 * 
+	 *
 	 * @param jarFile	the JAR file to search
 	 * @param path	the path within the JAR file to search
 	 * @param ext	desired extension, may be null
@@ -245,13 +246,13 @@ public class MiscUtil {
 
 	/**
 	 * Load a YAML file, enforcing UTF-8 encoding, and get the YAML configuration from it.
-	 * 
+	 *
 	 * @param file the file to load
 	 * @return the YAML configuration from that file
 	 * @throws InvalidConfigurationException
 	 * @throws IOException
 	 */
-	public static YamlConfiguration loadYamlUTF8(File file) throws InvalidConfigurationException, IOException {		
+	public static YamlConfiguration loadYamlUTF8(File file) throws InvalidConfigurationException, IOException {
 		StringBuilder sb = new StringBuilder((int) file.length());
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
@@ -267,4 +268,5 @@ public class MiscUtil {
 
 		return yaml;
 	}
+
 }
