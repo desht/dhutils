@@ -210,7 +210,7 @@ public class ItemNames {
 		map.put("137", "Command Block");
 		map.put("138", "Beacon Block");
 		map.put("139", "Cobblestone Wall");
-		map.put("139", "Mossy Cobblestone Wall");
+		map.put("139:1", "Mossy Cobblestone Wall");
 		map.put("140", "Flower Pot");
 		map.put("141", "Carrots");
 		map.put("142", "Potatoes");
