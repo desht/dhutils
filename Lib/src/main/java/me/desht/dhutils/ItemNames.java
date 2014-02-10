@@ -26,10 +26,14 @@ public class ItemNames {
 		map.put("5:1", "Spruce Wood Planks");
 		map.put("5:2", "Birch Wood Planks");
 		map.put("5:3", "Jungle Wood Planks");
+		map.put("5:4", "Acacia Wood Planks");
+		map.put("5:5", "Dark Oak Wood Planks");
 		map.put("6", "Oak Sapling");
 		map.put("6:1", "Spruce Sapling");
 		map.put("6:2", "Birch Sapling");
 		map.put("6:3", "Jungle Sapling");
+		map.put("6:4", "Acacia Sapling");
+		map.put("6:5", "Dark Oak Sapling");
 		map.put("7", "Bedrock");
 		map.put("8", "Water (No Spread)");
 		map.put("9", "Water");
@@ -54,6 +58,8 @@ public class ItemNames {
 		map.put("22", "Lapis Lazuli Block");
 		map.put("23", "Dispenser");
 		map.put("24", "Sandstone");
+		map.put("24:1", "Chiseled Sandstone");
+		map.put("24:2", "Smooth Sandstone");
 		map.put("25", "Note Block");
 		map.put("26", "Bed");
 		map.put("27", "Powered Rail");
@@ -86,8 +92,8 @@ public class ItemNames {
 		map.put("38", "Rose");
 		map.put("39", "Brown Mushroom");
 		map.put("40", "Red Mushroom");
-		map.put("41", "Block of Gold");
-		map.put("42", "Block of Iron");
+		map.put("41", "Gold Block");
+		map.put("42", "Iron Block");
 		map.put("43", "Stone Slab (Double)");
 		map.put("43:1", "Sandstone Slab (Double)");
 		map.put("43:2", "Wooden Slab (Double)");
@@ -100,6 +106,8 @@ public class ItemNames {
 		map.put("44:3", "Cobblestone Slab");
 		map.put("44:4", "Brick Slab");
 		map.put("44:5", "Stone Brick Slab");
+		map.put("44:6", "Nether Brick Slab");
+		map.put("44:7", "Quartz Slab");
 		map.put("45", "Brick");
 		map.put("46", "TNT");
 		map.put("47", "Bookcase");
@@ -112,8 +120,8 @@ public class ItemNames {
 		map.put("54", "Chest");
 		map.put("55", "Redstone Wire");
 		map.put("56", "Diamond Ore");
-		map.put("57", "Block of Diamond");
-		map.put("58", "Workbench");
+		map.put("57", "Diamond Block");
+		map.put("58", "Crafting Table");
 		map.put("59", "Wheat (Crop)");
 		map.put("60", "Farmland");
 		map.put("61", "Furnace");
@@ -125,14 +133,14 @@ public class ItemNames {
 		map.put("67", "Stone Stairs");
 		map.put("68", "Sign (Wall Block)");
 		map.put("69", "Lever");
-		map.put("70", "Stone Pressure Plate");
+		map.put("70", "Pressure Plate");
 		map.put("71", "Iron Door (Block)");
-		map.put("72", "Wooden Pressure Plate");
+		map.put("72", "Pressure Plate");
 		map.put("73", "Redstone Ore");
 		map.put("74", "Redstone Ore (Glowing)");
 		map.put("75", "Redstone Torch (Off)");
 		map.put("76", "Redstone Torch");
-		map.put("77", "Stone Button");
+		map.put("77", "Button");
 		map.put("78", "Snow");
 		map.put("79", "Ice");
 		map.put("80", "Snow Block");
@@ -183,24 +191,30 @@ public class ItemNames {
 		map.put("123", "Redstone Lamp (Inactive)");
 		map.put("124", "Redstone Lamp (Active)");
 		map.put("125", "Double Wood Slab");
-		map.put("126", "Wood Slab");
+		map.put("126", "Oak Wood Slab");
+		map.put("126:1", "Spruce Wood Slab");
+		map.put("126:2", "Birch Slab");
+		map.put("126:3", "Jungle Slab");
+		map.put("126:4", "Acacia Wood Slab");
+		map.put("126:5", "Dark Oak Wood Slab");
 		map.put("127", "Cocoa Plant");
 		map.put("128", "Sandstone Stairs");
 		map.put("129", "Emerald Ore");
 		map.put("130", "Ender Chest");
 		map.put("131", "Tripwire Hook");
 		map.put("132", "Tripwire");
-		map.put("133", "Block of Emerald");
+		map.put("133", "Emerald Block");
 		map.put("134", "Spruce Wood Stairs");
 		map.put("135", "Birch Wood Stairs");
 		map.put("136", "Jungle Wood Stairs");
 		map.put("137", "Command Block");
 		map.put("138", "Beacon Block");
 		map.put("139", "Cobblestone Wall");
+		map.put("139", "Mossy Cobblestone Wall");
 		map.put("140", "Flower Pot");
 		map.put("141", "Carrots");
 		map.put("142", "Potatoes");
-		map.put("143", "Wooden Button");
+		map.put("143", "Button");
 		map.put("144", "Head");
 		map.put("145", "Anvil");
 		map.put("146", "Trapped Chest");
@@ -209,10 +223,14 @@ public class ItemNames {
 		map.put("149", "Redstone Comparator (inactive)");
 		map.put("150", "Redstone Comparator (active)");
 		map.put("151", "Daylight Sensor");
-		map.put("152", "Block of Redstone");
+		map.put("152", "Redstone Block");
 		map.put("153", "Nether Quartz Ore");
 		map.put("154", "Hopper");
-		map.put("155", "Block of Quartz");
+		map.put("155", "Quartz Block");
+		map.put("155:1", "Chiseled Quartz Block");
+		map.put("155:2", "Pillar Quartz Block");
+		map.put("155:3", "Pillar Quartz Block");
+		map.put("155:4", "Pillar Quartz Block");
 		map.put("156", "Quartz Stairs");
 		map.put("157", "Activator Rail");
 		map.put("158", "Dropper");
@@ -313,7 +331,7 @@ public class ItemNames {
 		map.put("333", "Boat");
 		map.put("334", "Leather");
 		map.put("335", "Milk Bucket");
-		map.put("336", "Clay Brick");
+		map.put("336", "Brick");
 		map.put("337", "Clay");
 		map.put("338", "Sugar Cane");
 		map.put("339", "Paper");
@@ -324,10 +342,14 @@ public class ItemNames {
 		map.put("344", "Egg");
 		map.put("345", "Compass");
 		map.put("346", "Fishing Rod");
-		map.put("347", "Clock");
+		map.put("347", "Watch");
 		map.put("348", "Glowstone Dust");
 		map.put("349", "Raw Fish");
+		map.put("349:1", "Raw Salmon");
+		map.put("349:2", "Clownfish");
+		map.put("349:3", "Pufferfish");
 		map.put("350", "Cooked Fish");
+		map.put("350:1", "Cooked Salmon");
 		map.put("351", "Ink Sack");
 		map.put("351:1", "Rose Red Dye");
 		map.put("351:2", "Cactus Green Dye");
@@ -356,9 +378,9 @@ public class ItemNames {
 		map.put("361", "Pumpkin Seeds");
 		map.put("362", "Melon Seeds");
 		map.put("363", "Raw Beef");
-		map.put("364", "Steak");
+		map.put("364", "Cooked Steak");
 		map.put("365", "Raw Chicken");
-		map.put("366", "Cooked Chicken");
+		map.put("366", "Roast Chicken");
 		map.put("367", "Rotten Flesh");
 		map.put("368", "Ender Pearl");
 		map.put("369", "Blaze Rod");
@@ -477,20 +499,23 @@ public class ItemNames {
 				result = ((BookMeta)meta).getTitle();
 			}
 		} else {
-			String key;
+			String key = Integer.toString(is.getTypeId());
 			Material mat = is.getType();
-			if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
+			if ((mat == Material.WOOL || mat == Material.CARPET) && is.getDurability() == 0) {
+				// white wool/carpet is just called "Wool" or "Carpet"
+				result = map.get(key);
+			} else if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
 				DyeColor dc = DyeColor.getByWoolData((byte)is.getDurability());
-				result = WordUtils.capitalizeFully(dc.toString()) + " " + map.get(Integer.toString(is.getTypeId()));
+				result = WordUtils.capitalizeFully(dc.toString()) + " " + map.get(key);
 			} else if (is.getDurability() != 0) {
-				key = String.format("%d:%d", is.getTypeId(), is.getDurability());
-				if (map.containsKey(key)) {
-					result = map.get(key);
+				String key2 = key + ":" + is.getDurability();
+				if (map.containsKey(key2)) {
+					result = map.get(key2);
 				} else {
-					result = map.get(Integer.toString(is.getTypeId()));
+					result = map.get(key);
 				}
 			} else {
-				result = map.get(Integer.toString(is.getTypeId()));
+				result = map.containsKey(key) ? map.get(key) : is.getType().toString();
 			}
 		}
 		return result;
