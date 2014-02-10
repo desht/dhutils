@@ -119,7 +119,7 @@ public class MiscUtil {
 			int x = Integer.parseInt(args[0]);
 			int y = Integer.parseInt(args[1]);
 			int z = Integer.parseInt(args[2]);
-			World w = (sender instanceof Player) ? findWorld(args[3]) : ((Player)sender).getWorld();
+			World w = (sender instanceof Player) ? ((Player)sender).getWorld() : findWorld(args[3]);
 			return new Location(w, x, y, z);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
