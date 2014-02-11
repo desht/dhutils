@@ -494,30 +494,31 @@ public class ItemNames {
 		if (is.hasItemMeta()) {
 			ItemMeta meta = is.getItemMeta();
 			if (meta.getDisplayName() != null) {
-				result = meta.getDisplayName();
+				return meta.getDisplayName();
 			} else if (meta instanceof BookMeta) {
-				result = ((BookMeta)meta).getTitle();
-			}
-		} else {
-			String key = Integer.toString(is.getTypeId());
-			Material mat = is.getType();
-			if ((mat == Material.WOOL || mat == Material.CARPET) && is.getDurability() == 0) {
-				// white wool/carpet is just called "Wool" or "Carpet"
-				result = map.get(key);
-			} else if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
-				DyeColor dc = DyeColor.getByWoolData((byte)is.getDurability());
-				result = WordUtils.capitalizeFully(dc.toString()) + " " + map.get(key);
-			} else if (is.getDurability() != 0) {
-				String key2 = key + ":" + is.getDurability();
-				if (map.containsKey(key2)) {
-					result = map.get(key2);
-				} else {
-					result = map.get(key);
-				}
-			} else {
-				result = map.containsKey(key) ? map.get(key) : is.getType().toString();
+				return ((BookMeta)meta).getTitle();
 			}
 		}
+
+		String key = Integer.toString(is.getTypeId());
+		Material mat = is.getType();
+		if ((mat == Material.WOOL || mat == Material.CARPET) && is.getDurability() == 0) {
+			// special case: white wool/carpet is just called "Wool" or "Carpet"
+			result = map.get(key);
+		} else if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
+			DyeColor dc = DyeColor.getByWoolData((byte)is.getDurability());
+			result = WordUtils.capitalizeFully(dc.toString()) + " " + map.get(key);
+		} else if (is.getDurability() != 0) {
+			String key2 = key + ":" + is.getDurability();
+			if (map.containsKey(key2)) {
+				result = map.get(key2);
+			} else {
+				result = map.get(key);
+			}
+		} else {
+			result = map.containsKey(key) ? map.get(key) : is.getType().toString();
+		}
+
 		return result;
 	}
 }
