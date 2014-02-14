@@ -19,8 +19,16 @@ public class ItemNames {
 	static {
 		// Blocks
 		map.put("1", "Stone");
+		map.put("1:1", "Granite");
+		map.put("1:2", "Polished Granite");
+		map.put("1:3", "Diorite");
+		map.put("1:4", "Polished Diorite");
+		map.put("1:5", "Andesite");
+		map.put("1:4", "Polished Andesite");
 		map.put("2", "Grass Block");
 		map.put("3", "Dirt");
+		map.put("3:1", "Grassless Dirt");
+		map.put("3:2", "Podzol");
 		map.put("4", "Cobblestone");
 		map.put("5", "Oak Wood Planks");
 		map.put("5:1", "Spruce Wood Planks");
@@ -243,6 +251,7 @@ public class ItemNames {
 		map.put("163", "Acacia Wood Stairs");
 		map.put("164", "Dark Oak Wood Stairs");
 		map.put("165", "Slime Block");
+		map.put("166", "Barrier");
 		map.put("170", "Hay Block");
 		map.put("171", "Carpet");
 		map.put("172", "Hardened Clay");
