@@ -219,7 +219,7 @@ public abstract class AbstractCommand implements Comparable<AbstractCommand> {
 		return usage;
 	}
 
-	protected void setOptions(String[] optSpec) {
+	protected void setOptions(String... optSpec) {
 		for (String opt : optSpec) {
 			String[] parts = opt.split(":");
 			if (parts.length == 1) {
@@ -232,10 +232,6 @@ public abstract class AbstractCommand implements Comparable<AbstractCommand> {
 				options.put(parts[0], OptType.STRING);
 			}
 		}
-	}
-
-	protected void setOptions(String optSpec) {
-		setOptions(optSpec.split(","));
 	}
 
 	protected String getPermissionNode() {
