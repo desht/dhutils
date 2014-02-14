@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
@@ -103,7 +104,7 @@ public abstract class AbstractCommand implements Comparable<AbstractCommand> {
 			} else {
 				nArgs = args.length - rec.subCommands.length;
 			}
-			LogUtils.finest(String.format("matchesArgCount: %s, nArgs=%d min=%d max=%d", label, nArgs, minArgs, maxArgs));
+			Debugger.getInstance().debug(3, String.format("matchesArgCount: %s, nArgs=%d min=%d max=%d", label, nArgs, minArgs, maxArgs));
 			if (nArgs >= minArgs && nArgs <= maxArgs) {
 				storeMatchedArgs(args, rec);
 				return true;

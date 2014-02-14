@@ -6,11 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import me.desht.dhutils.ClassEnumerator;
-import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.*;
 import me.desht.dhutils.commands.AbstractCommand.CommandRecord;
 
 import org.bukkit.Sound;
@@ -32,7 +28,7 @@ public class CommandManager {
 	}
 
 	public void registerCommand(AbstractCommand cmd) {
-		LogUtils.finer("register command: " + cmd.getClass().getName());
+		Debugger.getInstance().debug(2, "register command: " + cmd.getClass().getName());
 		cmdList.add(cmd);
 	}
 
@@ -100,8 +96,8 @@ public class CommandManager {
 	}
 
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-		LogUtils.fine("tab complete: sender=" + sender.getName() + ", cmd=" + command.getName() +
-		              ", label=" + label + ", args=[" + Joiner.on(",").join(args) + "]");
+		Debugger.getInstance().debug("tab complete: sender=" + sender.getName() + ", cmd=" + command.getName() +
+				", label=" + label + ", args=[" + Joiner.on(",").join(args) + "]");
 
 		List<AbstractCommand> possibleMatches = getPossibleMatches(command.getName(), args, true);
 
@@ -109,7 +105,7 @@ public class CommandManager {
 			return noCompletions(sender);
 		} else if (possibleMatches.size() == 1 && args.length > possibleMatches.get(0).getMatchedCommand().size()) {
 			// tab completion to be done by the command itself
-			LogUtils.fine("tab complete: pass to command: " + possibleMatches.get(0).getMatchedCommand());
+			Debugger.getInstance().debug("tab complete: pass to command: " + possibleMatches.get(0).getMatchedCommand());
 			int from = possibleMatches.get(0).getMatchedCommand().size();
 			try {
 				return possibleMatches.get(0).onTabComplete(plugin, sender, subRange(args, from));
@@ -124,7 +120,7 @@ public class CommandManager {
 				if (cmd.getPermissionNode() != null && !PermissionUtils.isAllowedTo(sender, cmd.getPermissionNode())) {
 					continue;
 				}
-				LogUtils.finer("add completion: " + cmd);
+				Debugger.getInstance().debug(2, "add completion: " + cmd);
 				CommandRecord rec = cmd.getMatchedCommand();
 				if (rec.size() >= args.length) {
 					completions.add(cmd.getMatchedCommand().getSubCommand(args.length - 1));
@@ -137,9 +133,7 @@ public class CommandManager {
 
 	private String[] subRange(String[] a, int from) {
 		String[] res = new String[a.length - from];
-		for (int i = 0; i < res.length; i++) {
-			res[i] = a[from + i];
-		}
+		System.arraycopy(a, from, res, 0, res.length);
 		return res;
 	}
 
@@ -152,7 +146,7 @@ public class CommandManager {
 			}
 		}
 
-		LogUtils.fine("found " + possibleMatches.size() + " possible matches for " + cmdName);
+		Debugger.getInstance().debug("found " + possibleMatches.size() + " possible matches for " + cmdName);
 
 		return possibleMatches;
 	}

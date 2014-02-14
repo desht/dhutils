@@ -607,7 +607,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 			b.setTypeIdAndData(blockId, data, false);
 		}
 
-		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+		Debugger.getInstance().debug(2, "Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 	}
 
 	/**

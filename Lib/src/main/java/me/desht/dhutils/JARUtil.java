@@ -45,7 +45,7 @@ public class JARUtil {
 
 		File jarFile = getJarFile();
 
-		LogUtils.finer("extractResource: file=" + of +
+		Debugger.getInstance().debug(2, "extractResource: file=" + of +
 		               ", file-last-mod=" + of.lastModified() +
 		               ", file-exists=" + of.exists() +
 		               ", jar-last-mod=" +  jarFile.lastModified() +
@@ -63,7 +63,7 @@ public class JARUtil {
 			from = "/" + from;
 		}
 
-		LogUtils.fine(String.format("extracting resource: %s (%s) -> %s (%s)", from, SOURCE_ENCODING.name(), to, TARGET_ENCODING.name()));
+		Debugger.getInstance().debug(String.format("extracting resource: %s (%s) -> %s (%s)", from, SOURCE_ENCODING.name(), to, TARGET_ENCODING.name()));
 
 		final char[] cbuf = new char[1024];
 		int read;

@@ -1,12 +1,8 @@
 package me.desht.dhutils.block;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.common.base.Joiner;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.FactoryMethod;
-import me.desht.dhutils.LogUtils;
-//import me.desht.dhutils.cuboid.Cuboid;
-
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
@@ -15,7 +11,8 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.inventory.ItemStack;
 
-import com.google.common.base.Joiner;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MaterialWithData implements Cloneable {
 
@@ -45,7 +42,7 @@ public class MaterialWithData implements Cloneable {
 		String[] matAndText = string.split("=");
 		String[] matAndData = matAndText[0].split(":");
 
-		LogUtils.finest("MaterialWithData constructor: " + string);
+		Debugger.getInstance().debug(3, "MaterialWithData constructor: " + string);
 		metadata = matAndText.length > 1 ? makeText(matAndText[1]) : null;
 
 		if (matAndData[0].matches("^[0-9]+$")) {

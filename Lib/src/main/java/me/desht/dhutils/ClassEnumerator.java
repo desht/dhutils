@@ -12,29 +12,26 @@ import org.bukkit.plugin.Plugin;
 
 
 public class ClassEnumerator {
-
 	private static Class<?> loadClass(String className) {
 		try {
 			return Class.forName(className);
-		}
-		catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Unexpected ClassNotFoundException loading class '" + className + "'");
 		}
 	}
 
 	private static void processDirectory(File directory, String pkgname, ArrayList<Class<?>> classes) {
-		LogUtils.finer("Reading Directory '" + directory + "'");
+		Debugger.getInstance().debug(2, "Reading Directory '" + directory + "'");
 		// Get the list of the files contained in the package
 		String[] files = directory.list();
-		for (int i = 0; i < files.length; i++) {
-			String fileName = files[i];
-			String className = null;
+		for (String fileName : files) {
+			String className;
 			// we are only interested in .class files
 			if (fileName.endsWith(".class")) {
 				// removes the .class extension
 				className = pkgname + '.' + fileName.substring(0, fileName.length() - 6);
 				classes.add(loadClass(className));
-				LogUtils.finer("FileName '" + fileName + "' => class '" + className + "'");
+				Debugger.getInstance().debug(2, "FileName '" + fileName + "' => class '" + className + "'");
 			}
 			File subdir = new File(directory, fileName);
 			if (subdir.isDirectory()) {
@@ -47,7 +44,7 @@ public class ClassEnumerator {
 		String relPath = pkgname.replace('.', '/');
 		String resPath = resource.getPath();
 		String jarPath = resPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
-		LogUtils.finer("Reading JAR file: '" + jarPath + "'");
+		Debugger.getInstance().debug(2, "Reading JAR file: '" + jarPath + "'");
 		JarFile jarFile;
 		try {
 			jarFile = new JarFile(jarPath);
@@ -63,7 +60,7 @@ public class ClassEnumerator {
 				className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
 			}
 			if (className != null) {
-				LogUtils.finer("JarEntry '" + entryName + "' => class '" + className + "'");
+				Debugger.getInstance().debug(2, "JarEntry '" + entryName + "' => class '" + className + "'");
 				classes.add(loadClass(className));
 			}
 		}
@@ -76,12 +73,11 @@ public class ClassEnumerator {
 		String relPath = pkgname.replace('.', '/');
 
 		// Get a File object for the package
-//		URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
 		URL resource = plugin.getClass().getClassLoader().getResource(relPath);
 		if (resource == null) {
 			throw new RuntimeException("Unexpected problem: No resource for " + relPath);
 		}
-		LogUtils.finer("Package: '" + pkgname + "' becomes Resource: '" + resource.toString() + "'");
+		Debugger.getInstance().debug(2, "Package: '" + pkgname + "' becomes Resource: '" + resource.toString() + "'");
 
 		resource.getPath();
 		if(resource.toString().startsWith("jar:")) {

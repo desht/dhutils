@@ -186,7 +186,7 @@ public class ConfigurationManager {
 	@SuppressWarnings("unchecked")
 	private void setItem(String key, String val) {
 		Class<?> c = getType(key);
-		LogUtils.finer("setItem: key = " + key + ", val = " + val + ", class = " + c.getName());
+		Debugger.getInstance().debug(2, "setItem: key = " + key + ", val = " + val + ", class = " + c.getName());
 
 		Object processedVal = null;
 
