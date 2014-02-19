@@ -25,6 +25,12 @@ public class ItemCost extends Cost {
 		this.data = data;
 	}
 
+	public ItemCost(ItemStack stack) {
+		super(stack.getAmount());
+		this.material = stack.getType();
+		this.data = stack.getDurability() > stack.getType().getMaxDurability() ? 0 : stack.getDurability();
+	}
+
 	public Material getMaterial() {
 		return material;
 	}
