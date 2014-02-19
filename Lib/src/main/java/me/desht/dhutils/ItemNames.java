@@ -257,7 +257,12 @@ public class ItemNames {
 		map.put("172", "Hardened Clay");
 		map.put("173", "Block of Coal");
 		map.put("174", "Packed Ice");
-		map.put("175", "Large Flowers");
+		map.put("175:0", "Sunflower");
+		map.put("175:1", "Lilac");
+		map.put("175:2", "Double Tallgrass");
+		map.put("175:3", "Large Fern");
+		map.put("175:4", "Rose Bush");
+		map.put("175:5", "Peony");
 		// Items
 		map.put("256", "Iron Shovel");
 		map.put("257", "Iron Pickaxe");
