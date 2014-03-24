@@ -6,41 +6,53 @@ import java.util.Map.Entry;
 
 import me.desht.dhutils.MiscUtil;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemCost extends Cost {
-	private final Material material;
-	private final short data;
-	private boolean itemsDropped;
+	private final ItemStack toMatch;
+	private final boolean matchData;
+	private final boolean matchMeta;
+	private int dropped;
 
 	public ItemCost(Material mat, double quantity) {
-        this(mat, (short)0, quantity);
+		super(quantity);
+		this.matchData = false;
+		this.matchMeta = false;
+		this.toMatch = new ItemStack(mat, (int) quantity, (short) 0);
 	}
 
 	public ItemCost(Material mat, short data, double quantity) {
 		super(quantity);
-		this.material = mat;
-		this.data = data;
+		this.matchData = true;
+		this.matchMeta = false;
+		this.toMatch = new ItemStack(mat, (int) quantity, data);
 	}
 
 	public ItemCost(ItemStack stack) {
 		super(stack.getAmount());
-		this.material = stack.getType();
-		this.data = stack.getDurability() > stack.getType().getMaxDurability() ? 0 : stack.getDurability();
+		this.matchData = true;
+		this.matchMeta = true;
+		this.toMatch = stack.clone();
 	}
 
 	public Material getMaterial() {
-		return material;
+		return toMatch.getType();
 	}
 
 	public short getData() {
-		return data;
+		return toMatch.getData().getData();
 	}
 
 	public boolean isItemsDropped() {
-		return itemsDropped;
+		return dropped > 0;
+	}
+
+	public int getItemDropCount() {
+		return dropped;
 	}
 
 	@Override
@@ -57,7 +69,7 @@ public class ItemCost extends Cost {
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(getMaterial());
 		int remainingCheck = (int) getQuantity();
 		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
-			if (entry.getValue().getData() == null || entry.getValue().getData().getData() == getData()) {
+			if (matches(entry.getValue())) {
 				remainingCheck -= entry.getValue().getAmount();
 				if (remainingCheck <= 0)
 					break;
@@ -83,15 +95,13 @@ public class ItemCost extends Cost {
 
 		int maxStackSize = player.getInventory().getMaxStackSize();
 		int quantity = (int) -getQuantity();
-		int dropped = 0;
 
+		dropped = 0;
 		while (quantity > maxStackSize) {
 			dropped += addItems(player, maxStackSize);
 			quantity -= maxStackSize;
 		}
 		dropped += addItems(player, quantity);
-
-		itemsDropped = dropped > 0;
 	}
 
 	private void chargeItems(Player player) {
@@ -103,7 +113,7 @@ public class ItemCost extends Cost {
 
 		int remainingCheck = (int) getQuantity();
 		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
-			if (entry.getValue().getData() == null || entry.getValue().getData().getData() == getData()) {
+			if (matches(entry.getValue())) {
 				remainingCheck -= entry.getValue().getAmount();
 				if (remainingCheck < 0) {
 					entry.getValue().setAmount(-remainingCheck);
@@ -115,6 +125,25 @@ public class ItemCost extends Cost {
 					player.getInventory().removeItem(entry.getValue());
 				}
 			}
+		}
+	}
+
+	private boolean matches(ItemStack stack) {
+		if (toMatch.getType() != stack.getType()) {
+			return false;
+		} else if (matchData && toMatch.getData().getData() != stack.getData().getData()) {
+			return false;
+		} else if (matchMeta) {
+			String d1 = stack.hasItemMeta() ? stack.getItemMeta().getDisplayName() : null;
+			String d2 = toMatch.hasItemMeta() ? toMatch.getItemMeta().getDisplayName() : null;
+			if (d1 != null && !d1.equals(d2)) {
+				return false;
+			} else if (d2 != null && !d2.equals(d1)) {
+				return false;
+			}
+			return true;
+		} else {
+			return true;
 		}
 	}
 
