@@ -392,7 +392,7 @@ public class ItemNames {
 		map.put("361", "Pumpkin Seeds");
 		map.put("362", "Melon Seeds");
 		map.put("363", "Raw Beef");
-		map.put("364", "Cooked Steak");
+		map.put("364", "Steak");
 		map.put("365", "Raw Chicken");
 		map.put("366", "Roast Chicken");
 		map.put("367", "Rotten Flesh");
