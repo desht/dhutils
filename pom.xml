@@ -59,6 +59,7 @@
     <module>v1_6_R2</module>
     <module>v1_6_R3</module>
     <module>v1_7_R1</module>
+    <module>v1_7_R2</module>
     <module>Fallback</module>
     <module>Lib</module>
   </modules>
