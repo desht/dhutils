@@ -25,6 +25,7 @@ public class NMSHelper {
 			me.desht.dhutils.nms.v1_6_R2.NMSHandler.class,
 			me.desht.dhutils.nms.v1_6_R3.NMSHandler.class,
 			me.desht.dhutils.nms.v1_7_R1.NMSHandler.class,
+			me.desht.dhutils.nms.v1_7_R2.NMSHandler.class,
 	};
 
 	public static NMSAbstraction init(Plugin plugin) throws ClassNotFoundException, IllegalArgumentException,
