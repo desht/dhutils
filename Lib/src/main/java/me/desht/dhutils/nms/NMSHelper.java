@@ -11,7 +11,7 @@ public class NMSHelper {
 
 	// This little hack ensures that these classes won't be excluded by Maven if the JAR
 	// is minimised.
-	@SuppressWarnings("MismatchedReadAndWriteOfArray")
+	@SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
 	private static final Class<?>[] classes = new Class<?>[] {
 			me.desht.dhutils.nms.fallback.NMSHandler.class,
 			me.desht.dhutils.nms.pre.NMSHandler.class,
