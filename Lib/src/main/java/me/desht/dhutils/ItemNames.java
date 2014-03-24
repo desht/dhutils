@@ -340,7 +340,7 @@ public class ItemNames {
 		map.put("328", "Minecart");
 		map.put("329", "Saddle");
 		map.put("330", "Iron Door");
-		map.put("331", "Redstone Dust");
+		map.put("331", "Redstone");
 		map.put("332", "Snowball");
 		map.put("333", "Boat");
 		map.put("334", "Leather");
