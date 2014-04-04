@@ -8,38 +8,40 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.UUID;
+
 public abstract class ExpectBase {
 
 	private ResponseHandler resp;
-	private String playerName;
+	private UUID playerId;
 
-	public abstract void doResponse(String playerName);
+	public abstract void doResponse(UUID playerId);
 
-	public ResponseHandler getResp() {
+	public ResponseHandler getResponseHandler() {
 		return resp;
 	}
 
-	public void setResp(ResponseHandler resp) {
+	public void setResponseHandler(ResponseHandler resp) {
 		this.resp = resp;
 	}
 
-	public String getPlayerName() {
-		return playerName;
+	public UUID getPlayerId() {
+		return playerId;
 	}
 
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
+	public void setPlayerId(UUID playerId) {
+		this.playerId = playerId;
 	}
 
-	public void handleAction() {
-		resp.handleAction(playerName, getClass());
+	public void handleAction(Player player) {
+		resp.handleAction(player, getClass());
 	}
 
-	public void cancelAction() {
-		resp.cancelAction(playerName, getClass());
+	public void cancelAction(Player player) {
+		resp.cancelAction(player, getClass());
 	}
 
-	protected BukkitTask deferTask(final Player player, final Runnable task) {
+	protected BukkitTask deferTask(final UUID playerId, final Runnable task) {
 		if (resp.getPlugin() == null) {
 			throw new IllegalStateException("deferTask() called when response handler plugin not set");
 		}
@@ -49,6 +51,7 @@ public abstract class ExpectBase {
 				try {
 					task.run();
 				} catch (DHUtilsException e) {
+					Player player = Bukkit.getPlayer(playerId);
 					if (player != null) {
 						MiscUtil.errorMessage(player, e.getMessage());
 					} else {
