@@ -149,6 +149,13 @@
         </dependency>
         <dependency>
             <groupId>me.desht</groupId>
+            <artifactId>dhutils-v1_7_R3</artifactId>
+            <version>v1_7_R3</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>me.desht</groupId>
             <artifactId>dhutils-fallback</artifactId>
             <version>fallback</version>
             <type>jar</type>
