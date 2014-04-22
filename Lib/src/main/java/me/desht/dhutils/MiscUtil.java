@@ -269,4 +269,7 @@ public class MiscUtil {
 		return yaml;
 	}
 
+	public static boolean looksLikeUUID(String s) {
+		return s.length() == 36 && s.charAt(8) == '-' && s.charAt(13) == '-' && s.charAt(18) == '-' && s.charAt(23) == '-';
+	}
 }
