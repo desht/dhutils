@@ -11,6 +11,7 @@ import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import me.desht.dhutils.nms.api.NMSAbstraction;
+import org.bukkit.util.Vector;
 
 public class NMSHandler implements NMSAbstraction {
 
@@ -48,4 +49,16 @@ public class NMSHandler implements NMSAbstraction {
 		net.minecraft.server.v1_7_R1.World w = ((CraftWorld) world).getHandle();
 		w.t(x, y, z);
 	}
+
+	@Override
+	public Vector[] getBlockHitbox(org.bukkit.block.Block block) {
+		net.minecraft.server.v1_7_R1.World w = ((CraftWorld)block.getWorld()).getHandle();
+		net.minecraft.server.v1_7_R1.Block b = w.getType(block.getX(), block.getY(), block.getZ());
+		b.updateShape(w, block.getX(), block.getY(), block.getZ());
+		return new Vector[] {
+				new Vector(block.getX() + b.x(), block.getY() + b.z(), block.getZ() + b.B()),
+				new Vector(block.getX() + b.y(), block.getY() + b.A(), block.getZ() + b.C())
+		};
+	}
+
 }

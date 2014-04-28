@@ -11,6 +11,7 @@ import org.bukkit.craftbukkit.v1_4_5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import me.desht.dhutils.nms.api.NMSAbstraction;
+import org.bukkit.util.Vector;
 
 public class NMSHandler implements NMSAbstraction {
 
@@ -41,6 +42,11 @@ public class NMSHandler implements NMSAbstraction {
 	@Override
 	public void queueChunkForUpdate(Player player, int cx, int cz) {
 		((CraftPlayer) player).getHandle().chunkCoordIntPairQueue.add(new ChunkCoordIntPair(cx, cz));
+	}
+
+	@Override
+	public Vector[] getBlockHitbox(org.bukkit.block.Block block) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
