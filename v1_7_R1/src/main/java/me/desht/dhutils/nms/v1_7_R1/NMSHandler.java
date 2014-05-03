@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_7_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -19,12 +20,20 @@ public class NMSHandler implements NMSAbstraction {
 	}
 
     private boolean a(Chunk that, int i, int j, int k, Block block, int l) {
+        int i1 = k << 4 | i;
+
+        if (j >= that.b[i1] - 1) {
+            that.b[i1] = -999;
+        }
+
+        int j1 = that.heightMap[i1];
         Block block1 = that.getType(i, j, k);
         int k1 = that.getData(i, j, k);
 
         if (block1 == block && k1 == l) {
             return false;
         } else {
+            boolean flag = false;
             ChunkSection chunksection = ((ChunkSection[])ReflectionUtil.getProtectedValue(that, "sections"))[j >> 4];
 
             if (chunksection == null) {
@@ -33,6 +42,7 @@ public class NMSHandler implements NMSAbstraction {
                 }
 
                 chunksection = ((ChunkSection[])ReflectionUtil.getProtectedValue(that, "sections"))[j >> 4] = new ChunkSection(j >> 4 << 4, !that.world.worldProvider.g);
+                flag = j >= j1;
             }
 
             int l1 = that.locX * 16 + i;
@@ -64,7 +74,9 @@ public class NMSHandler implements NMSAbstraction {
                 return false;
             } else {
                 chunksection.setData(i, j & 15, k, l);
-
+                if (flag) {
+                    that.initLighting();
+                }
                 TileEntity tileentity;
 
                 if (block1 instanceof IContainer) {
@@ -127,33 +139,33 @@ public class NMSHandler implements NMSAbstraction {
 
 	@Override
 	public void recalculateBlockLighting(World world, int x, int y, int z) {
-        Chunk chunk = ((CraftChunk)world.getChunkAt(x >> 4, z >> 4)).getHandle();
-        int i = x & 0x0f;
-        int j = y;
-        int k = z & 0x0f;
+        int i = x & 0x0F;
+        int j = y & 0xFF;
+        int k = z & 0x0F;
+        CraftChunk craftChunk = (CraftChunk)world.getChunkAt(x >> 4, z >> 4);
+        Chunk nmsChunk = craftChunk.getHandle();
 
-        int i1 = k << 4 | i;
-        if (j >= chunk.b[i1] - 1) {
-            chunk.b[i1] = -999;
+        // Don't consider blocks that are completely surrounded by other non-transparent blocks
+        if (!canAffectLighting(nmsChunk, i, j, k)) {
+           return;
         }
 
-        int maxY = chunk.heightMap[i1];
+        int i1 = k << 4 | i;
+        int maxY = nmsChunk.heightMap[i1];
 
-        chunk.initLighting();
-
-        Block block = chunk.getType(i, j, k);
+        Block block = nmsChunk.getType(i, j, k);
         int j2 = block.k();
 
         if (j2 > 0) {
             if (j >= maxY) {
-                ReflectionUtil.invokeProtectedMethod(chunk, "h", i, j + 1, k);
+                ReflectionUtil.invokeProtectedMethod(nmsChunk, "h", i, j + 1, k);
             }
         } else if (j == maxY - 1) {
-            ReflectionUtil.invokeProtectedMethod(chunk, "h",i, j, k);
+            ReflectionUtil.invokeProtectedMethod(nmsChunk, "h",i, j, k);
         }
 
-        if (chunk.getBrightness(EnumSkyBlock.SKY, i, j, k) > 0 || chunk.getBrightness(EnumSkyBlock.BLOCK, i, j, k) > 0) {
-            ReflectionUtil.invokeProtectedMethod(chunk, "e", i, k);
+        if (nmsChunk.getBrightness(EnumSkyBlock.SKY, i, j, k) > 0 || nmsChunk.getBrightness(EnumSkyBlock.BLOCK, i, j, k) > 0) {
+            ReflectionUtil.invokeProtectedMethod(nmsChunk, "e", i, k);
         }
 
 		net.minecraft.server.v1_7_R1.World w = ((CraftWorld) world).getHandle();
@@ -171,4 +183,23 @@ public class NMSHandler implements NMSAbstraction {
 		};
 	}
 
+    private boolean canAffectLighting(Chunk chunk, int x, int y, int z) {
+        if (x < 1 || x > 14) return true;
+        if (z < 1 || z > 14) return true;
+        if (y < 1 || y > 254) return false;
+
+        Block east  = chunk.getType(x+1, y, z);
+        Block west  = chunk.getType(x-1, y, z);
+        Block up    = chunk.getType(x, y+1, z);
+        Block down  = chunk.getType(x, y-1, z);
+        Block south = chunk.getType(x, y, z+1);
+        Block north = chunk.getType(x, y, z-1);
+
+        return CraftMagicNumbers.getMaterial(east).isTransparent() ||
+               CraftMagicNumbers.getMaterial(west).isTransparent() ||
+               CraftMagicNumbers.getMaterial(up).isTransparent() ||
+               CraftMagicNumbers.getMaterial(down).isTransparent() ||
+               CraftMagicNumbers.getMaterial(south).isTransparent() ||
+               CraftMagicNumbers.getMaterial(north).isTransparent();
+    }
 }
