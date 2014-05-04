@@ -180,7 +180,7 @@ public class NMSHandler implements NMSAbstraction {
         }
 
         net.minecraft.server.v1_7_R3.World w = ((CraftWorld) world).getHandle();
-        w.t(x, y, z);
+        w.c(EnumSkyBlock.BLOCK, i, j, k);
     }
 
     private boolean canAffectLighting(World world, int x, int y, int z) {

@@ -169,7 +169,7 @@ public class NMSHandler implements NMSAbstraction {
         }
 
 		net.minecraft.server.v1_7_R1.World w = ((CraftWorld) world).getHandle();
-		w.t(x, y, z);
+		w.c(EnumSkyBlock.BLOCK, i, j, k);
 	}
 
 	@Override
