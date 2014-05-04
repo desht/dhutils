@@ -29,6 +29,12 @@ public interface MassBlockUpdate {
 		 * updates.
 		 */
 		DEFERRED,
+
+        /**
+         * Immediately notify the client which blocks have changed.
+         * Recalculate relighting in the background like DEFERRED mode.
+         */
+        HYBRID,
 	};
 
 	/**

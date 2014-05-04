@@ -3,10 +3,10 @@ package me.desht.dhutils.nms.v1_7_R2;
 import me.desht.dhutils.nms.api.NMSAbstraction;
 import net.minecraft.server.v1_7_R2.*;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_7_R2.CraftChunk;
 import org.bukkit.craftbukkit.v1_7_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_7_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -150,16 +150,16 @@ public class NMSHandler implements NMSAbstraction {
 
     @Override
     public void recalculateBlockLighting(World world, int x, int y, int z) {
+        // Don't consider blocks that are completely surrounded by other non-transparent blocks
+        if (!canAffectLighting(world, x, y, z)) {
+            return;
+        }
+
         int i = x & 0x0F;
         int j = y & 0xFF;
         int k = z & 0x0F;
         CraftChunk craftChunk = (CraftChunk)world.getChunkAt(x >> 4, z >> 4);
         Chunk nmsChunk = craftChunk.getHandle();
-
-        // Don't consider blocks that are completely surrounded by other non-transparent blocks
-        if (!canAffectLighting(nmsChunk, i, j, k)) {
-            return;
-        }
 
         int i1 = k << 4 | i;
         int maxY = nmsChunk.heightMap[i1];
@@ -183,23 +183,20 @@ public class NMSHandler implements NMSAbstraction {
         w.t(x, y, z);
     }
 
-    private boolean canAffectLighting(Chunk chunk, int x, int y, int z) {
-        if (x < 1 || x > 14) return true;
-        if (z < 1 || z > 14) return true;
-        if (y < 1 || y > 254) return false;
+    private boolean canAffectLighting(World world, int x, int y, int z) {
+        org.bukkit.block.Block base  = world.getBlockAt(x, y, z);
+        org.bukkit.block.Block east  = base.getRelative(BlockFace.EAST);
+        org.bukkit.block.Block west  = base.getRelative(BlockFace.WEST);
+        org.bukkit.block.Block up    = base.getRelative(BlockFace.UP);
+        org.bukkit.block.Block down  = base.getRelative(BlockFace.DOWN);
+        org.bukkit.block.Block south = base.getRelative(BlockFace.SOUTH);
+        org.bukkit.block.Block north = base.getRelative(BlockFace.NORTH);
 
-        Block east  = chunk.getType(x+1, y, z);
-        Block west  = chunk.getType(x-1, y, z);
-        Block up    = chunk.getType(x, y+1, z);
-        Block down  = chunk.getType(x, y-1, z);
-        Block south = chunk.getType(x, y, z+1);
-        Block north = chunk.getType(x, y, z-1);
-
-        return CraftMagicNumbers.getMaterial(east).isTransparent() ||
-                CraftMagicNumbers.getMaterial(west).isTransparent() ||
-                CraftMagicNumbers.getMaterial(up).isTransparent() ||
-                CraftMagicNumbers.getMaterial(down).isTransparent() ||
-                CraftMagicNumbers.getMaterial(south).isTransparent() ||
-                CraftMagicNumbers.getMaterial(north).isTransparent();
+        return east.getType().isTransparent() ||
+                west.getType().isTransparent() ||
+                up.getType().isTransparent() ||
+                down.getType().isTransparent() ||
+                south.getType().isTransparent() ||
+                north.getType().isTransparent();
     }
 }
