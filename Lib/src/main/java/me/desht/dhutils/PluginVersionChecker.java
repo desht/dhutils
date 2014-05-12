@@ -18,11 +18,11 @@ public class PluginVersionChecker {
 	 * Get the internal version number for the given string version, which is
 	 * <major> * 1,000,000 + <minor> * 1,000 + <release>.  This assumes minor and
 	 * release each won't go above 999, hopefully a safe assumption!
-	 * 
-	 * @param oldVersion
-	 * @return
+	 *
+	 * @param ver the version string as returned by {@link org.bukkit.plugin.PluginDescriptionFile#getVersion()}
+	 * @return the integer version number
 	 */
-	private static int getRelease(String ver) {
+	public static int getRelease(String ver) {
 		String[] a = ver.replaceAll("-SNAPSHOT$", "").split("\\.");
 		try {
 			int major = Integer.parseInt(a[0]);
