@@ -32,6 +32,7 @@ public class I18N {
 		this.languageDirectory = new File(plugin.getDataFolder(), langDir == null ? DEFAULT_LANG_DIR : langDir);
 	}
 
+	@SuppressWarnings("CloneDoesntCallSuperClone")
 	@Override
 	public I18N clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
@@ -120,7 +121,7 @@ public class I18N {
 	 * @return the translated message
 	 */
 	public String get(String key, Object... args) {
-		return get("", key, args);
+		return get(null, key, args);
 	}
 
 	/**
@@ -142,13 +143,13 @@ public class I18N {
 	}
 
 	private Configuration getMessageCatalog(CommandSender sender) {
-		return playerLocales.containsKey(sender.getName()) ? playerLocales.get(sender.getName()) : playerLocales.get(defaultLocale);
+		return sender == null ? playerLocales.get(defaultLocale) : playerLocales.get(sender.getName());
 	}
 
 	private Configuration getMessageCatalog(String locale) {
 		if (!catalogs.containsKey(locale)) {
 			try {
-				loadCatalog(locale);
+				catalogs.put(locale, loadCatalog(locale));
 			} catch (DHUtilsException e) {
 				LogUtils.warning("can't load " + locale + ": " + e.getMessage());
 			}
