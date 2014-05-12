@@ -63,6 +63,16 @@ public class ItemGlow {
 		}
 	}
 
+    /**
+     * Check if this item stack has been set to glow.
+     *
+     * @param stack the item stack to check
+     * @return true if the stack will glow; false otherwise
+     */
+    public static boolean hasGlow(ItemStack stack) {
+        return stack.getEnchantmentLevel(GLOW_FLAG) == GLOW_FLAG_LEVEL;
+    }
+
 	private static void addGlow(ItemStack[] stacks) {
 		for (ItemStack stack : stacks) {
 			if (stack != null) {
