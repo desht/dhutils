@@ -1,21 +1,15 @@
 package me.desht.dhutils.cuboid;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import me.desht.dhutils.Debugger;
-import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MassBlockUpdate;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.nms.api.NMSAbstraction;
-
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.material.MaterialData;
+
+import java.util.*;
 
 public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializable {
 	protected final String worldName;
@@ -498,23 +492,6 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	/**
 	 * Check if the Cuboid contains only blocks of the given type
 	 *
-	 * @param blockId	the block ID to check for
-	 * @return			true if this Cuboid contains only blocks of the given type
-	 * @deprecated magic block ID
-	 */
-	@Deprecated
-	public boolean containsOnly(int blockId) {
-		for (Block b : this) {
-			if (b.getTypeId() != blockId) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Check if the Cuboid contains only blocks of the given type
-	 *
 	 * @param material the material to check for
 	 * @return true if this Cuboid contains only blocks of the given type
 	 */
@@ -530,7 +507,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	/**
 	 * Get the Cuboid big enough to hold both this Cuboid and the given one.
 	 *
-	 * @param other
+	 * @param other the other Cuboid to include
 	 * @return	a new Cuboid large enough to hold this Cuboid and the given Cuboid
 	 */
 	public Cuboid getBoundingCuboid(Cuboid other) {
@@ -597,9 +574,11 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	/**
 	 * Set all the blocks within the Cuboid to the given block ID and data byte.
 	 *
-	 * @param blockId
-	 * @param data
+     * @param blockId the block ID
+     * @param data the block data
+     * @deprecated use {@link #fill(MaterialData, MassBlockUpdate)}
 	 */
+    @Deprecated
 	public void fill(int blockId, byte data) {
 		long start = System.nanoTime();
 
@@ -611,36 +590,45 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	}
 
 	/**
-	 * Set all the blocks within the Cuboid to the given MaterialWithData
+	 * Set all the blocks within the Cuboid to the given MaterialData
 	 *
-	 * @param mat	The material to set
+	 * @param mat	The MaterialData to set
 	 */
-	public void fill(MaterialWithData mat) {
-		fill(mat.getId(), (byte)mat.getData());
+	public void fill(MaterialData mat) {
+		fill(mat.getItemTypeId(), (byte)mat.getData());
 	}
 
 	/**
 	 * Set all the blocks in this cuboid to the given block ID and data byte, using
 	 * a MassBlockUpdate object for fast updates.
 	 *
-	 * @param blockId
-	 * @param data
-	 * @param mbu
+	 * @param blockId the block ID
+	 * @param data the block data
+	 * @param mbu the MassBlockUpdate object
+     * @deprecated use {@link #fill(MaterialData, MassBlockUpdate)}
 	 */
+    @Deprecated
 	public void fill(int blockId, byte data, MassBlockUpdate mbu) {
 		for (Block b : this) {
 			mbu.setBlock(b.getX(), b.getY(), b.getZ(), blockId, data);
 		}
 	}
 
-	public void fill(MaterialWithData mat, MassBlockUpdate mbu) {
-		fill(mat.getId(), (byte)mat.getData(), mbu);
+    /**
+     * Set all the blocks within the Cuboid to the given MaterialData, using
+     * a MassBlockUpdate object for fast updates.
+     *
+     * @param mat the MaterialData to set
+     * @param mbu the MassBlockUpdate object
+     */
+	public void fill(MaterialData mat, MassBlockUpdate mbu) {
+		fill(mat.getItemTypeId(), (byte)mat.getData(), mbu);
 	}
 
 	/**
 	 * Set the light level of all blocks within this Cuboid.
 	 *
-	 * @param level			the required light level
+	 * @param level the required light level
 	 */
 	public void forceLightLevel(int level) {
 		long start = System.nanoTime();
@@ -689,8 +677,9 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
 	 */
-	@Override
-	public Cuboid clone() {
+	@SuppressWarnings("CloneDoesntCallSuperClone")
+    @Override
+	public Cuboid clone() throws CloneNotSupportedException {
 		return new Cuboid(this);
 	}
 
