@@ -244,14 +244,15 @@ public class ItemNames {
 		map.put("158", "Dropper");
 		map.put("159", "Stained Clay");
 		map.put("160", "Stained Glass Pane");
-		map.put("161:1", "Acacia Leaves");
-		map.put("161:2", "Dark Oak Leaves");
-		map.put("162:1", "Acacia Wood");
-		map.put("162:2", "Dark Oak Wood");
+		map.put("161:0", "Acacia Leaves");
+		map.put("161:1", "Dark Oak Leaves");
+		map.put("162:0", "Acacia Wood");
+		map.put("162:1", "Dark Oak Wood");
 		map.put("163", "Acacia Wood Stairs");
 		map.put("164", "Dark Oak Wood Stairs");
 		map.put("165", "Slime Block");
 		map.put("166", "Barrier");
+        map.put("167", "Iron Trapdoor");
 		map.put("170", "Hay Block");
 		map.put("171", "Carpet");
 		map.put("172", "Hardened Clay");
@@ -489,6 +490,7 @@ public class ItemNames {
 		map.put("419", "Diamond Horse Armor");
 		map.put("420", "Lead");
 		map.put("421", "Name Tag");
+        map.put("421", "Minecart with Command Block");
 		map.put("2256", "Music Disk (13)");
 		map.put("2257", "Music Disk (Cat)");
 		map.put("2258", "Music Disk (Blocks)");
