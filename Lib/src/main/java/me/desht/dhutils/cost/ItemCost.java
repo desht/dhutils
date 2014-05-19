@@ -1,6 +1,8 @@
 package me.desht.dhutils.cost;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -17,8 +19,9 @@ public class ItemCost extends Cost {
 	private final boolean matchData;
 	private final boolean matchMeta;
 	private int dropped;
+    private List<ItemStack> taken = new ArrayList<ItemStack>();
 
-	public ItemCost(Material mat, double quantity) {
+    public ItemCost(Material mat, double quantity) {
 		super(quantity);
 		this.matchData = false;
 		this.matchMeta = false;
@@ -34,7 +37,7 @@ public class ItemCost extends Cost {
 
 	public ItemCost(ItemStack stack) {
 		super(stack.getAmount());
-		this.matchData = true;
+		this.matchData = stack.getDurability() != 32767;
 		this.matchMeta = true;
 		this.toMatch = stack.clone();
 	}
@@ -54,6 +57,10 @@ public class ItemCost extends Cost {
 	public int getItemDropCount() {
 		return dropped;
 	}
+
+    public List<ItemStack> getActualItemsTaken() {
+        return taken;
+    }
 
 	@Override
 	public String getDescription() {
@@ -109,6 +116,8 @@ public class ItemCost extends Cost {
 			return;
 		}
 
+        taken.clear();
+
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(getMaterial());
 
 		int remainingCheck = (int) getQuantity();
@@ -117,13 +126,15 @@ public class ItemCost extends Cost {
 				remainingCheck -= entry.getValue().getAmount();
 				if (remainingCheck < 0) {
 					entry.getValue().setAmount(-remainingCheck);
-					break;
-				} else if (remainingCheck == 0) {
-					player.getInventory().removeItem(entry.getValue());
+                    taken.add(entry.getValue().clone());
 					break;
 				} else {
 					player.getInventory().removeItem(entry.getValue());
+                    taken.add(entry.getValue().clone());
 				}
+                if (remainingCheck == 0) {
+                    break;
+                }
 			}
 		}
 	}
