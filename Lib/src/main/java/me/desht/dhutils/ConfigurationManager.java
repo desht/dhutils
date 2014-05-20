@@ -248,7 +248,7 @@ public class ConfigurationManager {
 
 		if (processedVal != null || val == null) {
 			if (listener != null && validate) {
-				listener.onConfigurationValidate(this, key, get(key), processedVal);
+				processedVal = listener.onConfigurationValidate(this, key, get(key), processedVal);
 			}
 			config.set(addPrefix(key), processedVal);
 		} else {
@@ -265,7 +265,8 @@ public class ConfigurationManager {
 			throw new DHUtilsException("Key '" + key + "' does not accept a list of values");
 		}
 		if (listener != null && validate) {
-			listener.onConfigurationValidate(this, key, get(key), list);
+            //noinspection unchecked
+            list = (List<T>) listener.onConfigurationValidate(this, key, get(key), list);
 		}
 		config.set(addPrefix(key), handleListValue(key, list));
 	}
