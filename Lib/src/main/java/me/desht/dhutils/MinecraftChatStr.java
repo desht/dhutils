@@ -3,48 +3,59 @@ package me.desht.dhutils;
 /*
  * character widths taken from Help's MinecraftFontWidthCalculator
  * https://github.com/tkelly910/Help
- * 
+ *
  */
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+
 import org.bukkit.ChatColor;
 
 public class MinecraftChatStr {
 
-	public final static int chatwidth = 318; // 325
-	public static String charWidthIndexIndex =
-			" !\"#$%&'()*+,-./"
-			+ "0123456789:;<=>?"
-			+ "@ABCDEFGHIJKLMNO"
-			+ "PQRSTUVWXYZ[\\]^_"
-			+ "'abcdefghijklmno"
-			+ "pqrstuvwxyz{|}~⌂"
-			+ "ÇüéâäàåçêëèïîìÄÅ"
-			+ "ÉæÆôöòûùÿÖÜø£Ø×ƒ"
-			+ "áíóúñÑªº¿®¬½¼¡«»";
-	public static int[] charWidths = {
-		4, 2, 5, 6, 6, 6, 6, 3, 5, 5, 5, 6, 2, 6, 2, 6,
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 6, 5, 6,
-		7, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 6, 6, 6, 6, 6,
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 4, 6, 6,
-		3, 6, 6, 6, 6, 6, 5, 6, 6, 2, 6, 5, 3, 6, 6, 6,
-		6, 6, 6, 6, 4, 6, 6, 6, 6, 6, 6, 5, 2, 5, 7, 6,
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 3, 6, 6,
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6,
-		6, 3, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 2, 6, 6,
-		// not sure what tkelly made these rows for..
-		8, 9, 9, 6, 6, 6, 8, 8, 6, 8, 8, 8, 8, 8, 6, 6,
-		9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-		9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 5, 9, 9,
-		8, 7, 7, 8, 7, 8, 8, 8, 7, 8, 8, 7, 9, 9, 6, 7,
-		7, 7, 7, 7, 9, 6, 7, 8, 7, 6, 6, 9, 7, 6, 7, 1};
-	// chat limmitation: repetitions of characters is limmited to 119 per line
-	//      so: repeating !'s will not fill a line
+	private static final int CHAT_WIDTH = 318; // 325?
+    private static final int DEF_CHAR_WIDTH = 6;
+
+    private static class CharacterBag {
+        private int[][] data = new int[255][];
+
+        public void add(char ch, int width) {
+            int[] bin = data[ch >> 8];
+            if (bin == null) bin = data[ch >> 8] = new int[255];
+            bin[ch & 0xFF] = width;
+        }
+
+        public int getWidth(char ch, int def) {
+            int[] bin = data[ch >> 8];
+            if (bin == null) return def;
+            return bin[ch & 0xFF];
+        }
+    }
+
+    private static final CharacterBag bag = new CharacterBag();
+
+    static {
+        final Map<Integer, String> widths = new HashMap<Integer, String>();
+        widths.put(7, "@~");
+        widths.put(6, "#$%&+-/0123456789=?ABCDEFGHJKLMNOPQRSTUVWXYZ\\^_abcdeghjmnopqrsuvwxyzñÑáéóúü");
+        widths.put(5, "\"()*<>fk{}");
+        widths.put(4, " I[]t");
+        widths.put(3, "'`lí");
+        widths.put(2, "!.,:;i|");
+        widths.put(-6, "§");  // cancel the width of any following letter or number
+
+        for (Map.Entry<Integer,String> e : widths.entrySet()) {
+            for (int i = 0; i < e.getValue().length(); i++) {
+                bag.add(e.getValue().charAt(i), e.getKey());
+            }
+        }
+    }
 
 	public static int getStringWidth(String s) {
 		int i = 0;
 		if (s != null) {
-			s = s.replaceAll("\\u00A7.", "");
+//			s = s.replaceAll("\\u00A7.", "");
 			for (int j = 0; j < s.length(); j++) {
 				if (s.charAt(j) >= 0) {
 					i += getCharWidth(s.charAt(j));
@@ -55,20 +66,11 @@ public class MinecraftChatStr {
 	}
 
 	public static int getCharWidth(char c) {
-		//return getCharWidth(c, 0);
-		int k = charWidthIndexIndex.indexOf(c);
-		if (c != '\247' && k >= 0) {
-			return charWidths[k];
-		}
-		return 0;
+        return bag.getWidth(c, 0);
 	}
 
-	public static int getCharWidth(char c, int defaultReturn) {
-		int k = charWidthIndexIndex.indexOf(c);
-		if (c != '\247' && k >= 0) {
-			return charWidths[k];
-		}
-		return defaultReturn;
+	public static int getCharWidth(char c, int def) {
+        return bag.getWidth(c, def);
 	}
 
 	public static String uncoloredStr(String s) {
@@ -83,30 +85,29 @@ public class MinecraftChatStr {
 	 * @return str with padding appended
 	 */
 	public static String strPadRight(String str, int len, char pad) {
-		// for purposes of this function, assuming a normal char to be 6
-		len *= 6;
+		len *= DEF_CHAR_WIDTH;
 		len -= getStringWidth(str);
-		return str + Str.repeat(pad, len / getCharWidth(pad, 6));
+		return str + Str.repeat(pad, len / getCharWidth(pad, DEF_CHAR_WIDTH));
 	}
 
 	public static String strPadRightChat(String str, int abslen, char pad) {
 		abslen -= getStringWidth(str);
-		return str + Str.repeat(pad, abslen / getCharWidth(pad, 6));
+		return str + Str.repeat(pad, abslen / getCharWidth(pad, DEF_CHAR_WIDTH));
 	}
 
 	public static String strPadRightChat(String str, int abslen) {
 		abslen -= getStringWidth(str);
-		return str + Str.repeat(' ', abslen / getCharWidth(' ', 6));
+		return str + Str.repeat(' ', abslen / getCharWidth(' ', DEF_CHAR_WIDTH));
 	}
 
 	public static String strPadRightChat(String str, char pad) {
-		int width = chatwidth - getStringWidth(str);
-		return str + Str.repeat(pad, width / getCharWidth(pad, 6));
+		int width = CHAT_WIDTH - getStringWidth(str);
+		return str + Str.repeat(pad, width / getCharWidth(pad, DEF_CHAR_WIDTH));
 	}
 
 	public static String strPadRightChat(String str) {
-		int width = chatwidth - getStringWidth(str);
-		return str + Str.repeat(' ', width / getCharWidth(' ', 6));
+		int width = CHAT_WIDTH - getStringWidth(str);
+		return str + Str.repeat(' ', width / getCharWidth(' ', DEF_CHAR_WIDTH));
 	}
 
 	/**
@@ -118,29 +119,29 @@ public class MinecraftChatStr {
 	 */
 	public static String strPadLeft(String str, int len, char pad) {
 		// for purposes of this function, assuming a normal char to be 6
-		len *= 6;
+		len *= DEF_CHAR_WIDTH;
 		len -= getStringWidth(str);
-		return Str.repeat(pad, len / getCharWidth(pad, 6)) + str;
+		return Str.repeat(pad, len / getCharWidth(pad, DEF_CHAR_WIDTH)) + str;
 	}
 
 	public static String strPadLeftChat(String str, int abslen, char pad) {
 		abslen -= getStringWidth(str);
-		return Str.repeat(pad, abslen / getCharWidth(pad, 6)).concat(str);
+		return Str.repeat(pad, abslen / getCharWidth(pad, DEF_CHAR_WIDTH)).concat(str);
 	}
 
 	public static String strPadLeftChat(String str, int abslen) {
 		abslen -= getStringWidth(str);
-		return Str.repeat(' ', abslen / getCharWidth(' ', 6)).concat(str);
+		return Str.repeat(' ', abslen / getCharWidth(' ', DEF_CHAR_WIDTH)).concat(str);
 	}
 
 	public static String strPadLeftChat(String str, char pad) {
-		int width = chatwidth - getStringWidth(str);
-		return Str.repeat(pad, width / getCharWidth(pad, 6)).concat(str);
+		int width = CHAT_WIDTH - getStringWidth(str);
+		return Str.repeat(pad, width / getCharWidth(pad, DEF_CHAR_WIDTH)).concat(str);
 	}
 
 	public static String strPadLeftChat(String str) {
-		int width = chatwidth - getStringWidth(str);
-		return Str.repeat(' ', width / getCharWidth(' ', 6)).concat(str);
+		int width = CHAT_WIDTH - getStringWidth(str);
+		return Str.repeat(' ', width / getCharWidth(' ', DEF_CHAR_WIDTH)).concat(str);
 	}
 
 	/**
@@ -152,9 +153,9 @@ public class MinecraftChatStr {
 	 */
 	public static String strPadCenter(String str, int len, char pad) {
 		// for purposes of this function, assuming a normal char to be 6
-		len *= 6;
+		len *= DEF_CHAR_WIDTH;
 		len -= getStringWidth(str);
-		int padwid = getCharWidth(pad, 6);
+		int padwid = getCharWidth(pad, DEF_CHAR_WIDTH);
 		int prepad = (len / padwid) / 2;
 		len -= prepad * padwid;
 		return Str.repeat(pad, prepad) + str + Str.repeat(pad, len / padwid);
@@ -163,7 +164,7 @@ public class MinecraftChatStr {
 	public static String strPadCenterChat(String str, int abslen, char pad) {
 		// int width = 325;
 		abslen -= getStringWidth(str);
-		int padwid = getCharWidth(pad, 6);
+		int padwid = getCharWidth(pad, DEF_CHAR_WIDTH);
 		int prepad = (abslen / padwid) / 2;
 		abslen -= prepad * padwid;
 		return Str.repeat(pad, prepad) + str + Str.repeat(pad, abslen / padwid);
@@ -171,7 +172,7 @@ public class MinecraftChatStr {
 
 	public static String strPadCenterChat(String str, char pad) {
 		int width = 325 - getStringWidth(str);
-		int padwid = getCharWidth(pad, 6);
+		int padwid = getCharWidth(pad, DEF_CHAR_WIDTH);
 		int prepad = (width / padwid) / 2;
 		width -= prepad * padwid;
 		return Str.repeat(pad, prepad) + str + Str.repeat(pad, width / padwid);
@@ -213,7 +214,7 @@ public class MinecraftChatStr {
 	}
 
 	public static String strChatTrim(String str) {
-		return strChatTrim(str, chatwidth);
+		return strChatTrim(str, CHAT_WIDTH);
 	}
 
 	public static String strChatTrim(String str, int absLen) {
@@ -257,7 +258,7 @@ public class MinecraftChatStr {
 		String ret = "";
 		while (str.length() > 0) {
 			// find last char of first line
-			if (getStringWidth(str) <= chatwidth) {
+			if (getStringWidth(str) <= CHAT_WIDTH) {
 				return (ret.length() > 0 ? ret + "\n" + lastStrColor(ret) + Str.repeat(tabChar, tab) : "").concat(str);
 			}
 			String line1 = strChatTrim(str);
@@ -291,7 +292,7 @@ public class MinecraftChatStr {
 		String ret = "";
 		while (str.length() > 0) {
 			// find last char of first line
-			if (getStringWidth(str) <= chatwidth) {
+			if (getStringWidth(str) <= CHAT_WIDTH) {
 				return (ret.length() > 0 ? ret + "\n" + lastStrColor(ret) : "").concat(strPadLeftChat(str, tabChar));
 			}
 			String line1 = strChatTrim(str);
@@ -333,12 +334,12 @@ public class MinecraftChatStr {
 				lastPos = sepPos;
 			}
 			ret += str.substring(0, sepPos);
-			ret += strPadLeftChat(str.substring(sepPos, lastPos), chatwidth - getStringWidth(ret));
+			ret += strPadLeftChat(str.substring(sepPos, lastPos), CHAT_WIDTH - getStringWidth(ret));
 			str = str.substring(lastPos + 1);
 		}
 		while (str.length() > 0) {
 			// find last char of first line
-			if (getStringWidth(str) <= chatwidth) {
+			if (getStringWidth(str) <= CHAT_WIDTH) {
 				return (ret.length() > 0 ? ret + "\n" + lastStrColor(ret) : "").concat(strPadLeftChat(str, tabChar));
 			}
 			line1 = strChatTrim(str);
@@ -496,19 +497,19 @@ public class MinecraftChatStr {
 					if (line.indexOf("<" + fm + ">") != -1) {
 						if (fm.equals("l")) {
 							if (minecraftChatFormat) {
-								newinput.add(MinecraftChatStr.strPadRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
+								newinput.add(strPadRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							} else {
 								newinput.add(Str.padRight(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							}
 						} else if (fm.equals("c")) {
 							if (minecraftChatFormat) {
-								newinput.add(MinecraftChatStr.strPadCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
+								newinput.add(strPadCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							} else {
 								newinput.add(Str.padCenter(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							}
 						} else {
 							if (minecraftChatFormat) {
-								newinput.add(MinecraftChatStr.strPadLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
+								newinput.add(strPadLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							} else {
 								newinput.add(Str.padLeft(line.substring(0, line.indexOf("<" + fm + ">")), maxPos, repl[i]) + line.substring(line.indexOf("<" + fm + ">") + 3));
 							}
