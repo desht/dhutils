@@ -23,7 +23,7 @@ public class PluginVersionChecker {
 	 * @return the integer version number
 	 */
 	public static int getRelease(String ver) {
-		String[] a = ver.replaceAll("-SNAPSHOT$", "").split("\\.");
+		String[] a = ver.replaceAll("-.+$", "").split("\\.");
 		try {
 			int major = Integer.parseInt(a[0]);
 			int minor;
