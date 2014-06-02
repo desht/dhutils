@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -192,6 +193,15 @@ public class MaterialWithData implements Cloneable {
 	public Material getBukkitMaterial() {
 		return Material.getMaterial(matId);
 	}
+
+    /**
+     * Get the Bukkit MaterialData for this MaterialWithData object
+     *
+     * @return the Bukkit MaterialData object
+     */
+    public MaterialData getMaterialData() {
+        return new MaterialData(matId, (byte) data);
+    }
 
 	/**
 	 * Return an item stack of this material.
