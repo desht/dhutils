@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class MaterialWithData implements Cloneable {
 
-	private final static Map<String, MaterialWithData> materialCache = new HashMap<String, MaterialWithData>();
+	private static final Map<String, MaterialWithData> materialCache = new HashMap<String, MaterialWithData>();
 
 	private final int matId;
 	private final short data;
@@ -78,7 +78,7 @@ public class MaterialWithData implements Cloneable {
 					if (dc == null) {
 						throw new IllegalArgumentException("unknown dye colour: " + matAndData[1]);
 					}
-					data = (byte) dc.getWoolData();
+					data = dc.getWoolData();
 				} else {
 					data = (byte) cc.getID();
 				}
