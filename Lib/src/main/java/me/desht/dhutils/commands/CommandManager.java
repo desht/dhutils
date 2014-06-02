@@ -1,10 +1,7 @@
 package me.desht.dhutils.commands;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import me.desht.dhutils.*;
 import me.desht.dhutils.commands.AbstractCommand.CommandRecord;
@@ -18,7 +15,7 @@ import org.bukkit.plugin.Plugin;
 import com.google.common.base.Joiner;
 
 public class CommandManager {
-	private static final List<String> EMPTY_STRING_LIST = new ArrayList<String>();
+	private static final List<String> EMPTY_STRING_LIST = Collections.emptyList();
 
 	private final List<AbstractCommand> cmdList = new ArrayList<AbstractCommand>();
 	private Plugin plugin;
