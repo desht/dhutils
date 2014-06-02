@@ -1,81 +1,81 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>me.desht</groupId>
-  <artifactId>dhutils-parent</artifactId>
-  <packaging>pom</packaging>
-  <version>parent</version>
-  <name>DH Utils</name>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <description>Collection of useful classes I use in my plugins</description>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>me.desht</groupId>
+    <artifactId>dhutils-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>parent</version>
+    <name>DH Utils</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <description>Collection of useful classes I use in my plugins</description>
 
-  <scm>
-    <connection>scm:git:git://github.com/desht/dhutils.git</connection>
-    <developerConnection>scm:git:git@github.com:desht/desht.git</developerConnection>
-    <url>https://github.com/desht/dhutils</url>
-  </scm>
+    <scm>
+        <connection>scm:git:git://github.com/desht/dhutils.git</connection>
+        <developerConnection>scm:git:git@github.com:desht/desht.git</developerConnection>
+        <url>https://github.com/desht/dhutils</url>
+    </scm>
 
-  <distributionManagement>        
-    <repository>            
-      <id>dropbox</id>                        
-      <url>file://${user.home}/Dropbox/Public/maven-repo</url>                      
-    </repository>           
-  </distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>dropbox</id>
+            <url>file://${user.home}/Dropbox/Public/maven-repo</url>
+        </repository>
+    </distributionManagement>
 
-  <licenses>
-    <license>
-      <name>GNU LESSER GENERAL PUBLIC LICENSE - Version 3, 29 June 2007</name>
-      <url>http://www.gnu.org/licenses/lgpl.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>GNU LESSER GENERAL PUBLIC LICENSE - Version 3, 29 June 2007</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-  <developers>
-    <developer>
-      <id>desht</id>
-      <name>Des Herriott</name>
-      <email>des.herriott@gmail.com</email>
-      <url>http://github.com/desht</url>
-      <roles>
-        <role>developer</role>
-        <role>maintainer</role>
-      </roles>
-      <timezone>1</timezone>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>desht</id>
+            <name>Des Herriott</name>
+            <email>des.herriott@gmail.com</email>
+            <url>http://github.com/desht</url>
+            <roles>
+                <role>developer</role>
+                <role>maintainer</role>
+            </roles>
+            <timezone>1</timezone>
+        </developer>
+    </developers>
 
-  <modules>
-    <module>API</module>
-    <module>PreRefactor</module>
-    <module>v1_4_5</module>
-    <module>v1_4_6</module>
-    <module>v1_4_R1</module>
-    <module>v1_5_R1</module>
-    <module>v1_5_R2</module>
-    <module>v1_5_R3</module>
-    <module>v1_6_R1</module>
-    <module>v1_6_R2</module>
-    <module>v1_6_R3</module>
-    <module>v1_7_R1</module>
-    <module>v1_7_R2</module>
-    <module>v1_7_R3</module>
-    <module>Fallback</module>
-    <module>Lib</module>
-  </modules>
+    <modules>
+        <module>API</module>
+        <module>PreRefactor</module>
+        <module>v1_4_5</module>
+        <module>v1_4_6</module>
+        <module>v1_4_R1</module>
+        <module>v1_5_R1</module>
+        <module>v1_5_R2</module>
+        <module>v1_5_R3</module>
+        <module>v1_6_R1</module>
+        <module>v1_6_R2</module>
+        <module>v1_6_R3</module>
+        <module>v1_7_R1</module>
+        <module>v1_7_R2</module>
+        <module>v1_7_R3</module>
+        <module>Fallback</module>
+        <module>Lib</module>
+    </modules>
 
-  <!-- Define the repo here since multiple modules will be using it -->
-  <repositories>
-    <repository>
-      <id>bukkit-repo</id>
-      <url>http://repo.bukkit.org/content/groups/public</url>
-    </repository>
-  </repositories>
+    <!-- Define the repo here since multiple modules will be using it -->
+    <repositories>
+        <repository>
+            <id>bukkit-repo</id>
+            <url>http://repo.bukkit.org/content/groups/public</url>
+        </repository>
+    </repositories>
 
-  <build>
-      <plugins>
-           <plugin>
+    <build>
+        <plugins>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
@@ -84,23 +84,43 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <additionalparam>-Xdoclint:none</additionalparam>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-      </plugins>
-  </build>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <version>3.3</version>
+                        <configuration>
+                            <reportPlugins>
+                                <plugin>
+                                    <groupId>org.apache.maven.plugins</groupId>
+                                    <artifactId>maven-javadoc-plugin</artifactId>
+                                    <configuration>
+                                        <additionalparam>-Xdoclint:none</additionalparam>
+                                    </configuration>
+                                </plugin>
+                            </reportPlugins>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
 
