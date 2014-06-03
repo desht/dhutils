@@ -72,7 +72,6 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 
 	public void notifyClients() {
 		if (relightingStrategy == RelightingStrategy.DEFERRED || relightingStrategy == RelightingStrategy.HYBRID) {
-            System.out.println("Starting lighting");
 			relightTask = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
 		}
         if (relightingStrategy != RelightingStrategy.DEFERRED) {
@@ -83,7 +82,6 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 	}
 
 	public void run() {
-        System.out.println(deferredBlocks.size());
 		long now = System.nanoTime();
 		int n = 1;
 
@@ -101,11 +99,9 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 		}
 
 		if (deferredBlocks.isEmpty()) {
-            System.out.println("Done with lighting");
 			relightTask.cancel();
 			relightTask = null;
             Set<ChunkCoords> touched = calculateChunks();
-            System.out.println("Refreshing chunks: " + touched.size());
 			for (ChunkCoords cc : touched) {
 				world.refreshChunk(cc.x, cc.z);
 			}
