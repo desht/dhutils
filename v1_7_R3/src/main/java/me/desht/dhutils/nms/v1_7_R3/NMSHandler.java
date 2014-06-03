@@ -10,6 +10,8 @@ import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.lang.reflect.Method;
+
 public class NMSHandler implements NMSAbstraction {
 
 	@Override
@@ -34,14 +36,14 @@ public class NMSHandler implements NMSAbstraction {
             return false;
         } else {
             boolean flag = false;
-            ChunkSection chunksection = ((ChunkSection[])ReflectionUtil.getProtectedValue(that, "sections"))[j >> 4];
+            ChunkSection chunksection = that.i()[j >> 4];
 
             if (chunksection == null) {
                 if (block == Blocks.AIR) {
                     return false;
                 }
 
-                chunksection = ((ChunkSection[])ReflectionUtil.getProtectedValue(that, "sections"))[j >> 4] = new ChunkSection(j >> 4 << 4, !that.world.worldProvider.g);
+                chunksection = that.i()[j >> 4] = new ChunkSection(j >> 4 << 4, !that.world.worldProvider.g);
                 flag = j >= j1;
             }
 
@@ -169,18 +171,46 @@ public class NMSHandler implements NMSAbstraction {
 
         if (j2 > 0) {
             if (j >= maxY) {
-                ReflectionUtil.invokeProtectedMethod(nmsChunk, "h", i, j + 1, k);
+                invokeNmsH(nmsChunk, i, j + 1, k);
             }
         } else if (j == maxY - 1) {
-            ReflectionUtil.invokeProtectedMethod(nmsChunk, "h",i, j, k);
+            invokeNmsH(nmsChunk,i, j, k);
         }
 
         if (nmsChunk.getBrightness(EnumSkyBlock.SKY, i, j, k) > 0 || nmsChunk.getBrightness(EnumSkyBlock.BLOCK, i, j, k) > 0) {
-            ReflectionUtil.invokeProtectedMethod(nmsChunk, "e", i, k);
+            invokeNmsE(nmsChunk, i, k);
         }
 
         net.minecraft.server.v1_7_R3.World w = ((CraftWorld) world).getHandle();
         w.c(EnumSkyBlock.BLOCK, i, j, k);
+    }
+
+    private Method h;
+    private void invokeNmsH(Chunk nmsChunk, int i, int j, int k) {
+        try {
+            if (h == null) {
+                Class[] classes = {int.class, int.class, int.class};
+                h = Chunk.class.getDeclaredMethod("h", classes);
+                h.setAccessible(true);
+            }
+            h.invoke(nmsChunk, i, j, k);
+        } catch (Exception e) {
+            System.out.println("Reflection exception: " + e);
+        }
+    }
+
+    private Method e;
+    private void invokeNmsE(Chunk nmsChunk, int i, int j) {
+        try {
+            if (e == null) {
+                Class[] classes = {int.class, int.class};
+                e = Chunk.class.getDeclaredMethod("e", classes);
+                e.setAccessible(true);
+            }
+            e.invoke(nmsChunk, i, j);
+        } catch (Exception e) {
+            System.out.println("Reflection exception: " + e);
+        }
     }
 
     private boolean canAffectLighting(World world, int x, int y, int z) {
