@@ -1,5 +1,6 @@
 package me.desht.dhutils;
 
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -20,7 +21,10 @@ import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 public class ItemGlow {
 	private static boolean inited = false;
 
-	private static final Enchantment GLOW_FLAG = Enchantment.SILK_TOUCH;
+    // use this enchantment on most items
+	private static final Enchantment GLOW_FLAG = Enchantment.ARROW_INFINITE;
+    // use this enchantment on bows, where Infinity actually means something
+    private static final Enchantment GLOW_FLAG_2 = Enchantment.PROTECTION_FALL;
 	private static final int GLOW_FLAG_LEVEL = 32;
 
 	/**
@@ -53,13 +57,15 @@ public class ItemGlow {
 		if (!inited) {
 			throw new IllegalStateException("ItemGlow system has not been initialised.  Call ItemGlow.init(plugin) first.");
 		}
+        Enchantment flag = getFlag(stack);
 		if (glowing) {
 			// if the item already has a real enchantment, let's not overwrite it!
-			if (!stack.getItemMeta().hasEnchant(GLOW_FLAG)) {
-				stack.addUnsafeEnchantment(GLOW_FLAG, GLOW_FLAG_LEVEL);
+			if (!stack.getItemMeta().hasEnchant(flag)) {
+                System.out.println("adding enchant to " + stack + " - " + flag);
+                stack.addUnsafeEnchantment(flag, GLOW_FLAG_LEVEL);
 			}
-		} else if (stack.getEnchantmentLevel(GLOW_FLAG) == GLOW_FLAG_LEVEL) {
-			stack.removeEnchantment(GLOW_FLAG);
+		} else if (stack.getEnchantmentLevel(flag) == GLOW_FLAG_LEVEL) {
+			stack.removeEnchantment(flag);
 		}
 	}
 
@@ -70,18 +76,22 @@ public class ItemGlow {
      * @return true if the stack will glow; false otherwise
      */
     public static boolean hasGlow(ItemStack stack) {
-        return stack.getEnchantmentLevel(GLOW_FLAG) == GLOW_FLAG_LEVEL;
+        return stack.getEnchantmentLevel(getFlag(stack)) == GLOW_FLAG_LEVEL;
     }
 
 	private static void addGlow(ItemStack[] stacks) {
 		for (ItemStack stack : stacks) {
 			if (stack != null) {
 				// Only update those stacks that have our flag enchantment
-				if (stack.getEnchantmentLevel(GLOW_FLAG) == 32) {
+				if (stack.getEnchantmentLevel(getFlag(stack)) == 32) {
 					NbtCompound compound = (NbtCompound) NbtFactory.fromItemTag(stack);
 					compound.put(NbtFactory.ofList("ench"));
 				}
 			}
 		}
 	}
+
+    private static Enchantment getFlag(ItemStack item) {
+        return item.getType() == Material.BOW ? GLOW_FLAG_2 : GLOW_FLAG;
+    }
 }
