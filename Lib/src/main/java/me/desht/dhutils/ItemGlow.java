@@ -61,7 +61,6 @@ public class ItemGlow {
 		if (glowing) {
 			// if the item already has a real enchantment, let's not overwrite it!
 			if (!stack.getItemMeta().hasEnchant(flag)) {
-                System.out.println("adding enchant to " + stack + " - " + flag);
                 stack.addUnsafeEnchantment(flag, GLOW_FLAG_LEVEL);
 			}
 		} else if (stack.getEnchantmentLevel(flag) == GLOW_FLAG_LEVEL) {
