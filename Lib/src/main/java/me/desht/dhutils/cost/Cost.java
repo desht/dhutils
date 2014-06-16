@@ -118,10 +118,40 @@ public abstract class Cost {
 		return true;
 	}
 
+    /**
+     * Get a printable description of what this cost is, suitable for display
+     * to a player.
+     *
+     * @return a printable description of the cost
+     */
 	public abstract String getDescription();
-	public abstract boolean isAffordable(Player player);
+
+    /**
+     * Check if this cost is affordable to the player.
+     *
+     * @param player the player to check for
+     * @return true if the player can afford this cost; false otherwise
+     */
+    public abstract boolean isAffordable(Player player);
+
+    /**
+     * Apply this cost to the player.  This will take whatever resources the
+     * implementing costs specifies.  A check for affordability is not done here;
+     * {@link #isAffordable(org.bukkit.entity.Player)} should be called just before
+     * this call is made.
+     *
+     * @param player the player to take the cost from
+     */
 	public abstract void apply(Player player);
 
+    /**
+     * Check if applying this cost to the given player actually makes sense.
+     * For example a durability cost would not make sense if the item specified
+     * does not have a damage bar.
+     *
+     * @param player the player to check for
+     * @return true if the cost makes sense; false otherwise
+     */
 	public boolean isApplicable(Player player) {
 		return true;
 	}

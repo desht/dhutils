@@ -1,18 +1,12 @@
 package me.desht.dhutils.cost;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-import me.desht.dhutils.MiscUtil;
-
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemCost extends Cost {
 	private final ItemStack toMatch;
@@ -73,70 +67,146 @@ public class ItemCost extends Cost {
 
 	@Override
 	public boolean isAffordable(Player player) {
-		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(getMaterial());
-		int remainingCheck = (int) getQuantity();
-		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
-			if (matches(entry.getValue())) {
-				remainingCheck -= entry.getValue().getAmount();
-				if (remainingCheck <= 0)
-					break;
-			}
-		}
-		return remainingCheck <= 0;
+        int remainingCheck = (int) getQuantity();
+        return getRemaining(remainingCheck, player.getInventory()) <= 0;
 	}
+
+    /**
+     * Check if this item cost can be met from the player's inventory and zero
+     * or more supplementary inventories.
+     *
+     * @param player the player to check
+     * @param playerFirst true if the player's inventory should be checked before the extra inventories
+     * @param extraInventories zero or more Inventory objects
+     * @return true if the cost can be met; false otherwise
+     */
+    public boolean isAffordable(Player player, boolean playerFirst, Inventory... extraInventories) {
+        List<Inventory> invs = new ArrayList<Inventory>(extraInventories.length + 1);
+        if (playerFirst) {
+            invs.add(player.getInventory());
+            invs.addAll(Arrays.asList(extraInventories));
+        } else {
+            invs.addAll(Arrays.asList(extraInventories));
+            invs.add(player.getInventory());
+        }
+        int remainingCheck = (int) getQuantity();
+        for (Inventory inv : invs) {
+            remainingCheck = getRemaining(remainingCheck, inv);
+            if (remainingCheck <= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int getRemaining(int remainingCheck, Inventory inv) {
+        HashMap<Integer, ? extends ItemStack> matchingInvSlots = inv.all(getMaterial());
+        for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
+            if (matches(entry.getValue())) {
+                remainingCheck -= entry.getValue().getAmount();
+                if (remainingCheck <= 0)
+                    break;
+            }
+        }
+        return remainingCheck;
+    }
 
 	@Override
 	public void apply(Player player) {
         if (getQuantity() > 0) {
-            chargeItems(player);
+            chargeItems(player.getInventory());
         } else {
-            grantItems(player);
+            dropped = addItems(player.getInventory());
+            dropExcess(player, dropped);
         }
         player.updateInventory();
 	}
 
-	private void grantItems(Player player) {
-		if (player == null) {
-			return;
-		}
+    /**
+     * Apply this cost to the given player plus zero or more supplementary inventories.
+     *
+     * @param player the player to give or take items from
+     * @param playerFirst if true, then the player's inventory will be modified first
+     * @param extraInventories zero or more supplementary inventories to give or take items from
+     */
+    public void apply(Player player, boolean playerFirst, Inventory... extraInventories) {
+        Inventory[] invs = new Inventory[extraInventories.length + 1];
+        if (playerFirst) {
+            invs[0] = player.getInventory();
+            System.arraycopy(extraInventories, 0, invs, 1, extraInventories.length);
+        } else {
+            System.arraycopy(extraInventories, 0, invs, 0, extraInventories.length);
+            invs[extraInventories.length] = player.getInventory();
+        }
 
-		int maxStackSize = player.getInventory().getMaxStackSize();
-		int quantity = (int) -getQuantity();
+        if (getQuantity() > 0) {
+            chargeItems(invs);
+        } else {
+            dropped = addItems(invs);
+            dropExcess(player, dropped);
+        }
+    }
 
-		dropped = 0;
+    private int addItems(Inventory... inventories) {
+        int remaining = (int) -getQuantity();
+        for (Inventory inv : inventories) {
+            remaining = addToOneInventory(inv, remaining);
+            if (remaining == 0) {
+                break;
+            }
+        }
+        return remaining;
+    }
+
+    private int chargeItems(Inventory... inventories) {
+        int remaining = (int) getQuantity();
+
+        for (Inventory inv : inventories) {
+            remaining = takeFromOneInventory(inv, remaining);
+            if (remaining == 0) {
+                break;
+            }
+        }
+        return remaining;
+    }
+
+	private int addToOneInventory(Inventory inventory, int quantity) {
+		int maxStackSize = inventory.getMaxStackSize();
+
 		while (quantity > maxStackSize) {
-			dropped += addItems(player, maxStackSize);
+            Map<Integer, ItemStack> toDrop = inventory.addItem(new ItemStack(getMaterial(), maxStackSize, getData()));
+            if (!toDrop.isEmpty()) {
+                // this inventory is full; return the number of items that could not be added
+                return toDrop.get(0).getAmount() + (quantity - maxStackSize);
+            }
 			quantity -= maxStackSize;
 		}
-		dropped += addItems(player, quantity);
+        Map<Integer, ItemStack> toDrop = inventory.addItem(new ItemStack(getMaterial(), quantity, getData()));
+        return toDrop.isEmpty() ? 0 : toDrop.get(0).getAmount();
 	}
 
-	private void chargeItems(Player player) {
-		if (player == null) {
-			return;
-		}
-
+	private int takeFromOneInventory(Inventory inventory, int quantity) {
         taken.clear();
 
-		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(getMaterial());
+		HashMap<Integer, ? extends ItemStack> matchingInvSlots = inventory.all(getMaterial());
 
-		int remainingCheck = (int) getQuantity();
 		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
 			if (matches(entry.getValue())) {
-				remainingCheck -= entry.getValue().getAmount();
-				if (remainingCheck < 0) {
-					entry.getValue().setAmount(-remainingCheck);
+                quantity -= entry.getValue().getAmount();
+				if (quantity < 0) {
+					entry.getValue().setAmount(-quantity);
                     taken.add(entry.getValue().clone());
 					break;
 				} else {
-					player.getInventory().removeItem(entry.getValue());
+                    inventory.removeItem(entry.getValue());
                     taken.add(entry.getValue().clone());
 				}
-                if (remainingCheck == 0) {
+                if (quantity == 0) {
                     break;
                 }
 			}
 		}
+        return quantity;
 	}
 
 	private boolean matches(ItemStack stack) {
@@ -158,21 +228,11 @@ public class ItemCost extends Cost {
 		}
 	}
 
-	private ItemStack makeStack(int quantity) {
-		return new ItemStack(getMaterial(), quantity, getData());
-	}
-
-	private int addItems(Player player, int quantity) {
-		Map<Integer, ItemStack> toDrop = player.getInventory().addItem(makeStack(quantity));
-		if (toDrop.size() == 0) {
-			return 0;
-		}
-
-		int dropped = 0;
-		for (ItemStack is : toDrop.values()) {
-			player.getWorld().dropItemNaturally(player.getLocation(), is);
-			dropped += is.getAmount();
-		}
-		return dropped;
+	private void dropExcess(Player player, int nToDrop) {
+        while (nToDrop > 0) {
+            ItemStack stack = new ItemStack(getMaterial(), Math.min(nToDrop, getMaterial().getMaxStackSize()), getData());
+            player.getWorld().dropItemNaturally(player.getLocation(), stack);
+            nToDrop -= getMaterial().getMaxStackSize();
+        }
 	}
 }
