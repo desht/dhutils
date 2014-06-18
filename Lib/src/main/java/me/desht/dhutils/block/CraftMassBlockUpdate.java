@@ -1,18 +1,19 @@
 package me.desht.dhutils.block;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.nms.api.NMSAbstraction;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 	private final Plugin plugin;
@@ -61,7 +62,7 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 				// lighting or light blocking by this block has changed; force a recalculation
 				if (relightingStrategy == RelightingStrategy.IMMEDIATE) {
 					nms.recalculateBlockLighting(world, x, y, z);
-				} else if (relightingStrategy == RelightingStrategy.DEFERRED) {
+				} else if (relightingStrategy == RelightingStrategy.DEFERRED || relightingStrategy == RelightingStrategy.HYBRID) {
 					deferredBlocks.add(new DeferredBlock(x, y, z));
 				}
 			}
@@ -70,9 +71,10 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 	}
 
 	public void notifyClients() {
-		if (relightingStrategy == RelightingStrategy.DEFERRED) {
+		if (relightingStrategy == RelightingStrategy.DEFERRED || relightingStrategy == RelightingStrategy.HYBRID) {
 			relightTask = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
-		} else {
+		}
+        if (relightingStrategy != RelightingStrategy.DEFERRED) {
 			for (ChunkCoords cc : calculateChunks()) {
 				world.refreshChunk(cc.x, cc.z);
 			}
@@ -85,18 +87,22 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 
 		while (deferredBlocks.peek() != null) {
 			DeferredBlock db = deferredBlocks.poll();
-			nms.recalculateBlockLighting(world, db.x, db.y, db.z);
-			if (n++ % MAX_BLOCKS_PER_TIME_CHECK == 0) {
-				if (System.nanoTime() - now > maxRelightTimePerTick) {
-					break;
-				}
-			}
+            // Don't consider blocks that are completely surrounded by other non-transparent blocks
+            if (canAffectLighting(world, db.x, db.y, db.z)) {
+                nms.recalculateBlockLighting(world, db.x, db.y, db.z);
+                if (n++ % MAX_BLOCKS_PER_TIME_CHECK == 0) {
+                    if (System.nanoTime() - now > maxRelightTimePerTick) {
+                        break;
+                    }
+                }
+            }
 		}
 
 		if (deferredBlocks.isEmpty()) {
 			relightTask.cancel();
 			relightTask = null;
-			for (ChunkCoords cc : calculateChunks()) {
+            Set<ChunkCoords> touched = calculateChunks();
+			for (ChunkCoords cc : touched) {
 				world.refreshChunk(cc.x, cc.z);
 			}
 		}
@@ -119,15 +125,32 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 			// resizing an existing buffer is not supported
 			throw new IllegalStateException("setDeferredBufferSize() called after block updates made");
 		}
-		if (relightingStrategy != RelightingStrategy.DEFERRED) {
+		if (relightingStrategy != RelightingStrategy.DEFERRED && relightingStrategy != RelightingStrategy.HYBRID) {
 			// reduce accidental memory wastage if called when not needed
-			throw new IllegalStateException("setDeferredBufferSize() called when relighting strategy not DEFERRED");
+			throw new IllegalStateException("setDeferredBufferSize() called when relighting strategy not DEFERRED or HYBRID");
 		}
 		deferredBlocks = new ArrayDeque<CraftMassBlockUpdate.DeferredBlock>(size);
 	}
 
-	private List<ChunkCoords> calculateChunks() {
-		List<ChunkCoords> res = new ArrayList<ChunkCoords>();
+    private boolean canAffectLighting(World world, int x, int y, int z) {
+        Block base  = world.getBlockAt(x, y, z);
+        Block east  = base.getRelative(BlockFace.EAST);
+        Block west  = base.getRelative(BlockFace.WEST);
+        Block up    = base.getRelative(BlockFace.UP);
+        Block down  = base.getRelative(BlockFace.DOWN);
+        Block south = base.getRelative(BlockFace.SOUTH);
+        Block north = base.getRelative(BlockFace.NORTH);
+
+        return east.getType().isTransparent() ||
+                west.getType().isTransparent() ||
+                up.getType().isTransparent() ||
+                down.getType().isTransparent() ||
+                south.getType().isTransparent() ||
+                north.getType().isTransparent();
+    }
+
+	private Set<ChunkCoords> calculateChunks() {
+		Set<ChunkCoords> res = new HashSet<ChunkCoords>();
 		if (blocksModified == 0) {
 			return res;
 		}
@@ -157,7 +180,27 @@ public class CraftMassBlockUpdate implements MassBlockUpdate, Runnable {
 			this.x = x;
 			this.z = z;
 		}
-	}
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ChunkCoords that = (ChunkCoords) o;
+
+            if (x != that.x) return false;
+            if (z != that.z) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = x;
+            result = 31 * result + z;
+            return result;
+        }
+    }
 
 	private class DeferredBlock {
 		public final int x, y, z;
