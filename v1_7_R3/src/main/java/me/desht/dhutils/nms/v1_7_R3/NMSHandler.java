@@ -89,7 +89,7 @@ public class NMSHandler implements NMSAbstraction {
                 }
 
                 // CraftBukkit - Don't place while processing the BlockPlaceEvent, unless it's a BlockContainer
-                if (!that.world.isStatic && (!that.world.callingPlaceEvent || (block instanceof BlockContainer))) {
+                if (!that.world.isStatic && (!that.world.captureBlockStates || (block instanceof BlockContainer))) {
                     block.onPlace(that.world, l1, j, i2);
                 }
 
