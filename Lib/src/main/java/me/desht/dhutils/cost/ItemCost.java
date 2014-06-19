@@ -99,7 +99,7 @@ public class ItemCost extends Cost {
         return false;
     }
 
-    private int getRemaining(int remainingCheck, Inventory inv) {
+    protected int getRemaining(int remainingCheck, Inventory inv) {
         HashMap<Integer, ? extends ItemStack> matchingInvSlots = inv.all(getMaterial());
         for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
             if (matches(entry.getValue())) {
@@ -159,6 +159,8 @@ public class ItemCost extends Cost {
     }
 
     private int chargeItems(Inventory... inventories) {
+        taken.clear();
+
         int remaining = (int) getQuantity();
 
         for (Inventory inv : inventories) {
@@ -186,8 +188,6 @@ public class ItemCost extends Cost {
 	}
 
 	private int takeFromOneInventory(Inventory inventory, int quantity) {
-        taken.clear();
-
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = inventory.all(getMaterial());
 
 		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
@@ -209,7 +209,7 @@ public class ItemCost extends Cost {
         return quantity;
 	}
 
-	private boolean matches(ItemStack stack) {
+	protected boolean matches(ItemStack stack) {
 		if (toMatch.getType() != stack.getType()) {
 			return false;
 		} else if (matchData && toMatch.getData().getData() != stack.getData().getData()) {
