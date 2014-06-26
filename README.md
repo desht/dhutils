@@ -25,34 +25,33 @@ DHUtils is intended to be used with Maven, and to be shaded into your plugin.  T
      
 To shade it into your plugin:
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <minimizeJar>true</minimizeJar>
-                            <relocations>
-                                <relocation>
-                                    <pattern>me.desht.dhutils</pattern>
-                                    <shadedPattern>YOUR.PLUGIN.PACKAGE.dhutils</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <minimizeJar>true</minimizeJar>
+                        <relocations>
+                            <relocation>
+                                <pattern>me.desht.dhutils</pattern>
+                                <shadedPattern>YOUR.PLUGIN.PACKAGE.dhutils</shadedPattern>
+                            </relocation>
+                        </relocations>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
 
 ## License
 
-DHUtils is licensed under the LGPL.  You may use it freely in your own plugins, but you must make the source to any modified
-versions of DHUtils.
+DHUtils is licensed under the LGPL.  You may use it freely in your own plugins, but you must make available the source to any modified
+versions of DHUtils that you distribute in your own plugins.
 
 DHUtils also contains code from the following Bukkit developers:
 
