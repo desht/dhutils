@@ -21,7 +21,7 @@ public class ItemNames {
             .put("1:3", "Diorite")
             .put("1:4", "Polished Diorite")
             .put("1:5", "Andesite")
-            .put("1:4", "Polished Andesite")
+            .put("1:6", "Polished Andesite")
             .put("2", "Grass Block")
             .put("3", "Dirt")
             .put("3:1", "Coarse Dirt")
