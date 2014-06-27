@@ -14,15 +14,24 @@ You will need Maven.
 
 DHUtils is intended to be used with Maven, and to be shaded into your plugin.  To add it as a Maven dependency:
 
+     <repositories>
+       <repository>
+          <id>hawkfalcon-repo</id>
+          <name>Hawkfalcon Repository</name>
+          <url>http://ci.hawkfalcon.com/plugin/repository/everything</url>
+       </repository>
+       <!-- ...other repositories... -->
+     </repositories>
+
      <dependencies>
        <dependency>
             <groupId>me.desht</groupId>
             <artifactId>dhutils-lib</artifactId>
-            <version>[2.0.0,)</version>
+            <version>LATEST</version>
         </dependency>
-        <!-- other dependencies... -->
+        <!-- ...other dependencies... -->
      </dependencies>
-     
+
 To shade it into your plugin:
 
         <plugin>
