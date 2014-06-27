@@ -505,9 +505,9 @@ public class ItemNames {
             .put("2267", "Music Disk (wait)")
             .build();
 
-    public static String lookup(ItemStack is) {
-        if (is.hasItemMeta()) {
-            ItemMeta meta = is.getItemMeta();
+    public static String lookup(ItemStack stack) {
+        if (stack.hasItemMeta()) {
+            ItemMeta meta = stack.getItemMeta();
             if (meta.getDisplayName() != null) {
                 return meta.getDisplayName();
             } else if (meta instanceof BookMeta) {
@@ -516,23 +516,28 @@ public class ItemNames {
         }
 
         String result;
-        String key = Integer.toString(is.getTypeId());
-        Material mat = is.getType();
-        if ((mat == Material.WOOL || mat == Material.CARPET) && is.getDurability() == 0) {
+        String key = Integer.toString(stack.getTypeId());
+        Material mat = stack.getType();
+        if ((mat == Material.WOOL || mat == Material.CARPET) && stack.getDurability() == 0) {
             // special case: white wool/carpet is just called "Wool" or "Carpet"
             result = map.get(key);
         } else if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
-            DyeColor dc = DyeColor.getByWoolData((byte)is.getDurability());
+            DyeColor dc = DyeColor.getByWoolData((byte)stack.getDurability());
             result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString()) + " " + map.get(key);
-        } else if (is.getDurability() != 0) {
-            result = map.get(key + ":" + is.getDurability());
+        } else if (stack.getDurability() != 0) {
+            result = map.get(key + ":" + stack.getDurability());
             if (result == null) {
                 result = map.get(key);
             }
         } else {
-            result = map.containsKey(key) ? map.get(key) : is.getType().toString();
+            result = map.containsKey(key) ? map.get(key) : stack.getType().toString();
         }
 
         return result;
+    }
+
+    public static String lookupWithAmount(ItemStack stack) {
+        String s = lookup(stack);
+        return stack.getAmount() + " x " + s;
     }
 }
