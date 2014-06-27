@@ -483,7 +483,7 @@ public class ItemNames {
     	    .put("383:96", "Spawn Mooshroom")	    
     	    .put("383:98", "Spawn Ocelot")	    
     	    .put("383:100", "Spawn Horse")
-    	    .put("383:120", "Villager")
+    	    .put("383:120", "Spawn Villager")
             .put("384", "Bottle o' Enchanting")
             .put("385", "Fire Charge")
             .put("386", "Book and Quill")
