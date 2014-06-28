@@ -53,6 +53,8 @@ public class ItemNames {
             .put("17:1", "Spruce Wood")
             .put("17:2", "Birch Wood")
             .put("17:3", "Jungle Wood")
+            .put("17:4", "Acacia Wood")
+            .put("17:5", "Dark Oak Wood")
             .put("18", "Oak Leaves")
             .put("18:1", "Spruce Leaves")
             .put("18:2", "Birch Leaves")
