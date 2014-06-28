@@ -446,7 +446,7 @@ public class ItemNames {
             .put("373:16425", "Strength Splash II (1:07)")
             .put("373:16428", "Harming Splash II")
             .put("373:16429", "Water Breathing Splash (2:15)")
-            .put("373:16430 ", "Invisibility Splash (2:15)")
+            .put("373:16430", "Invisibility Splash (2:15)")
             .put("373:16449", "Regeneration Splash (1:30)")
             .put("373:16450", "Swiftness Splash (6:00)")
             .put("373:16451", "Fire Resistance Splash (6:00)")
