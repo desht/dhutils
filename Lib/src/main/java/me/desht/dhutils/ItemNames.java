@@ -59,6 +59,7 @@ public class ItemNames {
             .put("18:1", "Spruce Leaves")
             .put("18:2", "Birch Leaves")
             .put("18:3", "Jungle Leaves")
+            .put("18:3", "Jungle Leaves")
             .put("19", "Sponge")
             .put("20", "Glass")
             .put("21", "Lapis Lazuli Ore")
