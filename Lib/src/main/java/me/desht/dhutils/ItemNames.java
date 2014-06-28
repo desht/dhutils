@@ -234,8 +234,6 @@ public class ItemNames {
             .put("155", "Quartz Block")
             .put("155:1", "Chiseled Quartz Block")
             .put("155:2", "Pillar Quartz Block")
-            .put("155:3", "Pillar Quartz Block")
-            .put("155:4", "Pillar Quartz Block")
             .put("156", "Quartz Stairs")
             .put("157", "Activator Rail")
             .put("158", "Dropper")
