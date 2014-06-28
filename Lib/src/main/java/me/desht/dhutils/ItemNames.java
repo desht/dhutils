@@ -329,6 +329,7 @@ public class ItemNames {
             .put("320", "Cooked Porkchop")
             .put("321", "Painting")
             .put("322", "Gold Apple")
+            .put("322:1", "Gold Apple (Enchanted)")
             .put("323", "Sign")
             .put("324", "Wooden Door")
             .put("325", "Bucket")
