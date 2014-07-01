@@ -596,9 +596,9 @@ public class ItemNames {
             DyeColor dc = DyeColor.getByWoolData((byte)stack.getDurability());
             result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString().replace("_", " ")) + " " + map.get(key);
         } else if (mat == Material.LEATHER_HELMET || mat == Material.LEATHER_CHESTPLATE || mat == Material.LEATHER_LEGGINGS || mat == Material.LEATHER_BOOTS) {
-        	LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) stack.getItemMeta();
+            LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) stack.getItemMeta();
         	DyeColor dc = DyeColor.getByColor(leatherArmorMeta.getColor());
-            result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString()).replace("_", " ") + " " + map.get(key);
+        	result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString()).replace("_", " ") + " " + map.get(key);
         } else if (stack.getDurability() != 0) {
             result = map.get(key + ":" + stack.getDurability());
             if (result == null) {
