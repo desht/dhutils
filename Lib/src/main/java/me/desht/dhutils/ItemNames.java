@@ -595,6 +595,10 @@ public class ItemNames {
         } else if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
             DyeColor dc = DyeColor.getByWoolData((byte)stack.getDurability());
             result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString().replace("_", " ")) + " " + map.get(key);
+        } else if (mat == Material.LEATHER_HELMET || mat == Material.LEATHER_CHESTPLATE || mat == Material.LEATHER_LEGGINGS || mat == Material.LEATHER_BOOTS) {
+        	LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) stack.getItemMeta();
+        	DyeColor dc = DyeColor.getByColor(leatherArmorMeta.getColor());
+            result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString()).replace("_", " ") + " " + map.get(key);
         } else if (stack.getDurability() != 0) {
             result = map.get(key + ":" + stack.getDurability());
             if (result == null) {
