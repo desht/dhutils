@@ -167,7 +167,6 @@ public class ItemNames {
             .put("82", "Clay Block")
             .put("83", "Sugar Cane (Block)")
             .put("84", "Jukebox")
-            .put("84:1", "Jukebox with Disc")
             .put("85", "Fence")
             .put("86", "Pumpkin")
             .put("87", "Netherrack")
