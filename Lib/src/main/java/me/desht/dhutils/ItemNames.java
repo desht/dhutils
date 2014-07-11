@@ -433,6 +433,7 @@ public class ItemNames {
             .put("373:8200", "Weakness Potion (1:30)")
             .put("373:8201", "Strength Potion (3:00)")
             .put("373:8202", "Slowness Potion (1:30)")
+            .put("373:8203", "Potion of Leaping (3:00)")
             .put("373:8204", "Harming Potion")
             .put("373:8225", "Regeneration Potion II (0:22)")
             .put("373:8226", "Swiftness Potion II (1:30)")
@@ -440,6 +441,7 @@ public class ItemNames {
             .put("373:8229", "Healing Potion II")
             .put("373:8230", "Night Vision Potion (3:00)")
             .put("373:8233", "Strength Potion II (1:30)")
+            .put("373:8235", "Potion of Leaping (1:30)")
             .put("373:8236", "Harming Potion II")
             .put("373:8237", "Water Breathing Potion (3:00)")
             .put("373:8238", "Invisibility Potion (3:00)")
@@ -516,6 +518,7 @@ public class ItemNames {
     	    .put("383:96", "Spawn Mooshroom")	    
     	    .put("383:98", "Spawn Ocelot")	    
     	    .put("383:100", "Spawn Horse")
+    	    .put("383:101", "Spawn Rabbit")
     	    .put("383:120", "Spawn Villager")
             .put("384", "Bottle o' Enchanting")
             .put("385", "Fire Charge")
@@ -549,12 +552,19 @@ public class ItemNames {
             .put("408", "Minecart with Hopper")
             .put("409", "Prismarine Shard")
             .put("410", "Prismarine Crystals")
+            .put("411", "Raw Rabbit")
+            .put("412", "Cooked Rabbit")
+            .put("413", "Rabbit Stew")
+            .put("414", "Rabbit Foot")
+            .put("415", "Rabbit Hide")
             .put("417", "Iron Horse Armor")
             .put("418", "Gold Horse Armor")
             .put("419", "Diamond Horse Armor")
             .put("420", "Lead")
             .put("421", "Name Tag")
             .put("422", "Minecart with Command Block")
+            .put("423", "Raw Mutton")
+            .put("424", "Cooked Mutton")
             .put("2256", "Music Disk (13)")
             .put("2257", "Music Disk (Cat)")
             .put("2258", "Music Disk (Blocks)")
@@ -595,6 +605,10 @@ public class ItemNames {
         } else if (mat == Material.WOOL || mat == Material.CARPET || mat == Material.STAINED_CLAY || mat == Material.STAINED_GLASS || mat == Material.STAINED_GLASS_PANE) {
             DyeColor dc = DyeColor.getByWoolData((byte)stack.getDurability());
             result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString().replace("_", " ")) + " " + map.get(key);
+        } else if (mat == Material.LEATHER_HELMET || mat == Material.LEATHER_CHESTPLATE || mat == Material.LEATHER_LEGGINGS || mat == Material.LEATHER_BOOTS) {
+            LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) stack.getItemMeta();
+            DyeColor dc = DyeColor.getByColor(leatherArmorMeta.getColor());
+            result = dc == null ? map.get(key) : WordUtils.capitalizeFully(dc.toString()).replace("_", " ") + " " + map.get(key);
         } else if (stack.getDurability() != 0) {
             result = map.get(key + ":" + stack.getDurability());
             if (result == null) {
