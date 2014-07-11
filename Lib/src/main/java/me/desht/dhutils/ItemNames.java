@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.util.Map;
 
@@ -496,13 +497,13 @@ public class ItemNames {
     	    .put("383:50", "Spawn Creeper")
     	    .put("383:51", "Spawn Skeleton")
     	    .put("383:52", "Spawn Spider")
-    	    .put("383:54", "Spawn Zombie")	    
+    	    .put("383:54", "Spawn Zombie")
     	    .put("383:55", "Spawn Slime")
     	    .put("383:56", "Spawn Ghast")
     	    .put("383:57", "Spawn Pigman")
-    	    .put("383:58", "Spawn Enderman")    
-    	    .put("383:59", "Spawn Cave Spider")	    
-    	    .put("383:60", "Spawn Silverfish")	    
+    	    .put("383:58", "Spawn Enderman")
+    	    .put("383:59", "Spawn Cave Spider")
+    	    .put("383:60", "Spawn Silverfish")
     	    .put("383:61", "Spawn Blaze")
     	    .put("383:62", "Spawn Magma Cube")
     	    .put("383:65", "Spawn Bat")
@@ -515,8 +516,8 @@ public class ItemNames {
     	    .put("383:93", "Spawn Chicken")
     	    .put("383:94", "Spawn Squid")
     	    .put("383:95", "Spawn Wolf")
-    	    .put("383:96", "Spawn Mooshroom")	    
-    	    .put("383:98", "Spawn Ocelot")	    
+    	    .put("383:96", "Spawn Mooshroom")
+    	    .put("383:98", "Spawn Ocelot")
     	    .put("383:100", "Spawn Horse")
     	    .put("383:101", "Spawn Rabbit")
     	    .put("383:120", "Spawn Villager")
