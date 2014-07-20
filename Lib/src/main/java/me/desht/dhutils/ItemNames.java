@@ -620,6 +620,17 @@ public class ItemNames {
 
         return result;
     }
+    
+        /**
+     * Given an item stack, return a friendly printable name for the block, as
+     * the (English-language) vanilla Minecraft client would display it.
+     *
+     * @param block the block
+     * @return a friendly printable name for the block
+     */
+	public static String lookup(Block block) {
+		return lookup(new ItemStack(block.getType(), 1, block.getData()));
+	}
 
     /**
      * Given an item stack return a friendly name for the item, in the form
@@ -634,4 +645,5 @@ public class ItemNames {
         String s = lookup(stack);
         return stack.getAmount() + " x " + s;
     }
+    
 }
