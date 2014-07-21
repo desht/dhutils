@@ -630,9 +630,9 @@ public class ItemNames {
      * @param block the block
      * @return a friendly printable name for the block
      */
-	public static String lookup(Block block) {
-		return lookup(new ItemStack(block.getType(), 1, block.getData()));
-	}
+     public static String lookup(Block block) {
+     	return lookup(new ItemStack(block.getType(), 1, block.getData()));
+     }
 
     /**
      * Given an item stack return a friendly name for the item, in the form
