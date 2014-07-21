@@ -624,7 +624,7 @@ public class ItemNames {
     }
     
         /**
-     * Given an item stack, return a friendly printable name for the block, as
+     * Given a block, return a friendly printable name for the block, as
      * the (English-language) vanilla Minecraft client would display it.
      *
      * @param block the block
