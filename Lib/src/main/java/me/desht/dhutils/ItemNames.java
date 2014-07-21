@@ -434,7 +434,6 @@ public class ItemNames {
             .put("373:8200", "Weakness Potion (1:30)")
             .put("373:8201", "Strength Potion (3:00)")
             .put("373:8202", "Slowness Potion (1:30)")
-            .put("373:8203", "Potion of Leaping (3:00)")
             .put("373:8204", "Harming Potion")
             .put("373:8225", "Regeneration Potion II (0:22)")
             .put("373:8226", "Swiftness Potion II (1:30)")
@@ -442,7 +441,7 @@ public class ItemNames {
             .put("373:8229", "Healing Potion II")
             .put("373:8230", "Night Vision Potion (3:00)")
             .put("373:8233", "Strength Potion II (1:30)")
-            .put("373:8235", "Potion of Leaping (1:30)")
+            .put("373:8235", "Leaping Potion II (1:30)")
             .put("373:8236", "Harming Potion II")
             .put("373:8237", "Water Breathing Potion (3:00)")
             .put("373:8238", "Invisibility Potion (3:00)")
@@ -454,6 +453,7 @@ public class ItemNames {
             .put("373:8264", "Weakness Potion (4:00)")
             .put("373:8265", "Strength Potion (8:00)")
             .put("373:8266", "Slowness Potion (4:00)")
+            .put("373:8267", "Leaping Potion (3:00)")
             .put("373:8269", "Water Breathing Potion (8:00)")
             .put("373:8270", "Invisibility Potion (8:00)")
             .put("373:16378", "Fire Resistance Splash (2:15)")
@@ -470,6 +470,7 @@ public class ItemNames {
             .put("373:16421", "Healing Splash II")
             .put("373:16422", "Night Vision Splash (2:15)")
             .put("373:16425", "Strength Splash II (1:07)")
+            .put("373:16427", "Leaping Splash II (1:07)")
             .put("373:16428", "Harming Splash II")
             .put("373:16429", "Water Breathing Splash (2:15)")
             .put("373:16430", "Invisibility Splash (2:15)")
@@ -481,6 +482,7 @@ public class ItemNames {
             .put("373:16456", "Weakness Splash (3:00)")
             .put("373:16457", "Strength Splash (6:00)")
             .put("373:16458", "Slowness Splash (3:00)")
+            .put("373:16459", "Leaping Splash (2:15)")
             .put("373:16461", "Water Breathing Splash (6:00)")
             .put("373:16462", "Invisibility Splash (6:00)")
             .put("373:16471", "Regeneration Splash II (0:16)")
@@ -621,6 +623,17 @@ public class ItemNames {
 
         return result;
     }
+    
+        /**
+     * Given a block, return a friendly printable name for the block, as
+     * the (English-language) vanilla Minecraft client would display it.
+     *
+     * @param block the block
+     * @return a friendly printable name for the block
+     */
+     public static String lookup(Block block) {
+     	return lookup(new ItemStack(block.getType(), 1, block.getData()));
+     }
 
     /**
      * Given an item stack return a friendly name for the item, in the form
@@ -635,4 +648,5 @@ public class ItemNames {
         String s = lookup(stack);
         return stack.getAmount() + " x " + s;
     }
+    
 }
