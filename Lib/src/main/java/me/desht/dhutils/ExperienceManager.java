@@ -73,9 +73,10 @@ public class ExperienceManager {
 
 		for (int i = 0; i < xpTotalToReachLevel.length; i++) {
 			xpTotalToReachLevel[i] = 
-					i >= 30 ? (int) (3.5 * i * i - 151.5 * i + 2220) :
-						i >= 16 ? (int) (1.5 * i * i - 29.5 * i + 360) : 
-							17 * i;
+					//New equation with 1.8
+					i >= 30 ? (int) (4.5 * i * i - 162.5 * i + 2220) :
+						i >= 16 ? (int) (2.5 * i * i - 40.5 * i + 360) : 
+							(int)(i * i + 6 * i);
 		}
 	}
 
@@ -250,7 +251,8 @@ public class ExperienceManager {
 	 */
 	public int getXpNeededToLevelUp(int level) {
 		Validate.isTrue(level >= 0, "Level may not be negative.");
-		return level > 30 ? 62 + (level - 30) * 7 : level >= 16 ? 17 + (level - 15) * 3 : 17;
+		//New equation with 1.8
+		return level > 30 ? 9 * level - 158 : level >= 16 ? 5 * level - 38 : 2 * level + 7;
 	}
 
 	/**
